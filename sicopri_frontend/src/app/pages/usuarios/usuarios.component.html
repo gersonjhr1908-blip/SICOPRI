@@ -1,0 +1,437 @@
+<div class="usuarios-page">
+
+  <!-- CABECERA -->
+  <div class="usuarios-card">
+
+    <div class="titulo-container">
+
+      <div class="titulo-icono">
+        👥
+      </div>
+
+      <div>
+        <h2>
+          ADMINISTRACIÓN DE USUARIOS
+        </h2>
+
+        <p>
+          Gestión de usuarios y permisos del sistema
+        </p>
+      </div>
+
+    </div>
+
+
+    <!-- TOOLBAR -->
+    <div class="toolbar-usuarios">
+
+      <div class="buscador">
+
+        <span class="search-icon">
+          🔍
+        </span>
+
+        <input type="text" [(ngModel)]="search" (keyup.enter)="buscarUsuarios()" placeholder="Buscador dinámico..." />
+
+        <button *ngIf="search" type="button" class="btn-limpiar" (click)="limpiarBusqueda()">
+          ✕
+        </button>
+
+      </div>
+
+
+      <div class="toolbar-actions">
+
+        <div class="total-box">
+          👥
+          <span>
+            Total:
+            <strong>
+              {{ totalUsuarios }}
+            </strong>
+          </span>
+        </div>
+
+
+        <button type="button" class="btn-nuevo" (click)="abrirNuevoUsuario()">
+          ＋ Nuevo Usuario
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- TABLA -->
+    <div class="tabla-wrapper">
+
+      <table class="usuarios-table">
+
+        <thead>
+
+          <tr>
+            <th>CIP</th>
+            <th>USUARIO</th>
+
+            <th>
+              GRADO ARMA APELLIDOS Y NOMBRES
+            </th>
+
+            <th>ROL</th>
+
+            <th>ESTADO</th>
+
+            <th>F. ACCESO</th>
+
+            <th class="acciones-col">
+              ACCIONES
+            </th>
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <tr *ngFor="let usuario of usuarios">
+
+            <td>
+              {{ usuario.cip }}
+            </td>
+
+
+            <td class="usuario-cell">
+              {{ usuario.username }}
+            </td>
+
+
+            <td>
+
+              <strong>
+                {{ usuario.grado }}
+              </strong>
+
+              {{ usuario.arma }}
+
+              {{ usuario.fullname }}
+
+            </td>
+
+
+            <td>
+
+              <span class="rol-badge">
+                {{ obtenerRol(usuario) }}
+              </span>
+
+            </td>
+
+
+            <td>
+
+              <span class="estado-badge" [class.activo]="usuario.estado === 1" [class.inactivo]="usuario.estado !== 1">
+
+                {{
+                usuario.estado === 1
+                ? '● ACTIVO'
+                : '● INACTIVO'
+                }}
+
+              </span>
+
+            </td>
+
+
+            <td>
+
+              {{
+              usuario.fechaActivo
+              ? (usuario.fechaActivo |
+              date:'dd-MM-yyyy HH:mm')
+              : '-'
+              }}
+
+            </td>
+
+
+            <td class="acciones">
+
+              <button type="button" class="btn-editar" title="Editar usuario" (click)="editarUsuario(usuario)">
+                ✎
+              </button>
+
+
+              <button type="button" class="btn-eliminar" title="Eliminar usuario" (click)="eliminarUsuario(usuario)">
+                🗑
+              </button>
+
+            </td>
+
+          </tr>
+
+
+          <tr *ngIf="usuarios.length === 0">
+
+            <td colspan="7" class="sin-registros">
+
+              <span>
+                👤
+              </span>
+
+              No se encontraron usuarios.
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+
+      <div *ngIf="loadingTabla" class="loading-table">
+        Cargando usuarios...
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- MODAL NUEVO / EDITAR -->
+  <!-- ================================================= -->
+
+  <div class="modal-overlay" *ngIf="mostrarModal">
+
+    <div class="modal-usuario">
+
+
+      <div class="modal-header">
+
+        <div>
+
+          <h2>
+            👤
+            {{
+            modoEdicion
+            ? 'ACTUALIZAR USUARIO'
+            : 'REGISTRAR NUEVO USUARIO'
+            }}
+          </h2>
+
+          <p>
+            Información del personal y permisos
+          </p>
+
+        </div>
+
+
+        <button class="modal-close" type="button" (click)="cerrarModal()">
+          ✕
+        </button>
+
+      </div>
+
+
+      <div class="modal-body">
+
+
+        <!-- FILA 1 -->
+        <div class="form-grid fila-principal">
+
+
+          <div class="form-field">
+
+            <label>
+              N° CIP *
+            </label>
+
+            <div class="cip-group">
+
+              <input type="text" [(ngModel)]="cip" maxlength="9" placeholder="Ingrese CIP" [readonly]="modoEdicion"
+                (input)="onCipInput()" />
+
+              <button type="button" class="btn-buscar-cip" (click)="buscarPorCip()" [disabled]="buscandoCip">
+
+                {{
+                buscandoCip
+                ? '...'
+                : '🔍'
+                }}
+
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div class="form-field">
+
+            <label>
+              USUARIO
+            </label>
+
+            <input type="text" [(ngModel)]="username" readonly />
+
+          </div>
+
+
+          <div class="form-field">
+
+            <label>
+              GRADO
+            </label>
+
+            <input type="text" [(ngModel)]="grado" readonly />
+
+          </div>
+
+
+          <div class="form-field">
+
+            <label>
+              ARMA
+            </label>
+
+            <input type="text" [(ngModel)]="arma" readonly />
+
+          </div>
+
+        </div>
+
+
+        <!-- NOMBRES -->
+        <div class="form-field full">
+
+          <label>
+            APELLIDOS Y NOMBRES *
+          </label>
+
+          <input type="text" [(ngModel)]="fullname" readonly />
+
+        </div>
+
+
+        <br>
+
+
+        <div class="form-grid tres-columnas">
+
+          <!-- NÚCLEO -->
+          <div class="form-field">
+
+            <label>NÚCLEO</label>
+
+            <select [(ngModel)]="nucleoCodigo" (change)="onNucleoChange()">
+
+              <option value="">
+                Seleccione núcleo
+              </option>
+
+              <option *ngFor="let nucleo of nucleos" [value]="nucleo.idNucleo">
+                {{ nucleo.acronimo }} - {{ nucleo.nombre }}
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <!-- BRIGADA -->
+          <div class="form-field">
+
+            <label>BRIGADA</label>
+
+            <select [(ngModel)]="brigadaCodigo" (change)="onBrigadaChange()" [disabled]="!nucleoCodigo">
+
+              <option value="">
+                Seleccione brigada
+              </option>
+
+              <option *ngFor="let brigada of brigadas" [value]="brigada.idBrigada">
+                {{ brigada.acronimo }} - {{ brigada.nombre }}
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <!-- UNIDAD -->
+          <div class="form-field">
+
+            <label>UNIDAD</label>
+
+            <select [(ngModel)]="unidadCodigo" (change)="onUnidadChange()" [disabled]="!brigadaCodigo">
+
+              <option value="">
+                Seleccione unidad
+              </option>
+
+              <option *ngFor="let unidad of unidades" [value]="unidad.idUnidad">
+                {{ unidad.acronimo }} - {{ unidad.nombre }}
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <br>
+
+        <div class="form-grid tres-columnas">
+
+
+          <!-- ROL -->
+          <div class="form-field">
+
+            <label>
+              ROL *
+            </label>
+
+            <select [(ngModel)]="rolSeleccionado">
+
+              <option [ngValue]="null">
+                Seleccione rol
+              </option>
+
+              <option *ngFor="let rol of roles" [ngValue]="rol.idRole">
+                {{ rol.name }}
+              </option>
+
+            </select>
+
+          </div>
+
+
+          
+
+
+        <!-- FOOTER -->
+        <div class="modal-footer">
+
+          <button type="button" class="btn-salir" (click)="cerrarModal()">
+            ✕ Salir
+          </button>
+
+
+          <button type="button" class="btn-guardar" (click)="guardarUsuario()">
+            💾
+            {{
+            modoEdicion
+            ? 'Actualizar'
+            : 'Guardar'
+            }}
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>

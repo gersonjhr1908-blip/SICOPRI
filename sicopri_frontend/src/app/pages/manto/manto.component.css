@@ -1,0 +1,267 @@
+:host {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+::ng-deep .demo-table .mat-mdc-cell,
+::ng-deep .demo-table .mat-mdc-header-cell,
+::ng-deep .demo-table .mat-mdc-paginator,
+::ng-deep .custom-search-width .mat-mdc-form-field {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.full-width{
+    width: 95%;
+}
+.table {
+  width: 95%;
+}
+
+.mat-column-idUser {
+  width: 32px;
+  border-right: 1px solid currentColor;
+  padding-right: 24px;
+  padding-top: 20px;
+}
+
+.custom-search-width {
+  color: #7788AA;
+}
+
+.top-padding{
+  padding-top: 3px;
+}
+
+
+
+/* Estilo para el mat-card */
+.custom-card {
+justify-content: center;
+width: 95%;
+
+border-radius: 8px; /* Radio de borde */
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Sombra */
+}
+
+.custom-card-reniec {
+background-color: #f1f1f1;
+justify-content: center;
+width: 95%;
+border: 0;
+border-radius: 8px; /* Radio de borde */
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Sombra */
+}
+
+/* Estilo para el mat-card-title */
+.custom-card-title {
+font-size: 28px; /* Tamaño del título */
+color: #333; /* Color del título */
+font-weight: bold;
+text-decoration: underline;
+}
+
+/* Estilo para el mat-card-content */
+.example-full-width {
+width: 95%;
+padding-top: 30px;
+padding-right: 10px;
+color: #666; /* Color del contenido */
+}
+
+.example-width {
+  width: 100%;
+}
+
+.green-button {
+  background-color: #46b04c;
+  color: white;
+  border: 2px solid rgb(55, 142, 55);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.green-button:hover {
+  background-color: #388e3c;
+}
+
+.green-button:active {
+  background-color: #1b5e20;
+}
+
+/* Agregar regla para el estado :disabled */
+.green-button:disabled {
+  background-color: gray; /* Puedes elegir el color que desees para cuando esté deshabilitado */
+  cursor: not-allowed; /* Cambia el cursor cuando el botón está deshabilitado */
+}
+
+.blue-button {
+  background-color: #433685;
+  color: white; /* Cambia el color del texto según tu preferencia */
+  border: 2px solid rgb(6, 0, 121); /* Grosor y color del borde */
+  border-radius: 4px; /* Opcional: redondea las esquinas del botón */
+  cursor: pointer; /* Cambia el cursor a una mano cuando se pasa el mouse sobre el botón */
+  transition: background-color 0.3s;
+  font-size: 17px;
+  justify-content: center;
+   /* Agrega una transición suave al cambiar el color de fondo */
+}
+
+.blue-button:hover {
+  background-color: #3a06e4; /* Cambia el color de fondo cuando el mouse pasa sobre el botón */
+}
+
+.blue-buttonreporte {
+  background-color: #d34e11;
+  color: white; /* Cambia el color del texto según tu preferencia */
+  border: 2px solid rgb(151, 0, 0); /* Grosor y color del borde */
+  border-radius: 4px; /* Opcional: redondea las esquinas del botón */
+  cursor: pointer; /* Cambia el cursor a una mano cuando se pasa el mouse sobre el botón */
+  transition: background-color 0.3s; /* Agrega una transición suave al cambiar el color de fondo */
+  font-size: 17px;
+  font-weight: bold;
+  justify-content: center;
+}
+
+.blue-buttonreporte:hover {
+  background-color: #ff0303; /* Cambia el color de fondo cuando el mouse pasa sobre el botón */
+}
+
+
+
+.blue-button:active {
+  background-color: #1e1b5e; /* Cambia el color de fondo cuando el botón se presiona */
+}
+
+/* Agregar regla para el estado :disabled */
+.blue-button:disabled {
+  background-color: gray; /* Puedes elegir el color que desees para cuando esté deshabilitado */
+  cursor: not-allowed; /* Cambia el cursor cuando el botón está deshabilitado */
+}
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch; /* Para que los botones ocupen todo el alto del contenedor */
+  height: 50px; /* Altura del contenedor */
+
+}
+
+.continer .icono:last-child {
+  margin-right: 20px;
+}
+.custom-button {
+  font-size: 18px;
+}
+
+.demo-table {
+  width: 100%;
+}
+
+.demo-table .mat-mdc-header-row {
+  background-color: #2e7d32;
+}
+
+.demo-table .mat-mdc-header-cell {
+  background-color: #2e7d32 !important;
+  color: #fff !important;
+  font-weight: 600;
+  text-align: center;
+  padding-top: 10px !important;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+::ng-deep .demo-table .mat-sort-header-container {
+  justify-content: center;
+}
+
+::ng-deep .demo-table .mat-sort-header-content {
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+}
+
+::ng-deep .demo-table .mat-sort-header-arrow,
+::ng-deep .demo-table .mat-sort-header-stem,
+::ng-deep .demo-table .mat-sort-header-indicator {
+  color: #fff;
+}
+
+::ng-deep .demo-table .mat-sort-header-button {
+  color: #fff;
+  justify-content: center;
+}
+
+.mat-column-demo-position {
+  width: 32px;
+  border-right: 1px solid currentColor;
+  padding-right: 24px;
+  text-align: center;
+}
+
+.mat-column-demo-name {
+  padding-left: 16px;
+  font-size: 20px;
+}
+
+.mat-column-demo-weight {
+  font-style: italic;
+}
+
+.mat-column-demo-symbol {
+  width: 32px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.estado-activo {
+  color: green; /* Color verde para estado activo */
+}
+
+.estado-desactivado {
+  color: red; /* Color rojo para estado desactivado */
+}
+.buscar{
+  color: blue;
+  font-weight: bold;
+  padding: 10px;
+}
+.t {
+  color: #fff !important;
+  font-weight: 600;
+}
+.ta{
+  font-weight: 500;
+}
+
+
+
+.mat-progress-buffer-custom {
+  height: 30px; /* Altura de la barra de buffer */
+  background-color: rgb(0, 0, 0); /* Color de fondo del buffer */
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+
+#icono{
+  display: flex;
+  align-items: center;
+
+}
+
+.green{
+  background-color: #9b1c05;
+  color: #f1f1f1;
+  display: flex;
+  align-items: center;
+
+}
+
+
+.green:hover{
+  background-color: rgb(216, 79, 69);
+
+}

@@ -1,0 +1,459 @@
+<div
+  class="editar-overlay"
+  (click)="cerrarModal()"
+>
+  <section
+    class="editar-modal"
+    (click)="$event.stopPropagation()"
+  >
+
+    <header class="editar-header">
+      <div class="header-titulo">
+        <div class="header-icono">✎</div>
+
+        <div>
+          <h2>EDITAR DOCUMENTO OBSERVADO</h2>
+          <p>Corrija la información del expediente</p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar"
+        (click)="cerrarModal()"
+      >
+        ✕
+      </button>
+    </header>
+
+    <div class="cinv-info">
+      <span>CINV:</span>
+      <strong>
+        {{ expediente?.cinv || '-' }}
+      </strong>
+    </div>
+
+    <main class="editar-body">
+
+      <div class="grid grid-3">
+
+        <div class="campo">
+          <label>CATEGORÍA</label>
+
+          <select
+            [(ngModel)]="formulario.idTipoExpediente"
+            (change)="cambiarTipoExpediente()"
+          >
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option
+              *ngFor="let tipo of tiposExpediente"
+              [ngValue]="tipo.idTipoExpediente"
+            >
+              {{ tipo.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>TIPO DE DOCUMENTO</label>
+
+          <select
+            [(ngModel)]="formulario.idTipoDocumento"
+            (change)="cambiarTipoDocumento()"
+          >
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option
+              *ngFor="let tipo of tiposDocumento"
+              [ngValue]="tipo.idTipoDocumento"
+            >
+              {{ tipo.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div
+          class="campo campo-otro"
+          *ngIf="esTipoDocumentoOtros()"
+        >
+          <label>ESPECIFIQUE TIPO DE DOCUMENTO</label>
+
+          <input
+            type="text"
+            [(ngModel)]="formulario.otroTipoDocumento"
+            maxlength="150"
+          />
+        </div>
+
+      </div>
+
+      <div class="grid grid-3">
+
+        <div class="campo">
+          <label>N° DOC</label>
+
+          <input
+            type="text"
+            [(ngModel)]="formulario.nroDocumento"
+          />
+        </div>
+
+        <div class="campo">
+          <label>FECHA</label>
+
+          <input
+            type="date"
+            [(ngModel)]="formulario.fechaDocumento"
+          />
+        </div>
+
+        <div class="campo">
+          <label>TIPIFICACIÓN</label>
+
+          <select
+            [(ngModel)]="formulario.idTipificacion"
+          >
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option
+              *ngFor="let tip of tipificaciones"
+              [ngValue]="tip.idTipificacion"
+            >
+              {{ tip.nombre }}
+            </option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="grid grid-3">
+
+        <div class="campo">
+          <label>NÚCLEO</label>
+
+          <select
+            [(ngModel)]="formulario.idNucleo"
+            (change)="cambiarNucleo()"
+          >
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option
+              *ngFor="let nucleo of nucleos"
+              [ngValue]="nucleo.idNucleo"
+            >
+              {{ nucleo.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>GRAN UNIDAD</label>
+
+          <select
+            [(ngModel)]="formulario.idBrigada"
+            (change)="cambiarBrigada()"
+            [disabled]="!formulario.idNucleo"
+          >
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option
+              *ngFor="let brigada of brigadas"
+              [ngValue]="brigada.idBrigada"
+            >
+              {{ brigada.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>UNIDAD</label>
+
+          <select
+            [(ngModel)]="formulario.idUnidad"
+            (change)="cambiarUnidad()"
+            [disabled]="!formulario.idBrigada"
+          >
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option
+              *ngFor="let unidad of unidades"
+              [ngValue]="unidad.idUnidad"
+            >
+              {{ unidad.nombre }}
+            </option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="grid grid-3 grid-inspectoria">
+
+        <div class="campo">
+          <label>NÚCLEO IG</label>
+
+          <select
+            [(ngModel)]="formulario.idNucleoIg"
+            disabled
+          >
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option
+              *ngFor="let nucleo of nucleosIg"
+              [ngValue]="nucleo.idNucleo"
+            >
+              {{ obtenerNombreNucleoIg(nucleo) }}
+            </option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>IG</label>
+
+          <select
+            [(ngModel)]="formulario.idIg"
+            disabled
+          >
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option
+              *ngFor="let ig of igs"
+              [ngValue]="ig.idBrigada"
+            >
+              {{ ig.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>DESTINO</label>
+
+          <input
+            type="text"
+            [value]="
+              formulario.nivelDestino === 3
+                ? 'Inspectoría QRD - Nivel 3'
+                : formulario.nivelDestino === 4
+                  ? 'Inspectoría QRD - Nivel 4'
+                  : '-'
+            "
+            disabled
+          />
+        </div>
+
+      </div>
+
+      <div class="campo campo-completo">
+        <label>ASUNTO</label>
+
+        <input
+          type="text"
+          [(ngModel)]="formulario.asunto"
+        />
+      </div>
+
+      <div class="campo campo-completo">
+        <label>DESCRIPCIÓN</label>
+
+        <textarea
+          rows="5"
+          [(ngModel)]="formulario.descripcion"
+        ></textarea>
+      </div>
+
+      <section class="documentos-section">
+
+        <div class="documentos-header">
+          <div>
+            <span class="documentos-label">
+              DOCUMENTOS ADJUNTOS
+            </span>
+
+            <small>
+              Máximo 5 archivos PDF · 10 MB por archivo
+            </small>
+          </div>
+
+          <span class="contador-pdf">
+            {{
+              archivosActuales.length +
+              archivosNuevos.length
+            }}/5
+          </span>
+        </div>
+
+        <div
+          class="estado-archivos"
+          *ngIf="cargandoArchivos"
+        >
+          Cargando documentos...
+        </div>
+
+        <div
+          class="sin-archivos"
+          *ngIf="
+            !cargandoArchivos &&
+            archivosActuales.length === 0
+          "
+        >
+          No hay documentos PDF registrados.
+        </div>
+
+        <div
+          class="lista-archivos"
+          *ngIf="archivosActuales.length > 0"
+        >
+          <div
+            class="archivo-item"
+            *ngFor="let archivo of archivosActuales"
+          >
+            <div class="pdf-icono">
+              PDF
+            </div>
+
+            <div class="archivo-datos">
+              <strong>
+                {{ archivo.nombreArchivo }}
+              </strong>
+
+              <small>
+                Archivo registrado
+              </small>
+            </div>
+
+            <button
+              type="button"
+              class="btn-eliminar-pdf"
+              [disabled]="
+                guardando ||
+                eliminandoArchivo === archivo.idArchivo
+              "
+              (click)="eliminarPdf(archivo)"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div class="agregar-pdf-area">
+
+          <input
+            #inputPdf
+            type="file"
+            class="input-pdf-oculto"
+            accept=".pdf,application/pdf"
+            multiple
+            (change)="seleccionarArchivos($event)"
+          />
+
+          <button
+            type="button"
+            class="btn-agregar-pdf"
+            [disabled]="
+              guardando ||
+              archivosActuales.length +
+              archivosNuevos.length >= 5
+            "
+            (click)="inputPdf.click()"
+          >
+            <span class="simbolo-mas">＋</span>
+            AGREGAR PDF
+          </button>
+
+        </div>
+
+        <div
+          class="nuevos-documentos"
+          *ngIf="archivosNuevos.length > 0"
+        >
+          <span class="subtitulo-nuevos">
+            NUEVOS DOCUMENTOS
+          </span>
+
+          <div
+            class="archivo-item"
+            *ngFor="
+              let archivo of archivosNuevos;
+              let i = index
+            "
+          >
+            <div class="pdf-icono">
+              PDF
+            </div>
+
+            <div class="archivo-datos">
+              <strong>
+                {{ archivo.name }}
+              </strong>
+
+              <small>
+                {{ formatearTamano(archivo.size) }}
+              </small>
+            </div>
+
+            <button
+              type="button"
+              class="btn-quitar-nuevo"
+              [disabled]="guardando"
+              (click)="quitarArchivoNuevo(i)"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="mensaje-error"
+          *ngIf="error"
+        >
+          {{ error }}
+        </div>
+
+      </section>
+
+      <div class="acciones-editar">
+
+        <button
+          type="button"
+          class="btn-cancelar"
+          [disabled]="guardando"
+          (click)="cerrarModal()"
+        >
+          CANCELAR
+        </button>
+
+        <button
+          type="button"
+          class="btn-guardar"
+          [disabled]="guardando"
+          (click)="guardarCambios()"
+        >
+          {{
+            guardando
+              ? 'GUARDANDO...'
+              : 'GUARDAR CAMBIOS'
+          }}
+        </button>
+
+      </div>
+
+    </main>
+
+  </section>
+</div>

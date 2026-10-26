@@ -1,0 +1,1039 @@
+:host {
+  display: block;
+}
+
+
+/* =========================================
+   OVERLAY
+========================================= */
+
+.editar-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  width: 100vw;
+
+  height: 100vh;
+
+  z-index: 99999;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: rgba(6, 17, 28, 0.72);
+
+  /* MISMO CENTRADO QUE TU MODAL REGISTRAR */
+  padding:
+    25px
+    25px
+    25px
+    105px;
+
+  box-sizing: border-box;
+
+}
+
+
+/* =========================================
+   MODAL
+========================================= */
+
+.editar-modal {
+
+  width: min(1050px, 92vw);
+
+  max-width: 1050px;
+
+  max-height: 90vh;
+
+  background: #ffffff;
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.45);
+
+  overflow: hidden;
+
+  display: flex;
+
+  flex-direction: column;
+
+  position: relative;
+
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.editar-header {
+
+  min-height: 72px;
+
+  padding: 0 24px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  background: #ffffff;
+
+}
+
+
+.header-titulo {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+}
+
+
+.header-icono {
+
+  width: 42px;
+
+  height: 42px;
+
+  border-radius: 50%;
+
+  background: #0b5d3d;
+
+  color: #ffffff;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 19px;
+
+  font-weight: 800;
+
+}
+
+
+.header-titulo h2 {
+
+  margin: 0;
+
+  color: #145c44;
+
+  font-size: 19px;
+
+  font-weight: 700;
+
+}
+
+
+.header-titulo p {
+
+  margin: 4px 0 0;
+
+  font-size: 12px;
+
+  color: #89939c;
+
+}
+
+
+/* =========================================
+   CERRAR
+========================================= */
+
+.btn-cerrar {
+
+  width: 38px;
+
+  height: 38px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #f1f4f3;
+
+  color: #79827f;
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+}
+
+
+.btn-cerrar:hover:not(:disabled) {
+
+  background: #e5e9e7;
+
+}
+
+
+/* =========================================
+   CINV
+========================================= */
+
+.cinv-info {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 8px 20px;
+
+  background: #f4f8f6;
+
+  border-bottom: 1px solid #e3e9e5;
+
+}
+
+
+.cinv-info span {
+
+  color: #7b8781;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+}
+
+
+.cinv-info strong {
+
+  color: #176b49;
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+}
+
+
+/* =========================================
+   BODY
+========================================= */
+
+.editar-body {
+
+  flex: 1;
+
+  padding: 20px 30px;
+
+  overflow-y: auto;
+
+  background: #ffffff;
+
+}
+
+
+/* =========================================
+   GRID
+========================================= */
+
+.grid {
+
+  display: grid;
+
+  gap: 12px 16px;
+
+  margin-bottom: 13px;
+
+}
+
+
+.grid-3 {
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+}
+
+
+/* =========================================
+   INSPECTORÍA
+========================================= */
+
+.grid-inspectoria {
+
+  padding-top: 12px;
+
+  border-top: 1px solid #e6ebe8;
+
+}
+
+
+/* =========================================
+   CAMPOS
+========================================= */
+
+.campo {
+
+  min-width: 0;
+
+}
+
+
+.campo-completo {
+
+  margin-bottom: 13px;
+
+}
+
+
+.campo label {
+
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #344c41;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+}
+
+
+/* =========================================
+   INPUTS
+========================================= */
+
+.campo input,
+.campo select,
+.campo textarea {
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid #cfd8d3;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #48544e;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  outline: none;
+
+  transition: 0.2s ease;
+
+}
+
+
+.campo input,
+.campo select {
+
+  height: 42px;
+
+  padding: 0 12px;
+
+}
+
+
+.campo textarea {
+
+  min-height: 78px;
+
+  padding: 10px 12px;
+
+  resize: vertical;
+
+}
+
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+
+  border-color: #0d6b4c;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(13, 107, 76, 0.10);
+
+}
+
+
+/* =========================================
+   DISABLED
+========================================= */
+
+.campo select:disabled,
+.campo input:disabled {
+
+  opacity: 1;
+
+  background: #f4f6f5;
+
+  color: #68746e;
+
+  cursor: not-allowed;
+
+}
+
+
+/* =========================================
+   OTRO TIPO DOC
+========================================= */
+
+.campo-otro input {
+
+  background: #fffdf7;
+
+  border-color: #d9c98c;
+
+}
+
+
+/* =========================================
+   DOCUMENTOS
+========================================= */
+
+.documentos-section {
+
+  margin-top: 4px;
+
+  padding: 13px;
+
+  border: 1px solid #dce4df;
+
+  border-radius: 9px;
+
+  background: #fafcfb;
+
+}
+
+
+/* =========================================
+   HEADER DOCUMENTOS
+========================================= */
+
+.documentos-header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 10px;
+
+}
+
+
+.documentos-header > div:first-child {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+}
+
+
+.documentos-label {
+
+  color: #315f49;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+}
+
+
+.documentos-header small {
+
+  color: #8a948f;
+
+  font-size: 9px;
+
+}
+
+
+/* =========================================
+   CONTADOR
+========================================= */
+
+.contador-pdf {
+
+  min-width: 46px;
+
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  background: #315f49;
+
+  color: #ffffff;
+
+  text-align: center;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+}
+
+
+/* =========================================
+   SIN ARCHIVOS / CARGANDO
+========================================= */
+
+.estado-archivos,
+.sin-archivos {
+
+  padding: 10px;
+
+  border-radius: 6px;
+
+  background: #f2f5f3;
+
+  color: #77827c;
+
+  font-size: 10px;
+
+  text-align: center;
+
+}
+
+
+/* =========================================
+   LISTA ARCHIVOS
+========================================= */
+
+.lista-archivos,
+.nuevos-documentos {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+
+}
+
+
+.nuevos-documentos {
+
+  margin-top: 9px;
+
+}
+
+
+.subtitulo-nuevos {
+
+  margin-bottom: 2px;
+
+  color: #65736c;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+}
+
+
+/* =========================================
+   ARCHIVO
+========================================= */
+
+.archivo-item {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 6px 8px;
+
+  border: 1px solid #dfe7e2;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+}
+
+
+.archivo-principal {
+
+  flex: 1;
+
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+
+}
+
+
+.archivo-principal.no-click {
+
+  cursor: default;
+
+}
+
+
+/* =========================================
+   PDF ICON
+========================================= */
+
+.pdf-icono {
+
+  width: 35px;
+
+  height: 35px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 6px;
+
+  background: #e9f3ed;
+
+  color: #176b49;
+
+  font-size: 8px;
+
+  font-weight: 900;
+
+}
+
+
+/* =========================================
+   DATOS PDF
+========================================= */
+
+.archivo-datos {
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 2px;
+
+}
+
+
+.archivo-datos strong {
+
+  overflow: hidden;
+
+  color: #405047;
+
+  font-size: 10px;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+}
+
+
+.archivo-datos small {
+
+  color: #89948e;
+
+  font-size: 8px;
+
+}
+
+
+/* =========================================
+   BOTONES PDF
+========================================= */
+
+.btn-eliminar-pdf,
+.btn-quitar-nuevo {
+
+  width: 31px;
+
+  height: 31px;
+
+  flex-shrink: 0;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background: #fff0ef;
+
+  color: #b42318;
+
+  cursor: pointer;
+
+}
+
+
+.btn-eliminar-pdf:hover:not(:disabled),
+.btn-quitar-nuevo:hover:not(:disabled) {
+
+  background: #ffe0dd;
+
+}
+
+
+/* =========================================
+   AGREGAR PDF
+========================================= */
+
+.agregar-pdf-area {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin-top: 10px;
+
+}
+
+
+.input-pdf-oculto {
+
+  display: none;
+
+}
+
+
+.btn-agregar-pdf {
+
+  height: 35px;
+
+  padding: 0 14px;
+
+  border: none;
+
+  border-radius: 7px;
+
+  background: #0b5d3d;
+
+  color: #ffffff;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+}
+
+
+.btn-agregar-pdf:hover:not(:disabled) {
+
+  background: #08492f;
+
+}
+
+
+.simbolo-mas {
+
+  margin-right: 4px;
+
+  font-size: 14px;
+
+}
+
+
+/* =========================================
+   ERROR
+========================================= */
+
+.mensaje-error {
+
+  margin-top: 10px;
+
+  padding: 9px 11px;
+
+  border: 1px solid #efc6c1;
+
+  border-radius: 7px;
+
+  background: #fff3f2;
+
+  color: #a93027;
+
+  font-size: 10px;
+
+}
+
+
+/* =========================================
+   ACCIONES
+========================================= */
+
+.acciones-editar {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 13px;
+
+  padding-top: 12px;
+
+  border-top: 1px solid #e3e8e5;
+
+}
+
+
+.btn-cancelar,
+.btn-guardar {
+
+  min-width: 145px;
+
+  height: 39px;
+
+  border-radius: 7px;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+}
+
+
+.btn-cancelar {
+
+  border: 1px solid #ccd6d0;
+
+  background: #ffffff;
+
+  color: #536159;
+
+}
+
+
+.btn-cancelar:hover:not(:disabled) {
+
+  background: #f2f5f3;
+
+}
+
+
+.btn-guardar {
+
+  border: none;
+
+  background: #0b5d3d;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 4px 10px
+    rgba(11, 93, 61, 0.18);
+
+}
+
+
+.btn-guardar:hover:not(:disabled) {
+
+  background: #08492f;
+
+}
+
+
+button:disabled {
+
+  opacity: 0.55;
+
+  cursor: not-allowed;
+
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 900px) {
+
+  .editar-overlay {
+
+    padding: 15px;
+
+  }
+
+
+  .editar-modal {
+
+    width: 96vw;
+
+    max-height: 94vh;
+
+  }
+
+
+  .grid-3 {
+
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+
+  }
+
+}
+
+
+@media (max-width: 650px) {
+
+  .editar-overlay {
+
+    padding: 8px;
+
+  }
+
+
+  .editar-modal {
+
+    width: 100%;
+
+    max-height: 97vh;
+
+    border-radius: 10px;
+
+  }
+
+
+  .editar-header {
+
+    min-height: 62px;
+
+    padding: 0 14px;
+
+  }
+
+
+  .header-icono {
+
+    width: 34px;
+
+    height: 34px;
+
+    font-size: 16px;
+
+  }
+
+
+  .header-titulo h2 {
+
+    font-size: 14px;
+
+  }
+
+
+  .header-titulo p {
+
+    display: none;
+
+  }
+
+
+  .editar-body {
+
+    padding: 14px;
+
+  }
+
+
+  .grid-3 {
+
+    grid-template-columns: 1fr;
+
+  }
+
+
+  .documentos-header {
+
+    align-items: flex-start;
+
+  }
+
+
+  .documentos-header > div:first-child {
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 2px;
+
+  }
+
+
+  .acciones-editar {
+
+    flex-direction: column-reverse;
+
+  }
+
+
+  .btn-cancelar,
+  .btn-guardar {
+
+    width: 100%;
+
+  }
+
+}

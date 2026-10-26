@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.foter {
+  text-align: center;
+  background-color: rgb(3, 35, 43);
+  color: rgb(228, 241, 229);
+  font-size: 15px;
+  line-height: 28px;
+  min-height: 28px;
+  padding: 4px 12px;
+  box-sizing: border-box;
+}

@@ -1,0 +1,127 @@
+.dialog-card.large {
+  width: 1000px; /* Ancho deseado para el diálogo */
+  height: 590px; /* Ancho deseado para el diálogo */
+}
+
+.content-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Alinea los elementos en la parte superior */
+}
+
+.title {
+  font-size: 30px; /* Tamaño de fuente más grande */
+  color: rgb(26, 26, 164); /* Color de texto azul */
+  font-weight: bold; /* Texto en negrita */
+}
+
+.qr-info p {
+  font-size: 16px; /* Tamaño de fuente más grande */
+  font-weight: bold; /* Texto en negrita */
+}
+
+.info-container {
+  width: 65%;
+}
+
+.red-text {
+  color: red;
+}
+
+.custom-image {
+  width: 420px; /* Cambiar el ancho según lo necesites */
+  height: 160px; /* Esto mantiene la proporción de la imagen */
+}
+
+.qr-code {
+  width: 280px; /* Tamaño deseado */
+  height: 280px; /* Tamaño deseado */
+}
+
+.bold-red-text {
+  font-weight: bold; /* Texto en negrita */
+  color: red; /* Color rojo */
+}
+
+.qr-container {
+  width: 35%;
+  display: flex;
+  justify-content: center;
+}
+
+.qr-wrapper {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.qr-wrapper img,
+.qr-wrapper input,
+.qr-wrapper button,
+.qr-wrapper label {
+  display: block;
+  margin: 0 auto; /* Esto centrará los elementos horizontalmente */
+}
+
+.validation-input {
+  margin-bottom: 10px;
+  margin-left: 30px;
+  margin-right: 30px;
+  padding-left: 0px;
+  padding-right: 0px;
+  font-size: 20px; /* Aumentar el tamaño de la fuente */
+  font-weight: bold; /* Hacer el texto negrita */
+  text-align: center; /* Centrar el texto */
+}
+
+.qr-info {
+  padding-left: 15px;
+  text-align: justify;
+  margin-bottom: 20px;
+}
+.qr-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.verify-button {
+  align-self: flex-end;
+}
+
+.time-left-message {
+  text-align: right;
+}
+
+.title-container {
+  text-align: center;
+}
+.blue-button {
+  background-color: rgb(30, 30, 177); /* Color de fondo azul */
+  color: white; /* Color de texto blanco */
+  font-size: 14px; /* Tamaño de fuente más grande */
+  padding-left: 50px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 50px;
+  border: none; /* Quitar el borde */
+  cursor: pointer; /* Cambiar el cursor al pasar por encima */
+  border-radius: 5px; /* Bordes redondeados */
+}
+
+.blue-button:disabled {
+  background-color: #808080; /* Color de fondo gris */
+  color: #ababab; /* Color de texto gris */
+  cursor: not-allowed; /* Cambiar el cursor a no permitido */
+}
+
+.message-container {
+  margin-top: 20px;
+}
+
+.message {
+  font-size: 16px;
+  font-weight: bold;
+}

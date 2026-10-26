@@ -1,0 +1,952 @@
+:host {
+  display: block;
+}
+
+
+/* =========================================================
+   OVERLAY
+========================================================= */
+
+.overlay-caso {
+  position: fixed;
+
+  left: 185px;
+  right: 0;
+
+  top: 68px;
+  bottom: 0;
+
+  z-index: 450000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 16px;
+
+  box-sizing: border-box;
+
+  background: rgba(5, 20, 23, 0.72);
+
+  backdrop-filter: blur(2px);
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal-caso {
+  width: min(1160px, 96%);
+
+  max-width: 1160px;
+
+  height: min(710px, 88vh);
+
+  max-height: 88vh;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #286d39;
+
+  border-radius: 10px;
+
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.43);
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.cabecera-caso {
+  position: relative;
+
+  flex: 0 0 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 60px;
+
+  box-sizing: border-box;
+
+  background:
+    linear-gradient(
+      90deg,
+      #136e27,
+      #217d31
+    );
+
+  color: #ffffff;
+}
+
+
+.cabecera-centro {
+  text-align: center;
+}
+
+
+.cabecera-centro h2 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 17px;
+  font-weight: 800;
+}
+
+
+.cabecera-centro span {
+  display: block;
+
+  margin-top: 4px;
+
+  color: rgba(255,255,255,.83);
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   CERRAR
+========================================================= */
+
+.btn-cerrar-x {
+  position: absolute;
+
+  right: 14px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(255,255,255,.18);
+
+  color: #ffffff;
+
+  font-size: 23px;
+
+  cursor: pointer;
+}
+
+
+.btn-cerrar-x:hover {
+  background: rgba(255,255,255,.3);
+}
+
+
+/* =========================================================
+   LAYOUT PRINCIPAL
+========================================================= */
+
+.layout-caso {
+  flex: 1;
+
+  min-height: 0;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    205px;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   CONTENIDO
+========================================================= */
+
+.contenido-principal {
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #ffffff;
+}
+
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.tabs-caso {
+  flex: 0 0 82px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #d9e4dc;
+}
+
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  padding: 0 12px;
+
+  border: none;
+  border-bottom: 2px solid transparent;
+
+  background: #ffffff;
+
+  color: #445248;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+.tab-btn:hover {
+  color: #176b35;
+}
+
+
+.tab-btn.activo {
+  color: #176b35;
+
+  border-bottom-color: #176b35;
+}
+
+
+/* =========================================================
+   CÍRCULO TAB
+========================================================= */
+
+.numero-tab {
+  width: 21px;
+  height: 21px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #a5ada8;
+
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+
+.tab-btn.activo .numero-tab {
+  background: #315eb7;
+}
+
+
+/* =========================================================
+   CONTADOR PDF
+========================================================= */
+
+.contador-pdf {
+  min-width: 20px;
+  height: 20px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 5px;
+
+  box-sizing: border-box;
+
+  border-radius: 20px;
+
+  background: #688994;
+
+  color: #ffffff;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   CONTENIDO TAB
+========================================================= */
+
+.contenido-tab {
+  flex: 1;
+
+  min-height: 0;
+
+  padding: 16px 18px;
+
+  box-sizing: border-box;
+
+  overflow-y: auto;
+
+  background: #ffffff;
+}
+
+
+/* =========================================================
+   FORMULARIO DE DATOS
+========================================================= */
+
+.form-datos {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap:
+    13px
+    14px;
+}
+
+
+/* =========================================================
+   CAMPOS
+========================================================= */
+
+.campo {
+  min-width: 0;
+}
+
+
+.campo-doble {
+  grid-column: span 2;
+}
+
+
+.campo-completo {
+  grid-column: 1 / -1;
+}
+
+
+.campo label {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #34493e;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   VALORES
+========================================================= */
+
+.valor {
+  min-height: 39px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 8px 10px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #c9d5ce;
+
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  color: #435049;
+
+  font-size: 11px;
+
+  word-break: break-word;
+}
+
+
+.valor-textarea {
+  min-height: 76px;
+
+  align-items: flex-start;
+
+  line-height: 1.45;
+
+  white-space: pre-wrap;
+}
+
+
+/* =========================================================
+   PANEL ACCIONES
+========================================================= */
+
+.panel-acciones {
+  min-width: 0;
+
+  padding: 14px 11px;
+
+  box-sizing: border-box;
+
+  border-left: 1px solid #d9e4dc;
+
+  background: #ffffff;
+}
+
+
+.acciones-titulo {
+  margin-bottom: 10px;
+
+  color: #68756e;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   BOTONES
+========================================================= */
+
+.btn-enviar,
+.btn-salir {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  min-height: 39px;
+
+  padding: 7px 9px;
+
+  box-sizing: border-box;
+
+  border-radius: 5px;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+.btn-enviar {
+  border: none;
+
+  background: #11734e;
+
+  color: #ffffff;
+}
+
+
+.btn-enviar:hover {
+  background: #0d6040;
+}
+
+
+.btn-salir {
+  margin-top: 9px;
+
+  border: 1px solid #ced8d2;
+
+  background: #ffffff;
+
+  color: #455149;
+}
+
+
+.btn-salir:hover {
+  background: #f1f5f3;
+}
+
+
+/* =========================================================
+   TAB PDF - SIN PADDING GRANDE
+========================================================= */
+
+.contenido-pdf {
+  padding: 12px;
+}
+
+
+/* =========================================================
+   PDF LAYOUT
+========================================================= */
+
+.documentos-layout {
+  width: 100%;
+  height: 100%;
+
+  min-height: 500px;
+
+  display: grid;
+
+  grid-template-columns:
+    185px
+    minmax(0, 1fr);
+
+  overflow: hidden;
+
+  border: 1px solid #d2dcd6;
+
+  border-radius: 4px;
+
+  background: #ffffff;
+}
+
+
+/* =========================================================
+   LISTA PDF
+========================================================= */
+
+.lista-documentos {
+  overflow-y: auto;
+
+  border-right: 1px solid #d2dcd6;
+
+  background: #f6f9f7;
+}
+
+
+.lista-documentos-header {
+  padding: 12px 10px;
+
+  background: #3c5b55;
+
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+
+.archivo-item {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 10px 8px;
+
+  box-sizing: border-box;
+
+  border: none;
+  border-bottom: 1px solid #e1e6e3;
+
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+
+.archivo-item:hover {
+  background: #edf3ef;
+}
+
+
+.archivo-item.archivo-activo {
+  background: #e3eee8;
+}
+
+
+/* =========================================================
+   ICONO PDF
+========================================================= */
+
+.archivo-icono {
+  flex: 0 0 auto;
+
+  width: 34px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 4px;
+
+  background: #dce6e0;
+
+  color: #3e574a;
+
+  font-size: 8px;
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   TEXTO PDF
+========================================================= */
+
+.archivo-info {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.archivo-info strong {
+  color: #405047;
+
+  font-size: 9px;
+}
+
+
+.archivo-info span {
+  overflow: hidden;
+
+  color: #748179;
+
+  font-size: 8px;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   VISOR
+========================================================= */
+
+.visor-documento {
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #eceeed;
+}
+
+
+.visor-header {
+  flex: 0 0 38px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 10px;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid #d2dcd6;
+
+  background: #ffffff;
+
+  color: #4a554f;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   PDF IFRAME
+========================================================= */
+
+.visor-pdf {
+  flex: 1;
+
+  width: 100%;
+  height: 100%;
+
+  min-height: 500px;
+
+  display: block;
+
+  border: none;
+
+  background: #eeeeee;
+}
+
+
+/* =========================================================
+   PDF VACÍO
+========================================================= */
+
+.visor-vacio {
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #7c8982;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   SIN ARCHIVOS
+========================================================= */
+
+.sin-archivos {
+  min-height: 350px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  border: 1px dashed #cbd6cf;
+
+  color: #748279;
+
+  font-size: 11px;
+}
+
+
+.pdf-vacio-icono {
+  width: 48px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #e8eeeb;
+
+  border-radius: 4px;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   CARGA
+========================================================= */
+
+.estado-carga {
+  min-height: 250px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  color: #6e7d75;
+
+  font-size: 11px;
+}
+
+
+.spinner {
+  width: 29px;
+  height: 29px;
+
+  border: 4px solid #dfe6e2;
+
+  border-top-color: #176b35;
+
+  border-radius: 50%;
+
+  animation: girar .8s linear infinite;
+}
+
+
+@keyframes girar {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.mensaje-error {
+  padding: 12px;
+
+  border: 1px solid #e8b0ac;
+
+  border-radius: 5px;
+
+  background: #fff1f0;
+
+  color: #ac2b21;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   SCROLL
+========================================================= */
+
+.contenido-tab::-webkit-scrollbar,
+.lista-documentos::-webkit-scrollbar {
+  width: 7px;
+}
+
+
+.contenido-tab::-webkit-scrollbar-track,
+.lista-documentos::-webkit-scrollbar-track {
+  background: #f0f3f1;
+}
+
+
+.contenido-tab::-webkit-scrollbar-thumb,
+.lista-documentos::-webkit-scrollbar-thumb {
+  background: #a7b5ad;
+
+  border-radius: 10px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .overlay-caso {
+    left: 170px;
+
+    padding: 10px;
+  }
+
+
+  .modal-caso {
+    width: 97%;
+  }
+
+
+  .layout-caso {
+    grid-template-columns:
+      minmax(0, 1fr)
+      185px;
+  }
+
+
+  .form-datos {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .campo-doble {
+    grid-column: 1 / -1;
+  }
+
+}
+
+
+/* =========================================================
+   MÓVIL
+========================================================= */
+
+@media (max-width: 800px) {
+
+  .overlay-caso {
+    left: 0;
+    top: 0;
+
+    padding: 7px;
+  }
+
+
+  .modal-caso {
+    width: 99%;
+    height: 96vh;
+    max-height: 96vh;
+  }
+
+
+  .layout-caso {
+    grid-template-columns: 1fr;
+  }
+
+
+  .panel-acciones {
+    order: -1;
+
+    display: flex;
+
+    gap: 8px;
+
+    border-left: none;
+
+    border-bottom: 1px solid #d9e4dc;
+  }
+
+
+  .acciones-titulo {
+    display: none;
+  }
+
+
+  .btn-enviar,
+  .btn-salir {
+    margin: 0;
+  }
+
+
+  .form-datos {
+    grid-template-columns: 1fr;
+  }
+
+
+  .campo-doble,
+  .campo-completo {
+    grid-column: auto;
+  }
+
+
+  .documentos-layout {
+    grid-template-columns: 1fr;
+
+    height: auto;
+  }
+
+
+  .lista-documentos {
+    max-height: 130px;
+
+    border-right: none;
+
+    border-bottom: 1px solid #d2dcd6;
+  }
+
+}

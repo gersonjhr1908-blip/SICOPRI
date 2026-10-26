@@ -1,0 +1,1192 @@
+:host {
+  display: block;
+}
+
+
+/* =========================================
+   OVERLAY
+   RESERVA ESPACIO DEL SIDEBAR
+========================================= */
+
+.ver-caso-qr4-overlay {
+  position: fixed;
+  inset: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  z-index: 400000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /*
+   * IMPORTANTE:
+   * Reservamos el sidebar de la izquierda.
+   *
+   * 245px aprox = ancho visual de tu menú.
+   */
+  padding:
+    22px
+    22px
+    22px
+    245px;
+
+  box-sizing: border-box;
+
+  background: rgba(6, 17, 28, 0.72);
+
+  backdrop-filter: blur(2px);
+}
+
+
+/* =========================================
+   MODAL
+========================================= */
+
+.ver-caso-qr4-modal {
+  width: min(1180px, 94%);
+
+  height: min(760px, 91vh);
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #257432;
+
+  border-radius: 11px;
+
+  box-shadow:
+    0 25px 70px
+    rgba(0, 0, 0, 0.42);
+}
+
+
+.ver-caso-qr4-modal.modal-pdf {
+  height: 92vh;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.qr4-header {
+  position: relative;
+
+  min-height: 62px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 8px 60px;
+
+  box-sizing: border-box;
+
+  background:
+    linear-gradient(
+      180deg,
+      #12591b,
+      #27782f
+    );
+}
+
+
+.titulo-caso {
+  text-align: center;
+}
+
+
+.titulo-caso h2 {
+  margin: 0;
+
+  color: #57ff4f;
+
+  font-size: 18px;
+  font-weight: 800;
+
+  letter-spacing: 0.2px;
+}
+
+
+.titulo-caso span {
+  display: block;
+
+  margin-top: 4px;
+
+  color: rgba(255, 255, 255, 0.90);
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+
+/* =========================================
+   CERRAR
+========================================= */
+
+.btn-cerrar {
+  position: absolute;
+
+  right: 14px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.16);
+
+  color: #ffffff;
+
+  font-size: 17px;
+
+  cursor: pointer;
+}
+
+
+.btn-cerrar:hover {
+  background: rgba(255, 255, 255, 0.27);
+}
+
+
+/* =========================================
+   ESTRUCTURA
+========================================= */
+
+.estructura-caso {
+  flex: 1;
+
+  min-height: 0;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    245px;
+
+  overflow: hidden;
+
+  background: #ffffff;
+}
+
+
+/* =========================================
+   ZONA IZQUIERDA
+========================================= */
+
+.zona-principal {
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+}
+
+
+/* =========================================
+   TABS
+========================================= */
+
+.tabs-qr4 {
+  flex-shrink: 0;
+
+  display: flex;
+
+  min-height: 72px;
+
+  padding: 11px 18px 0;
+
+  border-bottom: 1px solid #dfe6e1;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+}
+
+
+.tabs-qr4 button {
+  flex: 1 1 0;
+  min-width: 0;
+
+  min-height: 53px;
+
+  border: none;
+
+  border-bottom:
+    2px solid #dfe4e1;
+
+  background: #ffffff;
+
+  color: #525d57;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+.tabs-qr4 button:hover {
+  background: #f8faf8;
+}
+
+
+.tabs-qr4 button > span:first-child {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 22px;
+  height: 22px;
+
+  margin-right: 8px;
+
+  border-radius: 50%;
+
+  background: #909897;
+
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+.tabs-qr4 button.activa {
+  color: #176326;
+
+  border-bottom-color: #176326;
+
+  background: #fbfdfb;
+}
+
+
+.tabs-qr4 button.activa > span:first-child {
+  background: #3558b7;
+}
+
+
+/* =========================================
+   CONTADOR PDF
+========================================= */
+
+.cantidad-adjuntos {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 18px;
+  height: 18px;
+
+  margin-left: 6px;
+
+  padding: 0 5px;
+
+  border-radius: 10px;
+
+  background: #176b49;
+
+  color: #ffffff;
+
+  font-size: 8px;
+}
+
+
+/* =========================================
+   CONTENIDO
+========================================= */
+
+.contenido-qr4 {
+  flex: 1;
+
+  min-width: 0;
+  min-height: 0;
+
+  padding: 17px 20px;
+
+  box-sizing: border-box;
+
+  overflow-y: auto;
+
+  background: #ffffff;
+}
+
+
+/* =========================================
+   GRID
+========================================= */
+
+.grid-qr4 {
+  display: grid;
+
+  gap: 10px 12px;
+
+  margin-bottom: 11px;
+}
+
+
+.grid-4 {
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+}
+
+
+.grid-3 {
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+}
+
+
+.grid-2 {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+}
+
+
+.grid-1 {
+  grid-template-columns: 1fr;
+}
+
+
+.fila-inspectoria {
+  padding-top: 10px;
+
+  border-top:
+    1px solid #e1e7e3;
+}
+
+
+/* =========================================
+   CAMPOS
+========================================= */
+
+.campo-qr4 {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+  min-width: 0;
+}
+
+
+.campo-qr4 label {
+  color: #46534c;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+
+.campo-qr4 input,
+.campo-qr4 textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid #c5d0c9;
+  border-radius: 5px;
+
+  background: #f8faf9;
+
+  color: #3f4842;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 11px;
+
+  outline: none;
+}
+
+
+.campo-qr4 input {
+  height: 39px;
+
+  padding: 0 10px;
+}
+
+
+.campo-qr4 textarea {
+  padding: 9px 11px;
+
+  line-height: 1.45;
+
+  resize: none;
+}
+
+
+.campo-completo {
+  margin-bottom: 11px;
+}
+
+
+/* =========================================
+   PANEL LATERAL
+========================================= */
+
+.panel-lateral {
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 15px 13px;
+
+  box-sizing: border-box;
+
+  border-left:
+    1px solid #dce4df;
+
+  background: #f8f9f8;
+}
+
+
+/* =========================================
+   ACCIONES
+========================================= */
+
+.acciones-titulo {
+  color: #222b26;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  text-align: center;
+
+  letter-spacing: 0.4px;
+}
+
+
+.linea-acciones {
+  width: 100%;
+  height: 2px;
+
+  margin: 7px 0 13px;
+
+  background: #28312c;
+}
+
+
+.btn-enviar-qr3 {
+  width: 100%;
+
+  min-height: 44px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  padding: 7px 10px;
+
+  border: none;
+  border-radius: 5px;
+
+  background: #169408;
+
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+
+.btn-enviar-qr3:hover:not(:disabled) {
+  background: #117707;
+}
+
+
+.btn-enviar-qr3:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+.btn-salir {
+  width: 100%;
+
+  min-height: 38px;
+
+  margin-top: 9px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  border: none;
+  border-radius: 5px;
+
+  background: #8e2916;
+
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+.btn-salir:hover {
+  background: #752113;
+}
+
+
+.icono-accion {
+  font-size: 14px;
+
+  font-weight: 800;
+}
+
+
+/* =========================================
+   OBSERVACIÓN LATERAL
+========================================= */
+
+.observacion-lateral {
+  flex: 1;
+
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  margin-top: 12px;
+}
+
+
+.observacion-titulo {
+  margin-bottom: 5px;
+
+  color: #606a64;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+
+.observacion-lateral textarea {
+  flex: 1;
+
+  width: 100%;
+
+  min-height: 220px;
+
+  padding: 10px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #adb8b1;
+  border-radius: 4px;
+
+  background: #ffffff;
+
+  color: #343c37;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+
+  outline: none;
+
+  resize: none;
+}
+
+
+.observacion-lateral textarea:focus {
+  border-color: #176b49;
+
+  box-shadow:
+    0 0 0 2px
+    rgba(23, 107, 73, 0.10);
+}
+
+
+/* =========================================
+   ESTADO OBSERVACIÓN
+========================================= */
+
+.estado-observacion-lateral {
+  min-height: 24px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  margin-top: 5px;
+}
+
+
+.estado-observacion {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 4px;
+
+  padding: 4px 6px;
+
+  border-radius: 12px;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+
+.estado-observacion.guardando {
+  background: #edf1f8;
+
+  color: #4f6187;
+}
+
+
+.estado-observacion.guardado {
+  background: #e8f5ed;
+
+  color: #176b49;
+}
+
+
+.mini-spinner {
+  width: 9px;
+  height: 9px;
+
+  border:
+    2px solid #c9d1e0;
+
+  border-top-color: #4f6187;
+
+  border-radius: 50%;
+
+  animation:
+    girarQr3
+    0.7s
+    linear
+    infinite;
+}
+
+
+.error-observacion {
+  color: #b42318;
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+
+.contador-observacion {
+  margin-left: auto;
+
+  color: #89938e;
+
+  font-size: 8px;
+}
+
+
+/* =========================================
+   PDF
+========================================= */
+
+.contenido-pdf {
+  display: flex;
+
+  flex-direction: column;
+
+  min-height: 0;
+
+  padding: 12px 15px 15px;
+
+  overflow: hidden;
+}
+
+
+.pdf-seccion {
+  flex: 1;
+
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  overflow: hidden;
+}
+
+
+.selector-pdfs {
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  min-height: 40px;
+
+  padding-bottom: 6px;
+
+  overflow-x: auto;
+}
+
+
+.selector-pdfs button {
+  height: 35px;
+
+  max-width: 250px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 0 11px;
+
+  border:
+    1px solid #ccd6cf;
+
+  border-radius: 5px;
+
+  background: #ffffff;
+
+  color: #48524c;
+
+  font-size: 9px;
+
+  cursor: pointer;
+}
+
+
+.selector-pdfs button.activo {
+  background: #246a2b;
+
+  border-color: #246a2b;
+
+  color: #ffffff;
+}
+
+
+.selector-numero {
+  min-width: 20px;
+  height: 20px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(0, 0, 0, 0.12);
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+
+.selector-nombre {
+  max-width: 195px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================
+   VISOR PDF
+========================================= */
+
+.pdf-visor {
+  position: relative;
+
+  flex: 1;
+
+  min-width: 0;
+  min-height: 430px;
+
+  overflow: hidden;
+
+  background: #2d2b2d;
+
+  border:
+    1px solid #c7cec9;
+
+  border-radius: 4px;
+}
+
+
+.pdf-frame {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  border: none;
+
+  background: #2d2b2d;
+}
+
+
+.pdf-vacio {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  background: #2d2b2d;
+
+  color: #ffffff;
+
+  text-align: center;
+}
+
+
+.pdf-vacio-icono {
+  font-size: 44px;
+}
+
+
+.pdf-vacio p {
+  margin: 0;
+
+  font-size: 11px;
+}
+
+
+/* =========================================
+   CARGANDO
+========================================= */
+
+.estado-archivos {
+  flex: 1;
+
+  min-height: 430px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  color: #5c6760;
+}
+
+
+.estado-archivos p {
+  margin: 0;
+
+  font-size: 11px;
+}
+
+
+.spinner-archivos {
+  width: 35px;
+  height: 35px;
+
+  border:
+    4px solid #dce5df;
+
+  border-top-color: #246b2b;
+
+  border-radius: 50%;
+
+  animation:
+    girarQr3
+    0.75s
+    linear
+    infinite;
+}
+
+
+@keyframes girarQr3 {
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================================
+   ERROR
+========================================= */
+
+.error-archivos {
+  flex: 1;
+
+  min-height: 430px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  color: #a42d2d;
+}
+
+
+.error-icono {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 12px;
+
+  border-radius: 50%;
+
+  background: #a42d2d;
+
+  color: #ffffff;
+
+  font-size: 22px;
+  font-weight: 800;
+}
+
+
+.error-archivos strong {
+  font-size: 13px;
+}
+
+
+.error-archivos p {
+  margin: 6px 0 0;
+
+  font-size: 11px;
+}
+
+
+/* =========================================
+   SIN ARCHIVOS
+========================================= */
+
+.sin-archivos {
+  flex: 1;
+
+  min-height: 430px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  color: #6c776f;
+}
+
+
+.sin-archivos-icono {
+  margin-bottom: 10px;
+
+  font-size: 48px;
+}
+
+
+.sin-archivos h3 {
+  margin: 0 0 6px;
+
+  color: #28652e;
+
+  font-size: 16px;
+}
+
+
+.sin-archivos p {
+  margin: 0;
+
+  font-size: 11px;
+}
+
+
+/* =========================================
+   SCROLL
+========================================= */
+
+.contenido-qr4::-webkit-scrollbar {
+  width: 7px;
+}
+
+
+.contenido-qr4::-webkit-scrollbar-track {
+  background: #eef2ef;
+}
+
+
+.contenido-qr4::-webkit-scrollbar-thumb {
+  background: #98aa9c;
+
+  border-radius: 20px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1200px) {
+
+  .ver-caso-qr4-overlay {
+    padding-left: 220px;
+  }
+
+}
+
+
+@media (max-width: 950px) {
+
+  .ver-caso-qr4-overlay {
+    padding: 12px;
+  }
+
+
+  .ver-caso-qr4-modal {
+    width: calc(100vw - 24px);
+  }
+
+
+  .estructura-caso {
+    grid-template-columns:
+      minmax(0, 1fr)
+      220px;
+  }
+
+
+  .grid-4,
+  .grid-3 {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+}
+
+
+@media (max-width: 720px) {
+
+  .ver-caso-qr4-overlay {
+    padding: 6px;
+  }
+
+
+  .ver-caso-qr4-modal {
+    width: 100%;
+    height: 96vh;
+  }
+
+
+  .estructura-caso {
+    display: flex;
+
+    flex-direction: column;
+
+    overflow-y: auto;
+  }
+
+
+  .zona-principal {
+    overflow: visible;
+  }
+
+
+  .panel-lateral {
+    width: 100%;
+
+    flex-shrink: 0;
+
+    border-left: none;
+
+    border-top:
+      1px solid #dce4df;
+  }
+
+
+  .observacion-lateral textarea {
+    min-height: 140px;
+  }
+
+
+  .grid-4,
+  .grid-3,
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+
+  .contenido-qr4 {
+    overflow: visible;
+  }
+
+}

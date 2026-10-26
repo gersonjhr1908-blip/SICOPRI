@@ -1,0 +1,613 @@
+<div
+  class="ver-caso-qrd-overlay"
+  (click)="cerrarModal()"
+>
+  <div
+    class="ver-caso-qrd-modal"
+    [class.modal-pdf]="pestanaActiva === 2"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-cabecera">
+      <div>
+        <h2>INFORMACIÓN DE CASO APERTURADO</h2>
+        <p>{{ expediente?.cinv }}</p>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar"
+        (click)="cerrarModal()"
+        title="Cerrar"
+      >
+        ✕
+      </button>
+    </div>
+
+    <div class="estructura-caso">
+      <main class="zona-principal">
+
+        <!-- PESTAÑAS PRINCIPALES -->
+        <div class="tabs-qrd">
+          <button
+            type="button"
+            [class.activa]="pestanaActiva === 1"
+            (click)="cambiarPestana(1)"
+          >
+            <span>1</span>
+            DOC REGISTRADO
+          </button>
+
+          <button
+            type="button"
+            [class.activa]="pestanaActiva === 2"
+            (click)="cambiarPestana(2)"
+          >
+            <span>2</span>
+            DOC ADJUNTO
+
+            <b
+              class="cantidad-adjuntos"
+              *ngIf="
+                archivosCargados &&
+                archivos.length > 0
+              "
+            >
+              {{ archivos.length }}
+            </b>
+          </button>
+
+          <button
+            type="button"
+            [class.activa]="pestanaActiva === 3"
+            (click)="cambiarPestana(3)"
+          >
+            <span>3</span>
+            SEGUIMIENTO
+          </button>
+        </div>
+
+        <!-- DOCUMENTO REGISTRADO -->
+        <div
+          class="contenido-qrd"
+          *ngIf="pestanaActiva === 1"
+        >
+          <div class="grid-qrd grid-4">
+            <div class="campo-qrd">
+              <label>CATEGORÍA</label>
+
+              <input
+                type="text"
+                [value]="obtenerCategoriaQrd()"
+                readonly
+              >
+            </div>
+
+            <div class="campo-qrd">
+              <label>TIPO DE DOC</label>
+
+              <input
+                type="text"
+                [value]="nombreTipoDocumento || '-'"
+                readonly
+              >
+            </div>
+
+            <div class="campo-qrd">
+              <label>N° DOC</label>
+
+              <input
+                type="text"
+                [value]="expediente?.nroDocumento || '-'"
+                readonly
+              >
+            </div>
+
+            <div class="campo-qrd">
+              <label>FECHA</label>
+
+              <input
+                type="text"
+                [value]="
+                  expediente?.fechaRegistro
+                    | date:'dd/MM/yyyy'
+                "
+                readonly
+              >
+            </div>
+          </div>
+
+          <div class="grid-qrd grid-1">
+            <div class="campo-qrd">
+              <label>TIPIFICACIÓN</label>
+
+              <input
+                type="text"
+                [value]="nombreTipificacion || '-'"
+                readonly
+              >
+            </div>
+          </div>
+
+          <div class="grid-qrd grid-3">
+            <div class="campo-qrd">
+              <label>NÚCLEO</label>
+
+              <input
+                type="text"
+                [value]="nombreNucleo || '-'"
+                readonly
+              >
+            </div>
+
+            <div class="campo-qrd">
+              <label>GRAN UNIDAD</label>
+
+              <input
+                type="text"
+                [value]="nombreBrigada || '-'"
+                readonly
+              >
+            </div>
+
+            <div class="campo-qrd">
+              <label>UNIDAD</label>
+
+              <input
+                type="text"
+                [value]="nombreUnidad || '-'"
+                readonly
+              >
+            </div>
+          </div>
+
+          <div class="grid-qrd grid-3 fila-inspectoria">
+            <div class="campo-qrd">
+              <label>NÚCLEO IG</label>
+
+              <input
+                type="text"
+                [value]="nombreNucleoIg || '-'"
+                readonly
+              >
+            </div>
+
+            <div class="campo-qrd">
+              <label>IG</label>
+
+              <input
+                type="text"
+                [value]="nombreIg || '-'"
+                readonly
+              >
+            </div>
+
+            <div class="campo-qrd">
+              <label>DESTINO</label>
+
+              <input
+                type="text"
+                [value]="
+                  nivelDestinoSeleccionado
+                    ? 'Inspectoría QRD - Nivel '
+                      + nivelDestinoSeleccionado
+                    : '-'
+                "
+                readonly
+              >
+            </div>
+          </div>
+
+          <div class="campo-qrd campo-completo">
+            <label>ASUNTO</label>
+
+            <textarea
+              rows="3"
+              [value]="expediente?.asunto || '-'"
+              readonly
+            ></textarea>
+          </div>
+
+          <div class="campo-qrd campo-completo">
+            <label>DESCRIPCIÓN</label>
+
+            <textarea
+              rows="5"
+              [value]="expediente?.descripcion || '-'"
+              readonly
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- DOCUMENTOS ADJUNTOS -->
+        <div
+          class="contenido-qrd contenido-pdf"
+          *ngIf="pestanaActiva === 2"
+        >
+          <div
+            *ngIf="cargandoArchivos"
+            class="estado-archivos"
+          >
+            <span class="spinner-archivos"></span>
+            <p>Cargando documentos adjuntos...</p>
+          </div>
+
+          <div
+            *ngIf="
+              errorArchivos &&
+              !cargandoArchivos
+            "
+            class="error-archivos"
+          >
+            <strong>
+              No se pudieron cargar los documentos
+            </strong>
+
+            <p>{{ errorArchivos }}</p>
+          </div>
+
+          <div
+            *ngIf="
+              !cargandoArchivos &&
+              !errorArchivos &&
+              archivos.length === 0
+            "
+            class="sin-archivos"
+          >
+            <div class="sin-archivos-icono">
+              📁
+            </div>
+
+            <h3>
+              No hay documentos adjuntos
+            </h3>
+
+            <p>
+              Este expediente no tiene archivos PDF registrados.
+            </p>
+          </div>
+
+          <div
+            class="pdf-seccion"
+            *ngIf="
+              !cargandoArchivos &&
+              !errorArchivos &&
+              archivos.length > 0
+            "
+          >
+            <div class="selector-pdfs">
+              <button
+                *ngFor="
+                  let archivo of archivos;
+                  let i = index
+                "
+                type="button"
+                [class.activo]="
+                  archivoSeleccionado?.idArchivo ===
+                  archivo.idArchivo
+                "
+                (click)="seleccionarArchivo(archivo)"
+              >
+                <span class="selector-numero">
+                  {{ i + 1 }}
+                </span>
+
+                <span class="selector-nombre">
+                  {{ archivo.nombreArchivo }}
+                </span>
+              </button>
+            </div>
+
+            <div class="pdf-visor">
+              <div
+                *ngIf="cargandoPdf"
+                class="estado-archivos"
+              >
+                <span class="spinner-archivos"></span>
+                <p>Abriendo PDF...</p>
+              </div>
+
+              <iframe
+                *ngIf="
+                  pdfUrl &&
+                  !cargandoPdf
+                "
+                class="pdf-frame"
+                [src]="pdfUrl"
+                title="Documento adjunto"
+              ></iframe>
+
+              <div
+                *ngIf="
+                  !pdfUrl &&
+                  !cargandoPdf
+                "
+                class="pdf-vacio"
+              >
+                <div class="pdf-vacio-icono">
+                  📄
+                </div>
+
+                <p>
+                  Selecciona un documento para visualizarlo.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEGUIMIENTO -->
+        <div
+          class="contenido-qrd contenido-seguimiento"
+          *ngIf="pestanaActiva === 3"
+        >
+          <div class="seguimiento-cabecera">
+            <div>
+              <h3>SEGUIMIENTO</h3>
+
+              <p
+                [class.seguimiento-ok]="
+                  seguimientoGuardado
+                "
+              >
+                {{
+                  seguimientoGuardado
+                    ? 'Seguimiento registrado'
+                    : 'Seguimiento pendiente'
+                }}
+              </p>
+            </div>
+
+            <button
+              *ngIf="
+                modoGestion &&
+                seguimientoGuardado &&
+                !seguimientoActivo &&
+                !cargandoSeguimiento
+              "
+              type="button"
+              class="btn-editar-seguimiento"
+              (click)="editarSeguimiento()"
+              [disabled]="guardandoSeguimiento"
+            >
+              ✎ EDITAR SEGUIMIENTO
+            </button>
+          </div>
+
+          <div
+            class="estado-seguimiento cargando"
+            *ngIf="cargandoSeguimiento"
+          >
+            <span class="mini-spinner"></span>
+            Cargando seguimiento...
+          </div>
+
+          <div
+            class="error-seguimiento"
+            *ngIf="
+              errorSeguimiento &&
+              !cargandoSeguimiento
+            "
+          >
+            {{ errorSeguimiento }}
+          </div>
+
+          <div
+            class="form-seguimiento"
+            *ngIf="
+              !cargandoSeguimiento &&
+              (
+                seguimientoActivo ||
+                seguimientoGuardado
+              )
+            "
+          >
+            <div class="campo-seguimiento">
+              <label>EMPIEZA</label>
+
+              <input
+                type="date"
+                [(ngModel)]="fechaInicioSeguimiento"
+                (change)="calcularDiasSeguimiento()"
+                [disabled]="
+                  guardandoSeguimiento ||
+                  soloLectura ||
+                  !modoGestion ||
+                  (
+                    seguimientoGuardado &&
+                    !seguimientoActivo
+                  )
+                "
+              >
+            </div>
+
+            <div class="campo-seguimiento">
+              <label>TERMINA</label>
+
+              <input
+                type="date"
+                [(ngModel)]="fechaFinSeguimiento"
+                (change)="calcularDiasSeguimiento()"
+                [disabled]="
+                  guardandoSeguimiento ||
+                  soloLectura ||
+                  !modoGestion ||
+                  (
+                    seguimientoGuardado &&
+                    !seguimientoActivo
+                  )
+                "
+              >
+            </div>
+
+            <div class="campo-seguimiento">
+              <label>CANTIDAD DE DÍAS</label>
+
+              <input
+                type="number"
+                [value]="cantidadDiasSeguimiento"
+                readonly
+              >
+            </div>
+
+            <div
+              class="acciones-seguimiento"
+              *ngIf="
+                seguimientoActivo &&
+                modoGestion &&
+                !soloLectura
+              "
+            >
+              <button
+                type="button"
+                class="btn-guardar-seguimiento"
+                (click)="guardarSeguimiento()"
+                [disabled]="
+                  guardandoSeguimiento ||
+                  !fechaInicioSeguimiento ||
+                  !fechaFinSeguimiento
+                "
+              >
+                {{
+                  guardandoSeguimiento
+                    ? 'GUARDANDO...'
+                    : 'GUARDAR'
+                }}
+              </button>
+
+              <button
+                type="button"
+                class="btn-cancelar-seguimiento"
+                (click)="cancelarSeguimiento()"
+                [disabled]="guardandoSeguimiento"
+              >
+                CANCELAR
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- PANEL LATERAL -->
+      <aside class="panel-lateral">
+        <div class="acciones-titulo">
+          ACCIONES
+        </div>
+
+        <div class="linea-acciones"></div>
+
+        <!-- QRD3 ENVÍA A QRD4 -->
+        <button
+          type="button"
+          class="btn-enviar-nivel4"
+          *ngIf="puedeEnviarNivel4()"
+          [disabled]="guardandoObservacion"
+          (click)="enviarANivel4()"
+        >
+          <span class="icono-accion">⇧</span>
+          ENVIAR A INSPECTORÍA NIVEL 4
+        </button>
+
+        <!-- CASO CREADO EN QRD4 QUE DEBE VOLVER A QRD2 -->
+        <button
+          type="button"
+          class="btn-enviar-nivel2"
+          *ngIf="esCasoCreadoEnQrd4()"
+          [disabled]="guardandoObservacion"
+          (click)="enviarANivel2()"
+        >
+          <span class="icono-accion">⇧</span>
+          ENVIAR A QRD NIVEL 2
+        </button>
+
+        <!-- ENVÍO DE RESPUESTA A QRD2 -->
+        <button
+          type="button"
+          class="btn-enviar-nivel2"
+          *ngIf="tieneRespuestaQrd4"
+          [disabled]="guardandoObservacion"
+          (click)="enviarRespuestaANivel2()"
+        >
+          <span class="icono-accion">⇧</span>
+          ENVIAR RESPUESTA A QRD NIVEL 2
+        </button>
+
+        <!-- DAR RESPUESTA QRD3 -->
+        <button
+          type="button"
+          class="btn-respuesta"
+          *ngIf="puedeDarRespuesta()"
+          [disabled]="guardandoObservacion"
+          (click)="solicitarRespuesta()"
+        >
+          📝 DAR RESPUESTA
+        </button>
+
+        <!-- DEVOLVER DOCUMENTO -->
+        <button
+          type="button"
+          class="btn-devolver"
+          *ngIf="!tieneRespuestaQrd4"
+          [disabled]="guardandoObservacion"
+          (click)="solicitarDevolucion()"
+        >
+          ↩ DEVOLVER DOCUMENTO
+        </button>
+
+        <!-- SALIR -->
+        <button
+          type="button"
+          class="btn-salir"
+          (click)="cerrarModal()"
+        >
+          <span class="icono-accion">↩</span>
+          SALIR
+        </button>
+
+        <div class="observacion-lateral">
+          <div class="observacion-titulo">
+            OBSERVACIÓN / INDICACIONES
+          </div>
+
+          <textarea
+            [(ngModel)]="observacionActual"
+            maxlength="2000"
+            placeholder="Escriba una observación o indicación..."
+            (ngModelChange)="cambioObservacion()"
+            [readonly]="soloLectura"
+          ></textarea>
+
+          <div class="estado-observacion-lateral">
+            <div
+              class="estado-observacion guardando"
+              *ngIf="guardandoObservacion"
+            >
+              <span class="mini-spinner"></span>
+              Guardando...
+            </div>
+
+            <div
+              class="estado-observacion guardado"
+              *ngIf="
+                observacionGuardada &&
+                !guardandoObservacion
+              "
+            >
+              ✓ Guardado
+            </div>
+
+            <span
+              class="error-observacion"
+              *ngIf="errorObservacion"
+            >
+              {{ errorObservacion }}
+            </span>
+
+            <span class="contador-observacion">
+              {{ observacionActual.length }}/2000
+            </span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>

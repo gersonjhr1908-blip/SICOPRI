@@ -1,0 +1,130 @@
+.full-width{
+    width: 100%;
+}
+
+.top-padding{
+    padding-top: 3px;
+}
+
+/* Estilo para el mat-card */
+.custom-card {
+  justify-content: center;
+  width: 100%;
+  border-radius: 8px; /* Radio de borde */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Sombra */
+}
+
+.custom-card-reniec {
+  justify-content: center;
+ 
+  width: 500px;
+  border-radius: 8px; /* Radio de borde */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Sombra */
+}
+
+/* Estilo para el mat-card-title */
+.custom-card-title {
+  padding-bottom: 20px;
+  font-size: 25px; /* Tamaño del título */
+  color: #333; /* Color del título */
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* Estilo para el mat-card-content */
+.example-full-width {
+  width: 100%;
+
+  padding-right: 10px; 
+  color: #666; /* Color del contenido */
+}
+
+.example-width {
+    width: 100%;
+}
+
+.yellow-button {
+  background-color: #a7b046;
+  color: white; /* Cambia el color del texto según tu preferencia */
+  border: 2px solid rgb(142, 139, 55); /* Grosor y color del borde */
+  border-radius: 4px; /* Opcional: redondea las esquinas del botón */
+  cursor: pointer; /* Cambia el cursor a una mano cuando se pasa el mouse sobre el botón */
+  transition: background-color 0.3s; /* Agrega una transición suave al cambiar el color de fondo */
+}
+
+.yellow-button:hover {
+  background-color: #8e8e38; /* Cambia el color de fondo cuando el mouse pasa sobre el botón */
+}
+
+.yellow-button:active {
+  background-color: #5e5e1b; /* Cambia el color de fondo cuando el botón se presiona */
+}
+
+/* Agregar regla para el estado :disabled */
+.yellow-button:disabled {
+  background-color: gray; /* Puedes elegir el color que desees para cuando esté deshabilitado */
+  cursor: not-allowed; /* Cambia el cursor cuando el botón está deshabilitado */
+}
+
+.green-button {
+  background-color: #46b04c;
+  color: white; /* Cambia el color del texto según tu preferencia */
+  border: 2px solid rgb(55, 142, 55); /* Grosor y color del borde */
+  border-radius: 4px; /* Opcional: redondea las esquinas del botón */
+  cursor: pointer; /* Cambia el cursor a una mano cuando se pasa el mouse sobre el botón */
+  transition: background-color 0.3s; /* Agrega una transición suave al cambiar el color de fondo */
+}
+
+.green-button:hover {
+  background-color: #388E3C; /* Cambia el color de fondo cuando el mouse pasa sobre el botón */
+}
+
+.green-button:active {
+  background-color: #1B5E20; /* Cambia el color de fondo cuando el botón se presiona */
+}
+
+/* Agregar regla para el estado :disabled */
+.green-button:disabled {
+  background-color: gray; /* Puedes elegir el color que desees para cuando esté deshabilitado */
+  cursor: not-allowed; /* Cambia el cursor cuando el botón está deshabilitado */
+}
+
+
+.blue-button {
+  background-color: #5846b0;
+  color: white; /* Cambia el color del texto según tu preferencia */
+  border: 2px solid rgb(59, 55, 142); /* Grosor y color del borde */
+  border-radius: 4px; /* Opcional: redondea las esquinas del botón */
+  cursor: pointer; /* Cambia el cursor a una mano cuando se pasa el mouse sobre el botón */
+  transition: background-color 0.3s; /* Agrega una transición suave al cambiar el color de fondo */
+}
+
+.blue-button:hover {
+  background-color: #4c388e; /* Cambia el color de fondo cuando el mouse pasa sobre el botón */
+}
+
+.blue-button:active {
+  background-color: #1e1b5e; /* Cambia el color de fondo cuando el botón se presiona */
+}
+
+/* Agregar regla para el estado :disabled */
+.blue-button:disabled {
+  background-color: gray; /* Puedes elegir el color que desees para cuando esté deshabilitado */
+  cursor: not-allowed; /* Cambia el cursor cuando el botón está deshabilitado */
+}
+
+
+p {
+  margin-left: 10px; /* Puedes ajustar el valor según el espacio que desees */
+}
+
+/* Estilo para el contenedor del progress bar */
+.progress-bar-container {
+  width: 300px; /* Ancho del contenedor */
+}
+
+/* Estilo para el buffer bar */
+.mat-progress-buffer-custom {
+  height: 25px; /* Altura de la barra de buffer */
+  background-color: rgb(0, 0, 0); /* Color de fondo del buffer */
+}

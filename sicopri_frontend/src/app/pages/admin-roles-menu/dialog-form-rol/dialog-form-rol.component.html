@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>{{ titulo }}</h2>
+
+<mat-dialog-content>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Nombre</mat-label>
+    <input matInput [(ngModel)]="modelo.name" maxlength="50" required>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Descripción</mat-label>
+    <input matInput [(ngModel)]="modelo.description" maxlength="100" required>
+  </mat-form-field>
+
+  <p *ngIf="!esEdicion" class="hint-id">El ID se asignará automáticamente (máximo existente + 1)</p>
+  <p *ngIf="esEdicion" class="hint-id">ID: {{ data.rol?.idRole }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cerrar()" [disabled]="guardando">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="guardar()" [disabled]="guardando">
+    Guardar
+  </button>
+</mat-dialog-actions>

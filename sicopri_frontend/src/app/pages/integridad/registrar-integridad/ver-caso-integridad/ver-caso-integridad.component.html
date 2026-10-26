@@ -1,0 +1,591 @@
+<div class="overlay-caso">
+
+  <div class="modal-caso">
+
+    <!-- ================================================= -->
+    <!-- CABECERA -->
+    <!-- ================================================= -->
+
+    <div class="cabecera-caso">
+
+      <div class="cabecera-centro">
+
+        <h2>
+          INFORMACIÓN DE CASO APERTURADO
+        </h2>
+
+        <span *ngIf="detalle?.cinv">
+          {{ detalle.cinv }}
+        </span>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="btn-cerrar-x"
+        (click)="salir()">
+
+        ×
+
+      </button>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- CUERPO -->
+    <!-- ================================================= -->
+
+    <div class="layout-caso">
+
+
+      <!-- ================================================= -->
+      <!-- PARTE IZQUIERDA -->
+      <!-- ================================================= -->
+
+      <div class="contenido-principal">
+
+
+        <!-- ================================================= -->
+        <!-- TABS -->
+        <!-- ================================================= -->
+
+        <div class="tabs-caso">
+
+
+          <!-- DOC REGISTRADO -->
+
+          <button
+            type="button"
+            class="tab-btn"
+            [class.activo]="tabActivo === 'registrado'"
+            (click)="cambiarTab('registrado')">
+
+            <span class="numero-tab">
+              1
+            </span>
+
+            <span>
+              DOC REGISTRADO
+            </span>
+
+          </button>
+
+
+          <!-- DOC ADJUNTO -->
+
+          <button
+            type="button"
+            class="tab-btn"
+            [class.activo]="tabActivo === 'adjunto'"
+            (click)="cambiarTab('adjunto')">
+
+            <span class="numero-tab">
+              2
+            </span>
+
+            <span>
+              DOC ADJUNTO
+            </span>
+
+
+            <span
+              class="contador-pdf"
+              *ngIf="archivos.length > 0">
+
+              {{ archivos.length }}
+
+            </span>
+
+          </button>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- DOC REGISTRADO -->
+        <!-- ================================================= -->
+
+        <div
+          class="contenido-tab"
+          *ngIf="tabActivo === 'registrado'">
+
+
+          <!-- CARGANDO -->
+
+          <div
+            class="estado-carga"
+            *ngIf="cargandoDetalle">
+
+            <div class="spinner"></div>
+
+            <span>
+              Cargando información...
+            </span>
+
+          </div>
+
+
+          <!-- ERROR -->
+
+          <div
+            class="mensaje-error"
+            *ngIf="
+              !cargandoDetalle &&
+              errorDetalle
+            ">
+
+            {{ errorDetalle }}
+
+          </div>
+
+
+          <!-- ================================================= -->
+          <!-- DATOS DE INTEGRIDAD -->
+          <!-- ================================================= -->
+
+          <div
+            class="form-datos"
+            *ngIf="
+              !cargandoDetalle &&
+              !errorDetalle &&
+              detalle
+            ">
+
+
+            <!-- FILA 1 -->
+
+            <div class="campo">
+
+              <label>
+                TIPO DOC:
+              </label>
+
+              <div class="valor">
+
+                {{ mostrarValor(detalle.tipoDocumento) }}
+
+              </div>
+
+            </div>
+
+
+            <div class="campo">
+
+              <label>
+                N° DNI:
+              </label>
+
+              <div class="valor">
+
+                {{ mostrarValor(detalle.dni) }}
+
+              </div>
+
+            </div>
+
+
+            <div class="campo">
+
+              <label>
+                FECHA DE REGISTRO:
+              </label>
+
+              <div class="valor">
+
+                {{
+                  detalle.fechaRegistro
+                    ? (detalle.fechaRegistro | date:'dd/MM/yyyy HH:mm')
+                    : '-'
+                }}
+
+              </div>
+
+            </div>
+
+
+            <!-- FILA 2 -->
+
+            <div class="campo">
+
+              <label>
+                CORREO ELEC:
+              </label>
+
+              <div class="valor">
+
+                {{ mostrarValor(detalle.correo) }}
+
+              </div>
+
+            </div>
+
+
+            <div class="campo">
+
+              <label>
+                TELEF:
+              </label>
+
+              <div class="valor">
+
+                {{ mostrarValor(detalle.telefono) }}
+
+              </div>
+
+            </div>
+
+
+            <div class="campo">
+
+              <label>
+                FECHA DE ACTO DE CORRUPCIÓN:
+              </label>
+
+              <div class="valor">
+
+                {{
+                  detalle.fechaActoCorrupcion
+                    ? (detalle.fechaActoCorrupcion | date:'dd/MM/yyyy')
+                    : '-'
+                }}
+
+              </div>
+
+            </div>
+
+
+            <!-- FILA 4 -->
+
+            <div class="campo campo-doble">
+
+              <label>
+                IDENTIFICA EL MOTIVO DE TU DENUNCIA:
+              </label>
+
+              <div class="valor">
+
+                {{
+                  obtenerMotivoCompleto(
+                    detalle.motivoDenuncia
+                  )
+                }}
+
+              </div>
+
+            </div>
+
+
+            <div class="campo">
+
+              <label>
+                MEDIDAS DE PROTECCIÓN:
+              </label>
+
+              <div class="valor">
+
+                {{ mostrarValor(detalle.medidaProteccion) }}
+
+              </div>
+
+            </div>
+
+
+            <!-- FILA 5 -->
+
+            <div class="campo campo-doble">
+
+              <label>
+                IDENTIFICACIÓN DEL DENUNCIANTE:
+              </label>
+
+              <div class="valor">
+
+                {{ mostrarValor(detalle.identificacion) }}
+
+              </div>
+
+            </div>
+
+
+            <div class="campo">
+
+              <label>
+                SEXO:
+              </label>
+
+              <div class="valor">
+
+                {{ mostrarValor(detalle.sexo) }}
+
+              </div>
+
+            </div>
+
+
+            <!-- DETALLE -->
+
+            <div class="campo campo-completo">
+
+              <label>
+                DETALLE:
+              </label>
+
+              <div class="valor valor-textarea">
+
+                {{ mostrarValor(detalle.detalle) }}
+
+              </div>
+
+            </div>
+
+
+            <!-- DETALLE OTROS -->
+
+            <div
+              class="campo campo-completo"
+              *ngIf="detalle.detalleOtros">
+
+              <label>
+                DETALLE (OTROS):
+              </label>
+
+              <div class="valor valor-textarea">
+
+                {{ mostrarValor(detalle.detalleOtros) }}
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- DOCUMENTOS ADJUNTOS -->
+        <!-- ================================================= -->
+
+        <div
+          class="contenido-tab contenido-pdf"
+          *ngIf="tabActivo === 'adjunto'">
+
+
+          <!-- CARGANDO -->
+
+          <div
+            class="estado-carga"
+            *ngIf="cargandoArchivos">
+
+            <div class="spinner"></div>
+
+            <span>
+              Cargando documentos...
+            </span>
+
+          </div>
+
+
+          <!-- ERROR -->
+
+          <div
+            class="mensaje-error"
+            *ngIf="
+              !cargandoArchivos &&
+              errorArchivos
+            ">
+
+            {{ errorArchivos }}
+
+          </div>
+
+
+          <!-- SIN DOCUMENTOS -->
+
+          <div
+            class="sin-archivos"
+            *ngIf="
+              !cargandoArchivos &&
+              !errorArchivos &&
+              archivos.length === 0
+            ">
+
+            <div class="pdf-vacio-icono">
+              PDF
+            </div>
+
+            <strong>
+              No existen documentos adjuntos
+            </strong>
+
+          </div>
+
+
+          <!-- ================================================= -->
+          <!-- CON DOCUMENTOS -->
+          <!-- ================================================= -->
+
+          <div
+            class="documentos-layout"
+            *ngIf="
+              !cargandoArchivos &&
+              !errorArchivos &&
+              archivos.length > 0
+            ">
+
+
+            <!-- ================================================= -->
+            <!-- LISTA IZQUIERDA -->
+            <!-- ================================================= -->
+
+            <div class="lista-documentos">
+
+
+              <div class="lista-documentos-header">
+
+                DOCUMENTOS ADJUNTOS
+
+              </div>
+
+
+              <button
+                type="button"
+                class="archivo-item"
+                *ngFor="
+                  let archivo of archivos;
+                  let i = index
+                "
+                [class.archivo-activo]="
+                  archivoSeleccionado?.idArchivo ===
+                  archivo.idArchivo
+                "
+                (click)="seleccionarArchivo(archivo)">
+
+
+                <div class="archivo-icono">
+
+                  PDF
+
+                </div>
+
+
+                <div class="archivo-info">
+
+                  <strong>
+                    Documento {{ i + 1 }}
+                  </strong>
+
+                  <span>
+
+                    {{
+                      archivo.nombreArchivo ||
+                      archivo.nombreGuardado ||
+                      'Documento PDF'
+                    }}
+
+                  </span>
+
+                </div>
+
+              </button>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- VISOR PDF -->
+            <!-- ================================================= -->
+
+            <div class="visor-documento">
+
+
+              <div
+                class="visor-header"
+                *ngIf="archivoSeleccionado">
+
+                {{
+                  archivoSeleccionado.nombreArchivo ||
+                  archivoSeleccionado.nombreGuardado ||
+                  'Documento PDF'
+                }}
+
+              </div>
+
+
+              <iframe
+                *ngIf="pdfUrl"
+                class="visor-pdf"
+                [src]="pdfUrl"
+                title="Documento PDF">
+
+              </iframe>
+
+
+              <div
+                class="visor-vacio"
+                *ngIf="!pdfUrl">
+
+                Seleccione un documento.
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ================================================= -->
+      <!-- ACCIONES -->
+      <!-- ================================================= -->
+
+      <aside class="panel-acciones">
+
+
+        <div class="acciones-titulo">
+
+          ACCIONES
+
+        </div>
+
+
+        <button
+          type="button"
+          class="btn-enviar"
+          (click)="enviarANivel3()">
+
+          ⇧
+
+          <span>
+            ENVIAR A INSPECTORÍA
+            INTEGRIDAD NIVEL 3
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="btn-salir"
+          (click)="salir()">
+
+          ↩
+
+          <span>
+            SALIR
+          </span>
+
+        </button>
+
+      </aside>
+
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,240 @@
+/* You can add global styles to this file, and also import other style files */
+
+
+
+
+
+
+re-captcha.is-invalid > div {
+    border: 1px solid #dc3545 !important;
+    border-radius: 0.2rem;
+  }
+
+/* Contenedor del modal de reporte personal (ancho grande + scroll) */
+.reporte-personal-dialog-panel .mat-mdc-dialog-container {
+  padding: 0;
+  overflow: hidden;
+  max-height: 90vh;
+}
+.reporte-personal-dialog-panel .mat-mdc-dialog-surface {
+  overflow: hidden;
+}
+
+/* Diagrama de servidores: modal sin padding interno */
+.diag-servidores-dialog .mat-mdc-dialog-container {
+  padding: 0 !important;
+  overflow: hidden;
+  max-height: 92vh;
+}
+.diag-servidores-dialog .mat-mdc-dialog-surface {
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+/* SweetAlert — Leyenda de iconos servidores */
+.swal-leyenda-popup {
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(26, 35, 126, 0.22), 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  overflow: hidden;
+}
+
+.swal-leyenda-title {
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  color: #1a237e !important;
+  padding: 1.1em 1em 0.4em !important;
+  letter-spacing: 0.02em;
+}
+
+.swal-leyenda-body {
+  margin: 0 !important;
+  padding: 0 1.25em !important;
+  overflow: visible !important;
+}
+
+.swal-leyenda-btn {
+  border-radius: 10px !important;
+  padding: 0.55em 2em !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 12px rgba(67, 54, 133, 0.35) !important;
+}
+
+.swal-leyenda-wrap {
+  text-align: left;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.swal-leyenda-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 6px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(67, 54, 133, 0.1), rgba(21, 101, 192, 0.08));
+  border: 1px solid rgba(67, 54, 133, 0.15);
+  color: #433685;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.swal-leyenda-banner .material-icons {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.swal-leyenda-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(239, 108, 0, 0.1), rgba(198, 40, 40, 0.08));
+  border: 1px solid rgba(239, 108, 0, 0.35);
+  border-left: 4px solid #ef6c00;
+  color: #4e342e;
+}
+
+.swal-leyenda-aviso > .material-icons {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  color: #ef6c00;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.swal-leyenda-aviso strong {
+  display: block;
+  font-size: 13px;
+  color: #bf360c;
+  margin-bottom: 4px;
+}
+
+.swal-leyenda-aviso span {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #5d4037;
+}
+
+.swal-leyenda-aviso em {
+  font-style: normal;
+  font-weight: 800;
+  color: #c62828;
+}
+
+.swal-leyenda-aviso em:last-of-type {
+  color: #2e7d32;
+}
+
+.swal-leyenda-seccion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px dashed rgba(67, 54, 133, 0.2);
+  color: #433685;
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.swal-leyenda-seccion .material-icons {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.swal-leyenda-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 560px) {
+  .swal-leyenda-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .swal-leyenda-popup {
+    margin: 0.5em !important;
+  }
+
+  .swal-leyenda-title {
+    font-size: 1.1rem !important;
+    padding: 0.9em 0.8em 0.3em !important;
+  }
+
+  .swal-leyenda-body {
+    padding: 0 0.85em !important;
+  }
+
+  .swal-leyenda-aviso {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.swal-leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fafbfd 0%, #f4f6fb 100%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 3px solid var(--item-color, #546e7a);
+  box-shadow: 0 2px 6px rgba(20, 30, 60, 0.05);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.swal-leyenda-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(20, 30, 60, 0.1);
+}
+
+.swal-leyenda-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--item-color) 14%, white);
+  border: 1px solid color-mix(in srgb, var(--item-color) 30%, transparent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--item-color) 25%, transparent);
+}
+
+.swal-leyenda-icon .material-icons {
+  font-size: 22px;
+  color: var(--item-color);
+}
+
+.swal-leyenda-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.swal-leyenda-text strong {
+  font-size: 13.5px;
+  color: #1a237e;
+  line-height: 1.2;
+}
+
+.swal-leyenda-text span {
+  font-size: 11px;
+  color: #607d8b;
+  line-height: 1.25;
+}
+
+

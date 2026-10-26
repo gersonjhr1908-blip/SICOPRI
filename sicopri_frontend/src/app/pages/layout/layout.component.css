@@ -1,0 +1,511 @@
+/* ========================================
+   LAYOUT CONTAINER
+   ======================================== */
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f5f7fa;
+}
+
+.sidenav-container {
+  flex: 1;
+  height: 100%;
+  background-color: #f5f7fa;
+}
+
+::ng-deep .sidenav-container.mat-drawer-container {
+  height: 100%;
+}
+
+.app-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  height: 100%;
+  background-color: #f5f7fa;
+}
+
+.page-content-area {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.app-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  width: 100%;
+}
+
+/* ========================================
+   SIDENAV (MENÚ LATERAL VERTICAL)
+   ======================================== */
+.sidenav {
+  background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 100%);
+  color: #fff;
+  width: 220px;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidenav-header {
+  padding: 4px 1px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 0;
+  margin-bottom: 4px;
+}
+
+.logo-img {
+  filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3));
+  max-width: 100%;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.logo-img:hover {
+  transform: scale(1.05);
+}
+
+.divider {
+  margin: 20px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%);
+}
+
+.soporte-title {
+  text-align: center;
+  color: #ffffff;
+  margin: 4px 0 2px 0;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+}
+
+.role-title {
+  text-align: center;
+  color: #4ade80;
+  margin: 8px auto 12px auto;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px rgba(74, 222, 128, 0.4);
+  padding: 6px 16px;
+  background: rgba(74, 222, 128, 0.1);
+  border-radius: 12px;
+  display: block;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+}
+
+/* ========================================
+   NAVEGACIÓN MENÚ (SIEMPRE VERTICAL)
+   ======================================== */
+.menu-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 1px;
+  gap: 4px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 280px);
+}
+
+.menu-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.menu-nav::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.menu-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.menu-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.menu-button {
+  width: calc(100% - 16px);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.85);
+  background-color: transparent;
+  border: none;
+  padding: 7px 9px;
+  margin: 1px 4px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-button::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, rgba(47, 160, 175, 0.3) 0%, transparent 100%);
+  transition: width 0.3s ease;
+}
+
+.menu-button:hover::before {
+  width: 100%;
+}
+
+.menu-button:hover {
+  background-color: rgba(39, 122, 67, 0.253);
+  color: #ffffff;
+  transform: translateX(6px);
+
+}
+
+.menu-button.active {
+  background-color: rgba(28, 168, 75, 0.445);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.menu-button.active::before {
+  display: none;
+}
+
+.menu-button.active:hover {
+  background-color: rgba(255, 255, 255, 0.18);
+  transform: none;
+  box-shadow: none;
+}
+
+.menu-icon {
+  color: rgba(255, 255, 255, 0.9);
+  margin-right: 14px;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.menu-button:hover .menu-icon {
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.menu-button.active .menu-icon {
+  color: #ffffff;
+}
+
+.menu-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.3px;
+}
+
+.no-menus {
+  padding: 32px 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* ========================================
+   TOOLBAR (BARRA SUPERIOR)
+   ======================================== */
+.toolbar {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  color: #fff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+              0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 0 24px;
+  height: 72px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toolbar-title {
+  font-size: 20px;
+  color: white;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.toolbar-title h1 {
+  margin: 0;
+  font-size: 20px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.welcome-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.username-text {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  margin-left: 6px;
+  letter-spacing: 0.5px;
+}
+
+.user-menu-button {
+  color: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+}
+
+.user-menu-button:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.logout-icon {
+  color: #ef4444;
+  margin-right: 8px;
+}
+
+/* ========================================
+   CONTENIDO PRINCIPAL
+   ======================================== */
+.main-content {
+  min-height: calc(100vh - 72px);
+  padding: 24px;
+  overflow-y: auto;
+  background-color: #f5f7fa;
+}
+
+.main-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: #e2e8f0;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 5px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 768px) {
+  .sidenav {
+    width: 220px;
+  }
+
+  .toolbar {
+    padding: 0 16px;
+    height: 64px;
+  }
+
+  .toolbar-title h1 {
+    font-size: 18px;
+  }
+
+  .welcome-text,
+  .username-text {
+    font-size: 12px;
+  }
+
+  .user-section {
+    margin-right: 12px;
+    padding: 6px 12px;
+  }
+
+  .menu-button {
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+
+  .soporte-title {
+    font-size: 18px;
+  }
+
+  .role-title {
+    font-size: 14px;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .toolbar-title h1 {
+    font-size: 16px;
+  }
+
+  .user-section {
+    display: none;
+  }
+
+  .toolbar {
+    padding: 0 12px;
+  }
+
+  .sidenav {
+    width: 200px;
+  }
+
+  .menu-button {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+
+  .menu-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+  }
+}
+
+/* ========================================
+   ANIMACIONES ADICIONALES
+   ======================================== */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.menu-button {
+  animation: slideIn 0.3s ease backwards;
+}
+
+.menu-button:nth-child(1) { animation-delay: 0.05s; }
+.menu-button:nth-child(2) { animation-delay: 0.1s; }
+.menu-button:nth-child(3) { animation-delay: 0.15s; }
+.menu-button:nth-child(4) { animation-delay: 0.2s; }
+.menu-button:nth-child(5) { animation-delay: 0.25s; }
+.menu-button:nth-child(6) { animation-delay: 0.3s; }
+.menu-button:nth-child(7) { animation-delay: 0.35s; }
+.menu-button:nth-child(8) { animation-delay: 0.4s; }
+
+
+/* =========================================
+   SELECTOR DE VISTA DE ROL
+   SOLO ADMINISTRADOR
+========================================= */
+
+.role-switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-right: 25px;
+  padding: 6px 10px;
+
+  background: rgba(255, 255, 255, 0.10);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 7px;
+}
+
+.role-switcher-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.role-switcher-select {
+  min-width: 210px;
+  height: 34px;
+
+  padding: 0 10px;
+
+  border: 1px solid #d7dedb;
+  border-radius: 6px;
+
+  background: #ffffff;
+  color: #174d3b;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  outline: none;
+  cursor: pointer;
+}
+
+.role-switcher-select:hover {
+  border-color: #a9b9b2;
+}
+
+.role-switcher-select:focus {
+  border-color: #0b5d3d;
+  box-shadow: 0 0 0 2px rgba(11, 93, 61, 0.15);
+}
+
+.role-switcher-select option {
+  color: #26332f;
+  background: #ffffff;
+}

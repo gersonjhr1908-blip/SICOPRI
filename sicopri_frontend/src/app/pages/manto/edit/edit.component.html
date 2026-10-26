@@ -1,0 +1,59 @@
+<mat-dialog-content style="max-height: 90vh; overflow-y: auto;">
+  <mat-card class="custom-card" style="margin-top: 10px;">
+    <mat-card-header style="display: flex; justify-content: center;">
+      <mat-card-title class="custom-card-title">EDITAR USUARIO</mat-card-title>
+    </mat-card-header>
+    <div fxLayout="column" fxFlex="100">
+      <mat-card-content fxLayout="column" fxFlex="100">
+        <div fxLayout="row" fxFlex="33.3">
+          <div fxLayout="column" fxFlex="22" style="padding-right: 20px;">
+            <mat-form-field class="example-full-width">
+              <mat-label style=" font-weight: bold;">N° CIP</mat-label>
+              <input matInput type="text" placeholder="CIP" [(ngModel)]="cip" required
+                (keypress)="validarNumero($event)" (input)="validarLongitud()" maxlength="9"
+                (keydown.enter)="getbyCip(cip)" />
+            </mat-form-field>
+          </div>
+
+          <div fxLayout="column" fxFlex="73" style="padding-right: 10px;">
+            <mat-form-field class="example-full-width">
+              <mat-label style=" font-weight: bold;">GRADO ARMA APELLIDOS Y NOMBRES</mat-label>
+              <input matInput type="text" required readonly [(ngModel)]="fullname" />
+            </mat-form-field>
+          </div>
+
+        </div>
+
+        <div fxLayout="row" fxFlex="33.3">
+          <div fxLayout="column" fxFlex="27" style="padding-right: 20px;">
+            <mat-form-field class="example-full-width">
+              <mat-label style="font-weight: bold;">USUARIO CHASQUI</mat-label>
+              <input matInput type="text" readonly [(ngModel)]="username" maxlength="60" required />
+            </mat-form-field>
+          </div>
+          <div fxLayout="column" fxFlex="30" style="padding-right: 10px;">
+            <mat-form-field>
+              <mat-label>ROL</mat-label>
+              <mat-select name="nivel" [(ngModel)]="nivel">
+                @for (rol of roles; track rol.idRole) {
+                  <mat-option [value]="rol.idRole">{{ rol.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+        </div>
+
+
+
+        <div fxLayout="row" style="padding-right: 10px; padding-top: 15px; padding-left: 75%;">
+
+          <button class="green-button mat-raised-button" fxFlex="100%" style="height: 40px;"
+            [disabled]="!camposLlenos()" (click)="actualizarUsuario()">
+            Actualizar
+          </button>
+        </div>
+      </mat-card-content>
+    </div>
+  </mat-card>
+</mat-dialog-content>

@@ -1,0 +1,18 @@
+
+
+.checkbox-container {
+    column-count: 3;
+    padding: 20px;
+  }
+  
+  .checkbox-item {
+    display: inline-block;
+    width: 100%; /* Ajusta el ancho según tu diseño */
+  }
+
+  .mdc-checkbox .mdc-checkbox__native-control:enabled:checked~.mdc-checkbox__background, .mdc-checkbox .mdc-checkbox__native-control:enabled:indeterminate~.mdc-checkbox__background, .mdc-checkbox .mdc-checkbox__native-control[data-indeterminate=true]:enabled~.mdc-checkbox__background {
+    border-color: #7d40ff;
+    background-color: #4670b3;
+}
+
+  

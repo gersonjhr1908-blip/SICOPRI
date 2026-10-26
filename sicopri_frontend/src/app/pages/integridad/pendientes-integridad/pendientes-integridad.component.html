@@ -1,0 +1,252 @@
+<div class="pendientes-integridad-page">
+
+  <div class="pendientes-integridad-card">
+
+
+    <!-- ===================================== -->
+    <!-- CABECERA -->
+    <!-- ===================================== -->
+
+    <div class="titulo-container">
+
+      <div class="titulo-icono">
+        📋
+      </div>
+
+      <div>
+
+        <h2>
+          LISTADO DE DENUNCIAS (PUD) PENDIENTES
+        </h2>
+
+        <p>
+          Gestión y seguimiento de denuncias enviadas a Inspectoría Integridad Nivel 3
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- TOOLBAR -->
+    <!-- ===================================== -->
+
+    <div class="toolbar-integridad">
+
+      <div class="buscador">
+
+        <input
+          type="text"
+          [(ngModel)]="search"
+          (keyup.enter)="buscarDocumentos()"
+          placeholder="BUSCADOR CÓDIGO DENUNCIA (PUD):"
+        />
+
+
+        <button
+          *ngIf="search"
+          type="button"
+          class="btn-limpiar"
+          (click)="limpiarBusqueda()"
+          title="Limpiar búsqueda">
+
+          ✕
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- TABLA -->
+    <!-- ===================================== -->
+
+    <div class="tabla-wrapper">
+
+      <table class="pendientes-integridad-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              CÓDIGO
+            </th>
+
+            <th>
+              FECHA DE REGISTRO
+            </th>
+
+            <th>
+              FECHA DE ACTO DE CORRUPCIÓN
+            </th>
+
+            <th>
+              MOTIVO DE TU DENUNCIA
+            </th>
+
+            <th>
+              DETALLE
+            </th>
+
+            <th>
+              DESCRIPCIÓN O DETALLE (OTROS)
+            </th>
+
+            <th>
+              ESTADO
+            </th>
+
+            <th>
+              ACCIONES
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+
+          <!-- ===================================== -->
+          <!-- REGISTROS -->
+          <!-- ===================================== -->
+
+          <tr
+            *ngFor="let documento of documentos">
+
+
+            <!-- CÓDIGO -->
+
+            <td>
+
+              {{ documento.cinv }}
+
+            </td>
+
+
+            <!-- FECHA REGISTRO -->
+
+            <td>
+
+              {{ documento.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}
+
+            </td>
+
+
+            <!-- FECHA ACTO CORRUPCIÓN -->
+
+            <td>
+
+              {{ documento.fechaActoCorrupcion | date:'dd/MM/yyyy' }}
+
+            </td>
+
+
+            <!-- MOTIVO -->
+
+            <td>
+
+              {{ documento.motivoDenuncia || '-' }}
+
+            </td>
+
+
+            <!-- DETALLE -->
+
+            <td>
+
+              {{ documento.detalle || '-' }}
+
+            </td>
+
+
+            <!-- DETALLE OTROS -->
+
+            <td>
+
+              {{ documento.detalleOtros || '-' }}
+
+            </td>
+
+
+            <!-- ESTADO -->
+
+            <td>
+
+              <span class="estado-pendiente">
+
+                PENDIENTE
+
+              </span>
+
+            </td>
+
+
+            <!-- ACCIONES / DECISIÓN -->
+
+            <td>
+
+              <span class="decision-pendiente">
+
+                PENDIENTE DE EVALUACIÓN
+
+              </span>
+
+            </td>
+
+          </tr>
+
+
+          <!-- ===================================== -->
+          <!-- SIN REGISTROS -->
+          <!-- ===================================== -->
+
+          <tr
+            *ngIf="documentos.length === 0">
+
+            <td
+              colspan="8"
+              class="sin-registros">
+
+
+              <div class="sin-icono">
+
+                📁
+
+              </div>
+
+
+              <h3>
+
+                No hay denuncias pendientes
+
+              </h3>
+
+
+              <p>
+
+                Las denuncias enviadas desde Integridad Nivel 2
+                aparecerán aquí para su evaluación.
+
+              </p>
+
+
+            </td>
+
+          </tr>
+
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>

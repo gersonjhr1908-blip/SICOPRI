@@ -1,0 +1,145 @@
+<div class="registrar-page">
+  <div class="registrar-card">
+
+    <div class="titulo-container">
+      <div class="titulo-icono">📋</div>
+      <div>
+        <h2>LISTADO TOTAL</h2>
+        <p>QRD Nivel 4 · Seguimiento general de expedientes gestionados</p>
+      </div>
+    </div>
+
+    <div class="toolbar-documentos">
+      <div class="buscador">
+        <input
+          type="text"
+          [(ngModel)]="search"
+          (input)="buscarDocumentos()"
+          placeholder="Buscador dinámico..."
+        />
+
+        <button
+          *ngIf="search"
+          type="button"
+          class="btn-limpiar"
+          (click)="limpiarBusqueda()"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table class="documentos-table">
+        <thead>
+          <tr>
+            <th>CINV</th>
+            <th>CATEGORÍA</th>
+            <th>DOCUMENTO</th>
+            <th>N° DOC</th>
+            <th>ASUNTO</th>
+            <th>UBICACIÓN ACTUAL</th>
+            <th>FECHA REGISTRO</th>
+            <th>ESTADO</th>
+            <th>ACCIONES</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let doc of documentos">
+            <td>{{ doc.cinv }}</td>
+
+            <td>
+              <strong class="categoria-qrd">{{ doc.categoriaQrd }}</strong>
+            </td>
+
+            <td>{{ doc.documento }}</td>
+            <td>{{ doc.nroDocumento }}</td>
+            <td>{{ doc.asunto }}</td>
+
+            <td>
+              <span class="ubicacion-badge">{{ doc.ubicacionVisual }}</span>
+            </td>
+
+            <td>{{ doc.fechaRegistro | date:'dd/MM/yyyy' }}</td>
+
+            <td>
+              <span
+                class="estado-badge"
+                [class.estado-pendiente]="
+                  doc.estadoVisual === 'PENDIENTE'
+                "
+                [class.estado-observado]="doc.estadoVisual === 'OBSERVADO'"
+                [class.estado-concluido]="doc.estadoVisual === 'CONCLUIDO'"
+                [class.estado-enviado]="doc.estadoVisual.startsWith('ENVIADO')"
+              >
+                {{ doc.estadoVisual }}
+              </span>
+            </td>
+
+            <td>
+              <div class="acciones">
+                <button
+                  type="button"
+                  class="btn-accion btn-menu"
+                  title="Acciones del expediente"
+                  (click)="alternarMenuAcciones(doc.idExpediente)"
+                >
+                  ⋮
+                </button>
+
+                <div
+                  class="menu-acciones"
+                  *ngIf="menuAccionesAbierto === doc.idExpediente"
+                >
+                  <button type="button" (click)="verCaso(doc)">
+                    👁 Ver caso
+                  </button>
+
+                  <button type="button" disabled title="Se habilita en el siguiente paso">
+                    ⌘ Trazabilidad
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled
+                    *ngIf="doc.estadoVisual === 'CONCLUIDO'"
+                    title="Se habilita con el estado Archivado"
+                  >
+                    🗃 Archivar caso
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled
+                    *ngIf="doc.estadoVisual === 'ARCHIVADO'"
+                    title="Solo disponible para expedientes archivados"
+                  >
+                    🗑 Eliminar
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="documentos.length === 0">
+            <td colspan="9" class="sin-documentos">
+              <div class="sin-icono">📁</div>
+              <h3>No hay expedientes en el listado total</h3>
+              <p>
+                Los casos aparecerán aquí cuando QRD4 los gestione o los derive.
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-ver-caso-listado-qrd4
+  *ngIf="mostrarVerCaso && documentoSeleccionado"
+  [expediente]="documentoSeleccionado"
+  (cerrar)="cerrarVerCaso()"
+>
+</app-ver-caso-listado-qrd4>

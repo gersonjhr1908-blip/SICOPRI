@@ -1,0 +1,36 @@
+<section class="forbidden-page" aria-labelledby="forbidden-title">
+  <div class="forbidden-bg" aria-hidden="true">
+    <span class="orb orb-1"></span>
+    <span class="orb orb-2"></span>
+    <span class="orb orb-3"></span>
+  </div>
+
+  <article class="forbidden-card">
+    <div class="icon-wrap" aria-hidden="true">
+      <mat-icon class="shield-icon">gpp_bad</mat-icon>
+    </div>
+
+    <p class="error-code" aria-hidden="true">403</p>
+
+    <h1 id="forbidden-title" class="title">Acceso denegado</h1>
+    <p class="subtitle">No tienes permisos para ver esta sección</p>
+
+    <p class="user-message" *ngIf="username">
+      Hola, <strong>{{ username }}</strong>. Tu rol actual no incluye acceso a este recurso.
+    </p>
+    <p class="user-message" *ngIf="!username">
+      Tu sesión no permite acceder a este recurso.
+    </p>
+
+    <div class="actions">
+      <a class="btn-primary" routerLink="/pages/home">
+        <mat-icon>dashboard</mat-icon>
+        <span>Ir al panel principal</span>
+      </a>
+    </div>
+
+    <p class="hint">
+      Si crees que es un error, contacta al administrador del sistema.
+    </p>
+  </article>
+</section>

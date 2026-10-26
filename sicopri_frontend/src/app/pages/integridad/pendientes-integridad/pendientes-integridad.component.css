@@ -1,0 +1,568 @@
+/* =====================================================
+   PÁGINA - PENDIENTES INTEGRIDAD
+===================================================== */
+
+.pendientes-integridad-page {
+  padding: 22px;
+  background: #f4f7fb;
+  min-height: calc(100vh - 80px);
+  box-sizing: border-box;
+}
+
+
+/* =====================================================
+   TARJETA PRINCIPAL
+===================================================== */
+
+.pendientes-integridad-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e6eaf0;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+
+/* =====================================================
+   CABECERA
+===================================================== */
+
+.titulo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  padding: 22px 30px;
+
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+.titulo-icono {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #0d5c3f;
+  color: #ffffff;
+
+  font-size: 21px;
+
+  box-shadow:
+    0 5px 14px rgba(13, 92, 63, 0.22);
+}
+
+
+.titulo-container h2 {
+  margin: 0;
+
+  color: #315d25;
+
+  font-size: 21px;
+  font-weight: 800;
+
+  text-align: center;
+}
+
+
+.titulo-container p {
+  margin: 5px 0 0;
+
+  color: #7a8491;
+
+  font-size: 13px;
+
+  text-align: center;
+}
+
+
+/* =====================================================
+   TOOLBAR
+===================================================== */
+
+.toolbar-integridad {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 18px 24px;
+
+  background: #f8fafc;
+
+  border-bottom: 1px solid #e4e8ed;
+}
+
+
+/* =====================================================
+   BUSCADOR
+===================================================== */
+
+.buscador {
+  position: relative;
+
+  width: 460px;
+  max-width: 100%;
+}
+
+
+.buscador input {
+  width: 100%;
+  height: 43px;
+
+  padding:
+    0
+    43px
+    0
+    15px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #cfd7df;
+  border-radius: 8px;
+
+  outline: none;
+
+  color: #374151;
+
+  font-size: 13px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.buscador input::placeholder {
+  color: #8b949e;
+}
+
+
+.buscador input:focus {
+  border-color: #0d6b4c;
+
+  box-shadow:
+    0 0 0 3px rgba(13, 107, 76, 0.10);
+}
+
+
+/* =====================================================
+   LIMPIAR BUSCADOR
+===================================================== */
+
+.btn-limpiar {
+  position: absolute;
+
+  top: 50%;
+  right: 8px;
+
+  transform: translateY(-50%);
+
+  width: 29px;
+  height: 29px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: #777777;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+
+.btn-limpiar:hover {
+  background: #edf2ef;
+  color: #245d3e;
+}
+
+
+/* =====================================================
+   CONTENEDOR TABLA
+===================================================== */
+
+.tabla-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  background: #ffffff;
+}
+
+
+/* =====================================================
+   TABLA
+===================================================== */
+
+.pendientes-integridad-table {
+  width: 100%;
+
+  min-width: 1250px;
+
+  border-collapse: collapse;
+
+  table-layout: fixed;
+
+  background: #ffffff;
+}
+
+
+/* =====================================================
+   CABECERA TABLA
+===================================================== */
+
+.pendientes-integridad-table thead {
+  background: #315d25;
+}
+
+
+.pendientes-integridad-table th {
+  padding: 14px 12px;
+
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  line-height: 1.35;
+
+  text-align: left;
+  vertical-align: middle;
+
+  border-right:
+    1px solid rgba(255, 255, 255, 0.20);
+}
+
+
+.pendientes-integridad-table th:last-child {
+  border-right: none;
+}
+
+
+/* =====================================================
+   ANCHO DE COLUMNAS
+===================================================== */
+
+.pendientes-integridad-table th:nth-child(1) {
+  width: 145px;
+}
+
+.pendientes-integridad-table th:nth-child(2) {
+  width: 120px;
+}
+
+.pendientes-integridad-table th:nth-child(3) {
+  width: 145px;
+}
+
+.pendientes-integridad-table th:nth-child(4) {
+  width: 190px;
+}
+
+.pendientes-integridad-table th:nth-child(5) {
+  width: 210px;
+}
+
+.pendientes-integridad-table th:nth-child(6) {
+  width: 210px;
+}
+
+.pendientes-integridad-table th:nth-child(7) {
+  width: 125px;
+}
+
+.pendientes-integridad-table th:nth-child(8) {
+  width: 180px;
+}
+
+
+/* =====================================================
+   CELDAS
+===================================================== */
+
+.pendientes-integridad-table td {
+  padding: 14px 12px;
+
+  color: #4c5560;
+
+  font-size: 12.5px;
+
+  line-height: 1.45;
+
+  vertical-align: middle;
+
+  border-bottom: 1px solid #edf0f2;
+
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+
+.pendientes-integridad-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+
+.pendientes-integridad-table tbody tr:hover {
+  background: #f7faf8;
+}
+
+
+.pendientes-integridad-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* =====================================================
+   CÓDIGO CINV
+===================================================== */
+
+.pendientes-integridad-table td:first-child {
+  color: #45515a;
+
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   ESTADO PENDIENTE
+===================================================== */
+
+.estado-pendiente {
+  min-width: 92px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 7px 13px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #eadca0;
+  border-radius: 20px;
+
+  background: #fff8d9;
+
+  color: #8b6d00;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+
+/* =====================================================
+   DECISIÓN PENDIENTE
+===================================================== */
+
+.decision-pendiente {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 7px 11px;
+
+  border: 1px solid #d8dee5;
+  border-radius: 7px;
+
+  background: #f7f8fa;
+
+  color: #68717b;
+
+  font-size: 10.5px;
+  font-weight: 700;
+
+  text-align: center;
+
+  line-height: 1.25;
+
+  white-space: normal;
+}
+
+
+/* =====================================================
+   SIN REGISTROS
+===================================================== */
+
+.sin-registros {
+  padding: 65px 20px !important;
+
+  text-align: center !important;
+
+  color: #6d7680;
+}
+
+
+.sin-icono {
+  margin-bottom: 13px;
+
+  font-size: 45px;
+
+  opacity: 0.5;
+}
+
+
+.sin-registros h3 {
+  margin: 0;
+
+  color: #39434d;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+
+.sin-registros p {
+  max-width: 480px;
+
+  margin:
+    8px
+    auto
+    0;
+
+  color: #8b949e;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+
+/* =====================================================
+   SCROLL HORIZONTAL
+===================================================== */
+
+.tabla-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+
+.tabla-wrapper::-webkit-scrollbar-track {
+  background: #edf1f4;
+}
+
+
+.tabla-wrapper::-webkit-scrollbar-thumb {
+  background: #aab5ae;
+
+  border-radius: 10px;
+}
+
+
+.tabla-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #82938a;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1000px) {
+
+  .pendientes-integridad-page {
+    padding: 14px;
+  }
+
+
+  .titulo-container {
+    justify-content: flex-start;
+
+    padding: 18px 20px;
+  }
+
+
+  .titulo-container h2 {
+    font-size: 18px;
+
+    text-align: left;
+  }
+
+
+  .titulo-container p {
+    text-align: left;
+  }
+
+
+  .toolbar-integridad {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    padding: 15px;
+  }
+
+
+  .buscador {
+    width: 100%;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .pendientes-integridad-page {
+    padding: 8px;
+  }
+
+
+  .pendientes-integridad-card {
+    border-radius: 10px;
+  }
+
+
+  .titulo-container {
+    gap: 10px;
+
+    padding: 15px;
+  }
+
+
+  .titulo-icono {
+    width: 40px;
+    height: 40px;
+
+    font-size: 18px;
+  }
+
+
+  .titulo-container h2 {
+    font-size: 16px;
+  }
+
+
+  .titulo-container p {
+    font-size: 11px;
+  }
+
+
+  .buscador input {
+    font-size: 12px;
+  }
+
+}

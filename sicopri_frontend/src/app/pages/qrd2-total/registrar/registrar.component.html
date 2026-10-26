@@ -1,0 +1,421 @@
+<div class="registrar-page">
+
+  <div class="registrar-card">
+
+
+    <!-- ============================= -->
+    <!-- CABECERA -->
+    <!-- ============================= -->
+
+    <div class="titulo-container">
+
+      <div class="titulo-icono">
+        📄
+      </div>
+
+      <div>
+
+        <h2>
+          LISTADO DE DOCUMENTOS REGISTRADOS
+        </h2>
+
+        <p>
+          Gestión y consulta de documentos registrados
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- TOOLBAR -->
+    <!-- ============================= -->
+
+    <div class="toolbar-documentos">
+
+      <div class="buscador">
+
+        <input
+          type="text"
+          [(ngModel)]="search"
+          (input)="buscarDocumentos()"
+          placeholder="Buscador dinámico..."
+        />
+
+
+        <button
+          *ngIf="search"
+          type="button"
+          class="btn-limpiar"
+          (click)="limpiarBusqueda()"
+        >
+          ✕
+        </button>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="btn-nuevo"
+        (click)="nuevoDocumento()"
+      >
+        ＋ Nuevo Documento
+      </button>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- TABLA -->
+    <!-- ============================= -->
+
+    <div class="tabla-wrapper">
+
+      <table class="documentos-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              CINV
+            </th>
+
+            <th>
+              CATEGORÍA
+            </th>
+
+            <th>
+              DOCUMENTO
+            </th>
+
+            <th>
+              N° DOC
+            </th>
+
+            <th>
+              ASUNTO
+            </th>
+
+            <th>
+              FECHA REGISTRO
+            </th>
+
+            <th>
+              ESTADO
+            </th>
+
+            <th>
+              ACCIONES
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+
+          <!-- ============================= -->
+          <!-- DOCUMENTOS -->
+          <!-- ============================= -->
+
+          <tr
+            *ngFor="let doc of documentos"
+          >
+
+
+            <!-- CINV -->
+
+            <td>
+              {{ doc.cinv }}
+            </td>
+
+
+            <!-- CATEGORÍA QRD -->
+
+            <td>
+
+              <strong class="categoria-qrd">
+                {{ doc.categoriaQrd }}
+              </strong>
+
+            </td>
+
+
+            <!-- TIPO DOCUMENTO -->
+
+            <td>
+              {{ doc.documento }}
+            </td>
+
+
+            <!-- N° DOCUMENTO -->
+
+            <td>
+              {{ doc.nroDocumento }}
+            </td>
+
+
+            <!-- ASUNTO -->
+
+            <td>
+              {{ doc.asunto }}
+            </td>
+
+
+            <!-- FECHA REGISTRO -->
+
+            <td>
+              {{
+                doc.fechaRegistro
+                  | date:'dd/MM/yyyy'
+              }}
+            </td>
+
+
+            <!-- ESTADO -->
+
+            <td>
+
+              <span
+                class="estado-badge estado-registrado"
+              >
+
+                REGISTRADO
+
+              </span>
+
+            </td>
+
+
+            <!-- ============================= -->
+            <!-- ACCIONES -->
+            <!-- ============================= -->
+
+            <td>
+
+              <div class="acciones">
+
+
+                <!-- VER CASO -->
+
+                <button
+                  type="button"
+                  class="btn-accion btn-ver"
+                  title="Ver caso"
+                  (click)="verCaso(doc)"
+                >
+                  👁
+                </button>
+
+
+                <!-- EDITAR -->
+
+                <button
+                  type="button"
+                  class="btn-accion btn-editar"
+                  title="Editar"
+                  (click)="editarDocumento(doc)"
+                >
+                  ✎
+                </button>
+
+
+                <!-- ELIMINAR -->
+
+                <button
+                  type="button"
+                  class="btn-accion btn-eliminar"
+                  title="Eliminar"
+                  (click)="eliminarDocumento(doc)"
+                >
+                  🗑
+                </button>
+
+
+              </div>
+
+            </td>
+
+          </tr>
+
+
+          <!-- ============================= -->
+          <!-- SIN DOCUMENTOS -->
+          <!-- ============================= -->
+
+          <tr
+            *ngIf="documentos.length === 0"
+          >
+
+            <td
+              colspan="8"
+              class="sin-documentos"
+            >
+
+              <div class="sin-icono">
+                📁
+              </div>
+
+
+              <h3>
+                No se encontraron documentos
+              </h3>
+
+
+              <p>
+                No hay documentos registrados.
+                Haz clic en "Nuevo Documento"
+                para comenzar.
+              </p>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================================================== -->
+<!-- MODAL REGISTRAR NUEVO DOCUMENTO -->
+<!-- ================================================== -->
+
+<div
+  class="modal-overlay"
+  *ngIf="mostrarModalNuevo"
+  (click)="cerrarNuevoDocumento()"
+>
+
+  <div
+    class="modal-nuevo-documento"
+    (click)="$event.stopPropagation()"
+  >
+
+
+    <!-- ============================= -->
+    <!-- CABECERA -->
+    <!-- ============================= -->
+
+    <div class="modal-header">
+
+      <div class="modal-title">
+
+        <div class="modal-title-icon">
+          📄
+        </div>
+
+
+        <div>
+
+          <h2>
+            REGISTRAR NUEVO DOCUMENTO
+          </h2>
+
+          <p>
+            Ingrese la información del documento
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="modal-close"
+        (click)="cerrarNuevoDocumento()"
+        title="Cerrar"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <!-- ============================= -->
+    <!-- CUERPO -->
+    <!-- ============================= -->
+
+    <div class="modal-body">
+
+      <app-nuevo-documento
+        (documentoRegistrado)="
+          documentoRegistrado($event)
+        "
+        (cerrarModal)="
+          cerrarNuevoDocumento()
+        "
+      >
+      </app-nuevo-documento>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================================================== -->
+<!-- VER CASO QRD -->
+<!-- ================================================== -->
+
+<app-ver-caso-qrd
+
+  *ngIf="
+    mostrarVerCaso &&
+    documentoSeleccionado
+  "
+
+  [expediente]="
+    documentoSeleccionado
+  "
+
+  (cerrar)="
+    cerrarVerCaso()
+  "
+
+  (enviarNivel3)="
+    enviarAInspectoriaNivel3($event)
+  "
+
+>
+</app-ver-caso-qrd>
+
+
+<!-- ================================================== -->
+<!-- EDITAR QRD -->
+<!-- ================================================== -->
+
+<app-editar-documento-qrd
+
+  *ngIf="
+    mostrarEditar &&
+    documentoEditar
+  "
+
+  [expediente]="
+    documentoEditar
+  "
+
+  (cerrar)="
+    cerrarEditar()
+  "
+
+  (actualizado)="
+    documentoActualizado($event)
+  "
+
+>
+</app-editar-documento-qrd>

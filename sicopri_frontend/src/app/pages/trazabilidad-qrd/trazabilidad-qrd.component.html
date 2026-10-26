@@ -1,0 +1,195 @@
+<div
+  class="trazabilidad-overlay"
+  (click)="cerrarModal()"
+>
+  <section
+    class="trazabilidad-modal"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="trazabilidad-header">
+      <div>
+        <h2>TRAZABILIDAD DEL EXPEDIENTE</h2>
+        <p>{{ expediente?.cinv || '-' }}</p>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar"
+        (click)="cerrarModal()"
+      >
+        ✕
+      </button>
+    </header>
+
+    <main class="trazabilidad-body">
+      <section
+        class="pantalla-inicio"
+        *ngIf="!inicioActivo"
+      >
+        <button
+          type="button"
+          class="btn-inicio"
+          (click)="iniciarTrazabilidad()"
+        >
+          ▶ INICIO
+        </button>
+      </section>
+
+      <section
+        class="contenido-trazabilidad"
+        *ngIf="inicioActivo"
+      >
+        <div
+          class="estado-cargando"
+          *ngIf="cargando"
+        >
+          Cargando trazabilidad...
+        </div>
+
+        <div
+          class="estado-error"
+          *ngIf="error && !cargando"
+        >
+          {{ error }}
+        </div>
+
+        <div
+          class="sin-movimientos"
+          *ngIf="
+            !cargando &&
+            !error &&
+            movimientos.length === 0
+          "
+        >
+          No hay movimientos registrados.
+        </div>
+
+        <div
+          class="linea-trazabilidad"
+          *ngIf="
+            !cargando &&
+            movimientos.length > 0
+          "
+        >
+          <div class="linea-central"></div>
+
+          <div
+            class="movimiento"
+            *ngFor="
+              let movimiento of movimientos;
+              let i = index
+            "
+            [class.movimiento-par]="i % 2 === 1"
+          >
+            <div class="numero-movimiento">
+              {{ i + 1 }}
+            </div>
+
+            <article class="tarjeta-movimiento">
+              <header class="tarjeta-header">
+                <div class="fecha-movimiento">
+                  <strong>
+                    {{
+                      movimiento.fechaMovimiento
+                      | date:'dd'
+                    }}
+                  </strong>
+
+                  <span>
+                    {{
+                      movimiento.fechaMovimiento
+                      | date:'MMM yyyy'
+                    | uppercase
+                    }}
+                  </span>
+                </div>
+
+                <div class="titulo-movimiento">
+                  <span class="icono-documento">▣</span>
+
+                  <strong>
+                    {{
+                      movimiento.accion ||
+                      'MOVIMIENTO'
+                    }}
+                  </strong>
+                </div>
+              </header>
+
+              <div class="datos-movimiento">
+                <div class="dato-movimiento">
+                  <span class="icono-dato">◷</span>
+
+                  <strong>Hora:</strong>
+
+                  <span>
+                    {{
+                      movimiento.fechaMovimiento
+                      | date:'HH:mm'
+                    }}
+                  </span>
+                </div>
+
+                <div class="dato-movimiento">
+                  <span class="icono-dato">←</span>
+
+                  <strong>Origen:</strong>
+
+                  <span>
+                    {{
+                      movimiento.origenVisual ||
+                      nivelVisual(
+                        movimiento.nivelOrigen
+                      )
+                    }}
+                  </span>
+                </div>
+
+                <div class="dato-movimiento">
+                  <span class="icono-dato">→</span>
+
+                  <strong>Destino:</strong>
+
+                  <span>
+                    {{
+                      movimiento.destinoVisual ||
+                      nivelVisual(
+                        movimiento.nivelDestino
+                      )
+                    }}
+                  </span>
+                </div>
+
+                <div class="dato-movimiento">
+                  <span class="icono-dato">▰</span>
+
+                  <strong>Observación:</strong>
+
+                  <span>
+                    {{
+                      movimiento.observacion ||
+                      'Sin observación'
+                    }}
+                  </span>
+                </div>
+
+                <div class="dato-movimiento">
+                  <span class="icono-dato">♟</span>
+
+                  <strong>Responsable:</strong>
+
+                  <span>
+                    {{
+                      movimiento.usuario ||
+                      'Usuario no disponible'
+                    }}
+                  </span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+  </section>
+</div>

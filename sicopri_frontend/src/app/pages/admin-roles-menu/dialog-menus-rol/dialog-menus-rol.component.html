@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>
+  <mat-icon>menu</mat-icon>
+  Menús del rol: {{ rol.name }}
+</h2>
+
+<mat-dialog-content>
+  <p class="hint-text">Verde = asignado · Rojo = no asignado (clic para cambiar)</p>
+
+  <div *ngIf="cargando" class="loading-row">
+    <mat-spinner diameter="36"></mat-spinner>
+    <span>Cargando menús...</span>
+  </div>
+
+  <div *ngIf="!cargando" class="menu-grid">
+    <button
+      type="button"
+      class="menu-item"
+      *ngFor="let menu of menus"
+      [class.menu-asignado]="menu.assigned"
+      [class.menu-no-asignado]="!menu.assigned"
+      (click)="toggleMenu(menu)">
+      <mat-icon>{{ menu.icon }}</mat-icon>
+      <span class="menu-nombre">{{ menu.name }}</span>
+      <span class="menu-url">{{ menu.url }}</span>
+    </button>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cerrar()" [disabled]="guardando">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="guardar()" [disabled]="guardando || cargando">
+    <mat-icon>save</mat-icon> Guardar
+  </button>
+</mat-dialog-actions>

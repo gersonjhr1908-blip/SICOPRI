@@ -1,0 +1,324 @@
+<div class="total-reg-page">
+
+  <div class="total-reg-card">
+
+
+    <!-- ===================================== -->
+    <!-- CABECERA -->
+    <!-- ===================================== -->
+
+    <div class="titulo-total">
+
+      <div class="titulo-icono">
+        📋
+      </div>
+
+      <div>
+
+        <h2>
+          LISTADO DE TODAS LAS INVESTIGACIONES
+        </h2>
+
+        <p>
+          Consulta general de documentos registrados
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- BUSCADOR + TOTAL -->
+    <!-- ===================================== -->
+
+    <div class="toolbar-total">
+
+      <div class="buscador-total">
+
+        <input type="text" [(ngModel)]="search" (input)="buscar()" placeholder="Buscador dinámico...">
+
+
+        <button *ngIf="search" type="button" class="btn-limpiar" (click)="limpiarBusqueda()">
+          ✕
+        </button>
+
+      </div>
+
+
+      <!-- =================================== -->
+      <!-- TOTAL DOCUMENTOS -->
+      <!-- =================================== -->
+
+      <div class="contador-total">
+
+        <span>
+          Total Docs:
+        </span>
+
+        <strong>
+          {{ documentosFiltrados.length }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- TABLA -->
+    <!-- ===================================== -->
+
+    <div class="tabla-wrapper">
+
+      <table class="total-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              CINV / CATEGORÍA
+            </th>
+
+            <th>
+              ASUNTO
+            </th>
+
+            <th>
+              DESCRIPCIÓN
+            </th>
+
+            <th>
+              FECHA REGISTRO
+            </th>
+
+            <th>
+              SECC. / UBICACIÓN
+            </th>
+
+            <th>
+              ESTADO / ACCIONES
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+
+          <!-- ================================= -->
+          <!-- DOCUMENTOS REALES -->
+          <!-- ================================= -->
+
+          <tr *ngFor="
+              let doc
+              of documentosFiltrados
+            ">
+
+
+            <!-- =============================== -->
+            <!-- CINV / CATEGORÍA -->
+            <!-- =============================== -->
+
+            <td>
+
+              <div class="cinv">
+
+                {{ doc.cinv }}
+
+              </div>
+
+
+              <div class="categoria">
+
+                {{ doc.categoria }}
+
+              </div>
+
+            </td>
+
+
+            <!-- =============================== -->
+            <!-- ASUNTO -->
+            <!-- =============================== -->
+
+            <td>
+
+              {{ doc.asunto }}
+
+            </td>
+
+
+            <!-- =============================== -->
+            <!-- DESCRIPCIÓN -->
+            <!-- =============================== -->
+
+            <td>
+
+              {{ doc.descripcion }}
+
+            </td>
+
+
+            <!-- =============================== -->
+            <!-- FECHA REGISTRO -->
+            <!-- =============================== -->
+
+            <td>
+
+              {{ doc.fechaRegistro | date:'dd/MM/yyyy' }}
+
+            </td>
+
+
+            <!-- =============================== -->
+            <!-- SECCIÓN / UBICACIÓN -->
+            <!-- =============================== -->
+
+            <td>
+
+              <div class="seccion" *ngIf="doc.seccion">
+
+                {{ doc.seccion }}
+
+              </div>
+
+
+              <div class="ubicacion">
+
+                {{ doc.ubicacion }}
+
+              </div>
+
+            </td>
+
+
+            <!-- =============================== -->
+            <!-- ESTADO / ACCIONES -->
+            <!-- =============================== -->
+
+            <td>
+
+              <div class="estado" [ngClass]="doc.estadoClase">
+                {{ doc.estado }}
+              </div>
+
+
+              <div class="acciones-container">
+
+                <!-- BOTÓN TRES PUNTOS -->
+                <button type="button" class="btn-acciones" title="Acciones" (click)="toggleMenu(doc)">
+                  ⋮
+                </button>
+
+
+                <!-- MENÚ FLOTANTE -->
+                <div class="menu-acciones" *ngIf="doc.menuAbierto">
+
+                  <button type="button" class="menu-opcion" (click)="verCaso(doc)">
+                    <span class="menu-icono">▣</span>
+                    <span>Ver Caso</span>
+                  </button>
+
+
+                  <button type="button" class="menu-opcion" (click)="verTrazabilidad(doc)">
+                    <span class="menu-icono">☷</span>
+                    <span>Trazabilidad</span>
+                  </button>
+
+                </div>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+
+          <!-- ================================= -->
+          <!-- SIN REGISTROS -->
+          <!-- ================================= -->
+
+          <tr *ngIf="
+              documentosFiltrados.length === 0
+            ">
+
+            <td colspan="6" class="sin-registros">
+
+              <div class="sin-icono">
+
+                📁
+
+              </div>
+
+
+              <h3>
+
+                No hay investigaciones registradas
+
+              </h3>
+
+
+              <p>
+
+                Los casos registrados por Integridad y QRD
+                aparecerán automáticamente aquí.
+
+              </p>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- PAGINACIÓN -->
+    <!-- ===================================== -->
+
+    <div class="paginacion">
+
+      <span>
+
+        Items por página:
+
+      </span>
+
+
+      <select [(ngModel)]="pageSize">
+
+        <option [ngValue]="5">
+          5
+        </option>
+
+        <option [ngValue]="10">
+          10
+        </option>
+
+        <option [ngValue]="20">
+          20
+        </option>
+
+      </select>
+
+    </div>
+
+
+  </div>
+
+</div>
+<!-- ===================================== -->
+<!-- MODAL VER CASO -->
+<!-- ===================================== -->
+
+<app-ver-caso *ngIf="mostrarVerCaso && expedienteSeleccionado" [expediente]="expedienteSeleccionado"
+  (cerrar)="cerrarVerCaso()">
+</app-ver-caso>

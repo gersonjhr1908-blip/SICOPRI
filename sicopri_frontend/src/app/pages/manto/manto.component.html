@@ -1,0 +1,144 @@
+<router-outlet></router-outlet>
+<div fxLayout="column"
+    style="display: flex;
+    align-items: center;
+    min-height: 100vh;
+     background-image: url('assets/fond.jpg');
+      background-size: cover;">
+    <mat-card class="custom-card" style="margin-top: 10px;">
+        <mat-card-header style="display: flex; justify-content: center;">
+            <mat-card-title class="custom-card-title">REGISTRO DE USUARIOS</mat-card-title>
+        </mat-card-header>
+        <br>
+        <br>
+        <div class="mat-elevation-z8" class="mat-elevation-z8 demo-table">
+            <div fxLayout="row">
+                <div class="container" fxLayout="column" fxFlex="26" style="margin-left: 15px;">
+                    <mat-form-field appearance="outline" class="custom-search-width">
+                        <mat-label class="buscar">Buscador dinámico:</mat-label>
+                        <mat-icon class="buscar" matSuffix>search</mat-icon>
+                        <input matInput (keyup)="applyFilter($event)"
+                        [(ngModel)]="buscador"
+                        (input)="convertirAMayusculas()"
+                         placeholder="Ingrese palabra clave" #input>
+                      </mat-form-field>
+                </div>
+                <span class="example-spacer"></span>
+
+
+                   <div class="container" fxLayout="column" fxFlex="15">
+                     <button id ="icono"class="blue-buttonreporte"
+                    fxFlex="100%">   <mat-icon>picture_as_pdf</mat-icon>Total Activos :{{totalElementsActive}}</button>
+                              </div>
+
+                           <div class="container" fxLayout="column" fxFlex="15">
+                    <button class="green-button mat-raised-button custom-button"
+                        fxFlex="100%">Total : {{totalElements}}</button>
+                         </div>
+
+                <div class="container" fxLayout="column" fxFlex="15" style="margin-right: 15px;">
+                    <button id ="icono"class="blue-button mat-raised-button custom-button" (click)="openRegistrarModal()"
+                     fxFlex="100%">   <mat-icon>supervisor_account</mat-icon>Nuevo Usuario
+                    </button>
+                </div>
+                <br>
+            </div>
+            <br>
+            <br>
+            <table mat-table [dataSource]="dataSource" matSort>
+              <!--quitar-->
+              <!-- <ng-container matColumnDef="idUser">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+                    <td mat-cell *matCellDef="let row"> {{row.idUser}} </td>
+                </ng-container> -->
+              <!------>
+                <ng-container matColumnDef="cip">
+                    <th class="t"  mat-header-cell *matHeaderCellDef mat-sort-header> CIP </th>
+                    <td class="ta" mat-cell *matCellDef="let row"> {{row.cip}} </td>
+                </ng-container>
+                <!-- DNI Column -->
+                <ng-container matColumnDef="username">
+                    <th class="t"  mat-header-cell *matHeaderCellDef mat-sort-header> USUARIO </th>
+                    <td class="ta" mat-cell *matCellDef="let row"> {{row.username}} </td>
+                </ng-container>
+
+
+
+                <!-- FirstName Column -->
+                <ng-container matColumnDef="fullname">
+                    <th class="t"  mat-header-cell *matHeaderCellDef mat-sort-header> GRADO  ARMA   APELLIDOS Y NOMBRES </th>
+                    <td class="ta" mat-cell *matCellDef="let row"> {{row.fullname}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="rol">
+                    <th class="t" mat-header-cell *matHeaderCellDef mat-sort-header> ROL </th>
+                    <td class="ta" mat-cell *matCellDef="let row"> {{ getNombreRol(row) }} </td>
+                </ng-container>
+
+                <!-- LastName Column -->
+                <!-- <ng-container matColumnDef="cargo">
+                    <th class="t"  mat-header-cell *matHeaderCellDef mat-sort-header> CARGO </th>
+                    <td class="ta" mat-cell *matCellDef="let row"> {{row.cargo}} </td>
+                </ng-container> -->
+
+                <!-- <ng-container matColumnDef="estado">
+                    <th class="t"  mat-header-cell *matHeaderCellDef mat-sort-header> ESTADO </th>
+                    <td class="ta" mat-cell *matCellDef="let row" [class.estado-activo]="row.estado === 1">
+                        <span *ngIf="row.estado === 1" style="font-weight: bold;">ACTIVO</span>
+                        <span *ngIf="row.estado === 2" class="estado-desactivado"
+                            style="font-weight: bold;">DESACTIVADO</span>
+                    </td>
+                </ng-container> -->
+
+                <ng-container matColumnDef="edit">
+                    <th class="t"  mat-header-cell *matHeaderCellDef> EDITAR </th>
+                    <td class="ta" mat-cell *matCellDef="let row">
+                        <button mat-button color="primary" (click)="openEditarModal(row.idUser, row.username)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="estado">
+                    <th class="t"  mat-header-cell *matHeaderCellDef> ESTADO </th>
+                    <td class="ta" mat-cell *matCellDef="let row" [class.estado-activo]="row.estado === 1">
+                        <span *ngIf="row.estado === 1" style="font-weight: bold;">ACTIVO</span>
+                        <span *ngIf="row.estado === 2" class="estado-desactivado" style="font-weight: bold;">DESACTIVADO</span>
+                    </td>
+                </ng-container>
+
+              <ng-container matColumnDef="cambiarEstado">
+                    <th class="t" mat-header-cell *matHeaderCellDef> CAMBIAR ESTADO </th>
+                    <td class="ta" mat-cell *matCellDef="let row">
+                        <button mat-button color="accent" (click)="changeEstado(row.idUser)">
+                            <mat-icon>swap_horiz</mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="eliminar">
+                    <th class="t" mat-header-cell *matHeaderCellDef> ELIMINAR </th>
+                    <td class="ta" mat-cell *matCellDef="let row">
+                        <button mat-button color="warn" (click)="eliminarUsuario(row.username)">
+                            <mat-icon>delete_forever</mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                <!-- Row shown when there is no matching data. -->
+                <tr class="mat-row" *matNoDataRow>
+                    <td class="mat-cell" [attr.colspan]="displayedColumns.length">No hay datos que coincidan con el filtro. "{{input.value}}"</td>
+                </tr>
+            </table>
+            <mat-paginator [pageSizeOptions]="[ 10, 15, 20]" [length]="totalElements" (page)="showMore($event)"
+                aria-label="Seleccionar página de usuarios"></mat-paginator>
+        </div>
+
+    </mat-card>
+
+</div>
+
+

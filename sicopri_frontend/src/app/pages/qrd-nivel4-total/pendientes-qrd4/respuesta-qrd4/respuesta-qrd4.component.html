@@ -1,0 +1,298 @@
+<div
+  class="respuesta-overlay"
+  (click)="cerrarModal()"
+>
+  <section
+    class="respuesta-modal"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="respuesta-header">
+      <div>
+        <h2>REGISTRAR RESPUESTA</h2>
+
+        <p>
+          {{ expediente?.cinv || '-' }}
+          · Inspectoría QRD Nivel 4
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar"
+        title="Cerrar"
+        (click)="cerrarModal()"
+      >
+        ✕
+      </button>
+    </header>
+
+    <nav class="tabs-respuesta">
+      <button
+        type="button"
+        [class.activa]="pestanaActiva === 1"
+        (click)="cambiarPestana(1)"
+      >
+        <span>1</span>
+        INFORME REGISTRADO
+      </button>
+
+      <button
+        type="button"
+        [class.activa]="pestanaActiva === 2"
+        (click)="cambiarPestana(2)"
+      >
+        <span>2</span>
+        DOCUMENTOS ADJUNTOS
+
+        <b *ngIf="informes.length > 0">
+          {{ informes.length }}
+        </b>
+      </button>
+    </nav>
+
+    <!-- PESTAÑA 1: REGISTRAR INFORME -->
+    <main
+      class="respuesta-body"
+      *ngIf="pestanaActiva === 1"
+    >
+      <div class="numero-informe">
+        INFORME N° {{ siguienteNumero }}
+      </div>
+
+      <div class="form-grid">
+        <label>
+          NOMBRE DEL DOCUMENTO *
+
+          <input
+            type="text"
+            [(ngModel)]="formulario.nombreDocumento"
+            placeholder="Ej.: Informe de respuesta"
+          />
+        </label>
+
+        <label>
+          TIPO DE DOCUMENTO *
+
+          <select [(ngModel)]="formulario.tipoDocumento">
+            <option value="">
+              Seleccione tipo
+            </option>
+
+            <option value="INFORME">
+              INFORME
+            </option>
+
+            <option value="OFICIO">
+              OFICIO
+            </option>
+
+            <option value="MEMORANDO">
+              MEMORANDO
+            </option>
+
+            <option value="CARTA">
+              CARTA
+            </option>
+
+            <option value="OTROS">
+              OTROS
+            </option>
+          </select>
+        </label>
+
+        <label>
+          ORIGEN
+
+          <input
+            type="text"
+            [value]="formulario.origen"
+            readonly
+          />
+        </label>
+
+        <label>
+          DESTINO
+
+          <input
+            type="text"
+            [value]="formulario.destino"
+            readonly
+          />
+        </label>
+
+        <label>
+          FECHA *
+
+          <input
+            type="date"
+            [(ngModel)]="formulario.fecha"
+          />
+        </label>
+      </div>
+
+      <label class="campo-completo">
+        DESCRIPCIÓN DEL DOCUMENTO *
+
+        <textarea
+          rows="5"
+          maxlength="2000"
+          [(ngModel)]="formulario.descripcion"
+          placeholder="Describa el contenido del informe..."
+        ></textarea>
+
+        <small>
+          {{ formulario.descripcion.length }}/2000
+        </small>
+      </label>
+
+      <div class="pdf-carga">
+        <div>
+          <strong>ADJUNTAR PDF *</strong>
+
+          <p>
+            Seleccione el informe en formato PDF.
+          </p>
+        </div>
+
+        <label class="btn-adjuntar">
+          📎
+          {{
+            archivoSeleccionado
+              ? archivoSeleccionado.name
+              : 'SELECCIONAR PDF'
+          }}
+
+          <input
+            type="file"
+            accept="application/pdf"
+            (change)="seleccionarArchivo($event)"
+          />
+        </label>
+      </div>
+
+      <footer class="acciones-formulario">
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cerrarModal()"
+        >
+          CANCELAR
+        </button>
+
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="guardarInforme()"
+        >
+          GUARDAR INFORME
+        </button>
+      </footer>
+    </main>
+
+    <!-- PESTAÑA 2: LISTA DE INFORMES -->
+    <main
+      class="respuesta-body documentos-body"
+      *ngIf="pestanaActiva === 2"
+    >
+      <div class="documentos-cabecera">
+        <div>
+          <h3>INFORMES REGISTRADOS</h3>
+
+          <p>
+            Los informes que agregues aparecerán aquí inmediatamente.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="btn-nuevo-informe"
+          (click)="cambiarPestana(1)"
+        >
+          ＋ NUEVO INFORME
+        </button>
+      </div>
+
+      <div
+        class="sin-informes"
+        *ngIf="informes.length === 0"
+      >
+        <div>📄</div>
+
+        <strong>
+          Aún no hay informes registrados
+        </strong>
+
+        <p>
+          Registra el primer informe desde la pestaña anterior.
+        </p>
+      </div>
+
+      <div
+        class="tabla-informes"
+        *ngIf="informes.length > 0"
+      >
+        <table>
+          <thead>
+            <tr>
+              <th>N°</th>
+              <th>DOCUMENTO</th>
+              <th>TIPO</th>
+              <th>FECHA</th>
+              <th>PDF</th>
+              <th>ACCIONES</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let informe of informes">
+              <td>
+                {{ informe.numero }}
+              </td>
+
+              <td>
+                <strong>
+                  {{ informe.nombreDocumento }}
+                </strong>
+
+                <small>
+                  {{ informe.descripcion }}
+                </small>
+              </td>
+
+              <td>
+                {{ informe.tipoDocumento }}
+              </td>
+
+              <td>
+                {{ informe.fecha | date:'dd/MM/yyyy' }}
+              </td>
+
+              <td>
+                {{ informe.nombreArchivo }}
+              </td>
+
+              <td class="fila-acciones">
+                <button
+                  type="button"
+                  title="Ver PDF"
+                  (click)="verPdf(informe)"
+                >
+                  👁
+                </button>
+
+                <button
+                  type="button"
+                  class="eliminar"
+                  title="Eliminar informe"
+                  (click)="eliminarInforme(informe)"
+                >
+                  🗑
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </section>
+</div>

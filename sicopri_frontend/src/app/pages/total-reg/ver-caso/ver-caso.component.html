@@ -1,0 +1,442 @@
+<div
+  class="ver-caso-overlay"
+  (click)="cerrarModal()"
+>
+
+<div
+  class="ver-caso-modal"
+  [class.modal-compacto]="pestanaActiva === 1 || pestanaActiva === 3"
+  [class.modal-pdf]="pestanaActiva === 2"
+  (click)="$event.stopPropagation()"
+>
+
+
+    <!-- ===================================== -->
+    <!-- CABECERA -->
+    <!-- ===================================== -->
+
+    <div class="ver-caso-header">
+
+      <h2>
+        INFORMACIÓN DE CASO APERTURADO
+      </h2>
+
+      <button
+        type="button"
+        class="btn-cerrar"
+        (click)="cerrarModal()"
+        title="Cerrar"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- PESTAÑAS -->
+    <!-- ===================================== -->
+
+    <div class="tabs-caso">
+
+      <button
+        type="button"
+        [class.activa]="pestanaActiva === 1"
+        (click)="cambiarPestana(1)"
+      >
+        <span>1</span>
+        DOC REGISTRADO
+      </button>
+
+
+      <button
+        type="button"
+        [class.activa]="pestanaActiva === 2"
+        (click)="cambiarPestana(2)"
+      >
+        <span>2</span>
+        DOC ADJUNTO
+      </button>
+
+
+      <button
+        type="button"
+        [class.activa]="pestanaActiva === 3"
+        (click)="cambiarPestana(3)"
+      >
+        <span>3</span>
+        SEGUIMIENTO
+      </button>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- 1. DOC REGISTRADO -->
+    <!-- ===================================== -->
+
+    <div
+      class="contenido-caso"
+      *ngIf="pestanaActiva === 1"
+    >
+
+      <!-- PRIMERA FILA -->
+
+      <div class="grid-caso grid-4">
+
+        <div class="campo-caso">
+
+          <label>
+            CATEGORÍA
+          </label>
+
+          <input
+            type="text"
+            [value]="expediente?.categoria || ''"
+            readonly
+          >
+
+        </div>
+
+
+        <div class="campo-caso">
+
+          <label>
+            TIPO DOC
+          </label>
+
+          <input
+            type="text"
+            [value]="
+              expediente?.documento ||
+              expediente?.idTipoDocumento ||
+              ''
+            "
+            readonly
+          >
+
+        </div>
+
+
+        <div class="campo-caso">
+
+          <label>
+            N° DOC
+          </label>
+
+          <input
+            type="text"
+            [value]="expediente?.nroDocumento || ''"
+            readonly
+          >
+
+        </div>
+
+
+        <div class="campo-caso">
+
+          <label>
+            FECHA
+          </label>
+
+          <input
+            type="text"
+            [value]="expediente?.fechaDocumento || ''"
+            readonly
+          >
+
+        </div>
+
+      </div>
+
+
+      <!-- SEGUNDA FILA -->
+
+      <div class="grid-caso grid-3">
+
+        <div class="campo-caso">
+
+          <label>
+            NÚCLEO
+          </label>
+
+          <input
+            type="text"
+            [value]="
+              expediente?.nombreNucleo ||
+              expediente?.idNucleo ||
+              ''
+            "
+            readonly
+          >
+
+        </div>
+
+
+        <div class="campo-caso">
+
+          <label>
+            GRAN UNIDAD
+          </label>
+
+          <input
+            type="text"
+            [value]="
+              expediente?.nombreBrigada ||
+              expediente?.idBrigada ||
+              ''
+            "
+            readonly
+          >
+
+        </div>
+
+
+        <div class="campo-caso">
+
+          <label>
+            UNIDAD
+          </label>
+
+          <input
+            type="text"
+            [value]="
+              expediente?.ubicacion ||
+              expediente?.idUnidad ||
+              ''
+            "
+            readonly
+          >
+
+        </div>
+
+      </div>
+
+
+      <!-- ASUNTO -->
+
+      <div class="campo-caso campo-completo">
+
+        <label>
+          ASUNTO
+        </label>
+
+        <textarea
+          rows="2"
+          readonly
+        >{{ expediente?.asunto }}</textarea>
+
+      </div>
+
+
+      <!-- DESCRIPCIÓN -->
+
+      <div class="campo-caso campo-completo">
+
+        <label>
+          DESCRIPCIÓN
+        </label>
+
+        <textarea
+          rows="3"
+          readonly
+        >{{ expediente?.descripcion }}</textarea>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- 2. DOC ADJUNTO -->
+    <!-- ===================================== -->
+
+    <div
+      class="contenido-caso contenido-pdf"
+      *ngIf="pestanaActiva === 2"
+    >
+
+
+      <!-- CARGANDO -->
+
+      <div
+        class="estado-archivos"
+        *ngIf="cargandoArchivos"
+      >
+
+        <div class="spinner-archivos"></div>
+
+        <p>
+          Cargando documentos adjuntos...
+        </p>
+
+      </div>
+
+
+      <!-- ERROR -->
+
+      <div
+        class="error-archivos"
+        *ngIf="
+          !cargandoArchivos &&
+          errorArchivos
+        "
+      >
+
+        <div class="error-icono">
+          !
+        </div>
+
+        <strong>
+          No se pudieron cargar los archivos
+        </strong>
+
+        <p>
+          {{ errorArchivos }}
+        </p>
+
+      </div>
+
+
+      <!-- SIN ARCHIVOS -->
+
+      <div
+        class="sin-archivos"
+        *ngIf="
+          !cargandoArchivos &&
+          !errorArchivos &&
+          archivosCargados &&
+          archivos.length === 0
+        "
+      >
+
+        <div class="sin-archivos-icono">
+          📄
+        </div>
+
+        <h3>
+          No hay documentos adjuntos
+        </h3>
+
+        <p>
+          Este expediente no tiene archivos PDF registrados.
+        </p>
+
+      </div>
+
+
+      <!-- =================================== -->
+      <!-- HAY ARCHIVOS -->
+      <!-- =================================== -->
+
+      <div
+        class="pdf-seccion"
+        *ngIf="
+          !cargandoArchivos &&
+          !errorArchivos &&
+          archivos.length > 0
+        "
+      >
+
+
+        <!-- ================================= -->
+        <!-- SELECTOR SOLO SI HAY MÁS DE 1 PDF -->
+        <!-- ================================= -->
+
+        <div
+          class="selector-pdfs"
+          *ngIf="archivos.length > 1"
+        >
+
+          <button
+            type="button"
+            *ngFor="
+              let archivo of archivos;
+              let i = index
+            "
+            [class.activo]="
+              archivoSeleccionado?.idArchivo ===
+              archivo.idArchivo
+            "
+            (click)="seleccionarArchivo(archivo)"
+          >
+
+            <span class="selector-numero">
+              {{ i + 1 }}
+            </span>
+
+            <span class="selector-nombre">
+              {{ archivo.nombreArchivo }}
+            </span>
+
+          </button>
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- VISOR PDF GRANDE -->
+        <!-- ================================= -->
+
+        <div class="pdf-visor-grande">
+
+          <iframe
+            *ngIf="pdfUrl"
+            [src]="pdfUrl"
+            class="pdf-frame-grande"
+            title="Documento PDF"
+          >
+          </iframe>
+
+
+          <!-- SIN PDF -->
+
+          <div
+            class="pdf-vacio"
+            *ngIf="!pdfUrl"
+          >
+
+            <div class="pdf-vacio-icono">
+              📄
+            </div>
+
+            <p>
+              Seleccione un documento para visualizarlo.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- 3. SEGUIMIENTO -->
+    <!-- ===================================== -->
+
+    <div
+      class="contenido-caso"
+      *ngIf="pestanaActiva === 3"
+    >
+
+      <div class="pendiente-seccion">
+
+        <h3>
+          SEGUIMIENTO
+        </h3>
+
+        <p>
+          Esta sección la implementaremos después.
+        </p>
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+</div>

@@ -1,0 +1,142 @@
+<div class="registrar-page">
+  <div class="registrar-card">
+
+    <div class="titulo-container">
+      <div class="titulo-icono">📤</div>
+
+      <div>
+        <h2>DOCUMENTOS PENDIENTES</h2>
+        <p>Documentos enviados para atención</p>
+      </div>
+    </div>
+
+    <div class="toolbar-documentos">
+      <div class="buscador">
+        <input type="text" [(ngModel)]="search" (input)="buscarDocumentos()" placeholder="Buscador dinámico..." />
+
+        <button *ngIf="search" type="button" class="btn-limpiar" (click)="limpiarBusqueda()">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table class="documentos-table">
+
+        <thead>
+          <tr>
+            <th>CINV</th>
+            <th>CATEGORÍA</th>
+            <th>DOCUMENTO</th>
+            <th>N° DOC</th>
+            <th>ASUNTO</th>
+            <th>FECHA REGISTRO</th>
+            <th>ESTADO</th>
+            <th>ACCIONES</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let doc of documentos" [class.fila-menu-abierta]="
+              menuAbiertoId === doc.idExpediente
+            ">
+
+            <td>{{ doc.cinv }}</td>
+
+            <td>{{ doc.categoriaQrd }}</td>
+
+            <td>{{ doc.documento }}</td>
+
+            <td>{{ doc.nroDocumento }}</td>
+
+            <td>{{ doc.asunto }}</td>
+
+            <td>
+              {{ doc.fechaRegistro | date:'dd/MM/yyyy' }}
+            </td>
+
+            <td>
+              <span class="estado-badge" [class.estado-pendiente]="
+                  doc.estadoVisual === 'PENDIENTE'
+                " [class.estado-observado]="
+                  doc.estadoVisual === 'OBSERVADO'
+                " [class.estado-concluido]="
+                  doc.estadoVisual === 'CONCLUIDO'
+                ">
+                {{ doc.estadoVisual }}
+              </span>
+            </td>
+
+            <td>
+              <div class="acciones">
+
+                <div class="menu-acciones">
+
+                  <button type="button" class="btn-accion btn-tuerca" title="Acciones"
+                    (click)="toggleMenu(doc, $event)">
+                    ⚙
+                  </button>
+
+                  <div class="acciones-menu" *ngIf="
+                      menuAbiertoId === doc.idExpediente
+                    " (click)="$event.stopPropagation()">
+
+                    <button type="button" class="opcion-gestionar" (click)="gestionar(doc)">
+                      ⚙ Gestionar
+                    </button>
+
+                    <button type="button" class="opcion-editar" *ngIf="doc.estadoVisual === 'OBSERVADO'"
+                      (click)="editar(doc)">
+                      ✎ Editar
+                    </button>
+
+                    <button type="button" class="opcion-eliminar" *ngIf="
+                        doc.estadoVisual === 'OBSERVADO'
+                      " (click)="eliminar(doc)">
+                      🗑 Eliminar
+                    </button>
+
+                    <button type="button" class="opcion-archivar" *ngIf="esConcluido(doc)" (click)="archivar(doc)">
+                      📁 Archivar
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </div>
+            </td>
+
+          </tr>
+
+          <tr *ngIf="documentos.length === 0">
+            <td colspan="8" class="sin-documentos">
+              <div class="sin-icono">📁</div>
+
+              <h3>No hay documentos pendientes</h3>
+
+              <p>
+                Los documentos enviados a QRD Nivel 2 aparecerán aquí.
+              </p>
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<app-gestionar-caso-qrd *ngIf="
+    mostrarVerCaso &&
+    documentoSeleccionado
+  " [expediente]="documentoSeleccionado" [modoGestion]="true" (cerrar)="cerrarVerCaso()"
+  (enviarNivel3)="enviarNivel3($event)">
+</app-gestionar-caso-qrd>
+
+<app-editar-documento-qrd *ngIf="mostrarEditar && documentoEditar" [expediente]="documentoEditar"
+  (cerrar)="cerrarEditar()" (actualizado)="documentoActualizado($event)">
+</app-editar-documento-qrd>

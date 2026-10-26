@@ -1,0 +1,497 @@
+<div
+  class="ver-caso-qrd-overlay"
+  (click)="cerrarModal()"
+>
+
+  <div
+    class="ver-caso-qrd-modal"
+    [class.modal-pdf]="pestanaActiva === 2"
+    (click)="$event.stopPropagation()"
+  >
+
+    <div class="qrd-header">
+      <div class="titulo-caso">
+        <h2>INFORMACIÓN DE CASO APERTURADO</h2>
+        <span>{{ expediente?.cinv || '-' }}</span>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar"
+        title="Cerrar"
+        (click)="cerrarModal()"
+      >
+        ✕
+      </button>
+    </div>
+
+    <div class="estructura-caso">
+
+      <main class="zona-principal">
+
+        <div class="tabs-qrd">
+
+          <button
+            type="button"
+            [class.activa]="pestanaActiva === 1"
+            (click)="cambiarPestana(1)"
+          >
+            <span>1</span>
+            DOC REGISTRADO
+          </button>
+
+          <button
+            type="button"
+            [class.activa]="pestanaActiva === 2"
+            (click)="cambiarPestana(2)"
+          >
+            <span>2</span>
+            DOC ADJUNTO
+
+            <b
+              class="cantidad-adjuntos"
+              *ngIf="archivosCargados && archivos.length > 0"
+            >
+              {{ archivos.length }}
+            </b>
+          </button>
+
+          <button
+            type="button"
+            [class.activa]="pestanaActiva === 3"
+            (click)="cambiarPestana(3)"
+          >
+            <span>3</span>
+            SEGUIMIENTO
+          </button>
+
+        </div>
+
+        <!-- ========================================= -->
+        <!-- 1. DOCUMENTO REGISTRADO -->
+        <!-- ========================================= -->
+
+        <div
+          class="contenido-qrd"
+          *ngIf="pestanaActiva === 1"
+        >
+
+          <div class="grid-qrd grid-4">
+            <div class="campo-qrd">
+              <label>CATEGORÍA</label>
+              <input type="text" [value]="obtenerCategoriaQrd()" readonly>
+            </div>
+
+            <div class="campo-qrd">
+              <label>TIPO DE DOC</label>
+              <input type="text" [value]="nombreTipoDocumento || '-'" readonly>
+            </div>
+
+            <div class="campo-qrd">
+              <label>N° DOC</label>
+              <input type="text" [value]="expediente?.nroDocumento || '-'" readonly>
+            </div>
+
+            <div class="campo-qrd">
+              <label>FECHA</label>
+              <input type="text" [value]="obtenerFechaDocumento()" readonly>
+            </div>
+          </div>
+
+          <div class="grid-qrd grid-1">
+            <div class="campo-qrd">
+              <label>TIPIFICACIÓN</label>
+              <input type="text" [value]="nombreTipificacion || '-'" readonly>
+            </div>
+          </div>
+
+          <div class="grid-qrd grid-3">
+            <div class="campo-qrd">
+              <label>NÚCLEO</label>
+              <input type="text" [value]="nombreNucleo || '-'" readonly>
+            </div>
+
+            <div class="campo-qrd">
+              <label>GRAN UNIDAD</label>
+              <input type="text" [value]="nombreBrigada || '-'" readonly>
+            </div>
+
+            <div class="campo-qrd">
+              <label>UNIDAD</label>
+              <input type="text" [value]="nombreUnidad || '-'" readonly>
+            </div>
+          </div>
+
+          <!-- DESTINO SE MANTIENE SOLO EN QRD2 -->
+          <div class="grid-qrd grid-3 fila-inspectoria">
+            <div class="campo-qrd">
+              <label>NÚCLEO IG</label>
+              <input type="text" [value]="nombreNucleoIg || '-'" readonly>
+            </div>
+
+            <div class="campo-qrd">
+              <label>IG</label>
+              <input type="text" [value]="nombreIg || '-'" readonly>
+            </div>
+
+            <div class="campo-qrd">
+              <label>DESTINO</label>
+
+              <ng-container *ngIf="modoGestion; else destinoSoloLectura">
+                <select
+                  [(ngModel)]="nivelDestinoSeleccionado"
+                  (ngModelChange)="cambioDestino()"
+                  [disabled]="guardandoDestino"
+                >
+                  <option [ngValue]="null">Seleccione destino</option>
+                  <option [ngValue]="3">Inspectoría QRD - Nivel 3</option>
+                  <option [ngValue]="4">Inspectoría QRD - Nivel 4</option>
+                </select>
+
+                <small *ngIf="guardandoDestino" class="seguimiento-ok">
+                  Guardando destino...
+                </small>
+
+                <small *ngIf="destinoGuardado" class="seguimiento-ok">
+                  ✓ Destino guardado
+                </small>
+
+                <small *ngIf="errorDestino" class="error-seguimiento">
+                  {{ errorDestino }}
+                </small>
+              </ng-container>
+
+              <ng-template #destinoSoloLectura>
+                <input type="text" [value]="obtenerDestino()" readonly>
+              </ng-template>
+            </div>
+          </div>
+
+          <div class="campo-qrd campo-completo">
+            <label>ASUNTO</label>
+            <textarea rows="3" [value]="expediente?.asunto || '-'" readonly></textarea>
+          </div>
+
+          <div class="campo-qrd campo-completo">
+            <label>DESCRIPCIÓN</label>
+            <textarea rows="5" [value]="expediente?.descripcion || '-'" readonly></textarea>
+          </div>
+
+        </div>
+
+        <!-- ========================================= -->
+        <!-- 2. DOCUMENTOS ADJUNTOS -->
+        <!-- ========================================= -->
+
+        <div
+          class="contenido-qrd contenido-pdf"
+          *ngIf="pestanaActiva === 2"
+        >
+
+          <div class="pdf-seccion">
+
+            <div class="estado-archivos" *ngIf="cargandoArchivos">
+              <div class="spinner-archivos"></div>
+              <p>Cargando documentos adjuntos...</p>
+            </div>
+
+            <div
+              class="error-archivos"
+              *ngIf="!cargandoArchivos && errorArchivos"
+            >
+              <div class="error-icono">!</div>
+              <strong>No se pudieron cargar los archivos</strong>
+              <p>{{ errorArchivos }}</p>
+            </div>
+
+            <div
+              class="sin-archivos"
+              *ngIf="
+                !cargandoArchivos &&
+                !errorArchivos &&
+                archivosCargados &&
+                archivos.length === 0
+              "
+            >
+              <div class="sin-archivos-icono">📄</div>
+              <h3>No hay documentos adjuntos</h3>
+              <p>Este expediente no tiene archivos PDF registrados.</p>
+            </div>
+
+            <ng-container
+              *ngIf="
+                !cargandoArchivos &&
+                !errorArchivos &&
+                archivos.length > 0
+              "
+            >
+
+              <div class="selector-pdfs">
+                <button
+                  type="button"
+                  *ngFor="let archivo of archivos; let i = index"
+                  [class.activo]="archivoSeleccionado?.idArchivo === archivo.idArchivo"
+                  (click)="seleccionarArchivo(archivo)"
+                >
+                  <span class="selector-numero">{{ i + 1 }}</span>
+                  <span class="selector-nombre">
+                    {{ archivo.nombreArchivo || archivo.nombreGuardado || ('Documento ' + (i + 1)) }}
+                  </span>
+                </button>
+              </div>
+
+              <div class="pdf-visor">
+                <iframe
+                  *ngIf="pdfUrl && !cargandoPdf"
+                  class="pdf-frame"
+                  [src]="pdfUrl"
+                  title="Documento PDF"
+                ></iframe>
+
+                <div class="pdf-vacio" *ngIf="cargandoPdf">
+                  <div class="spinner-archivos"></div>
+                  <p>Cargando PDF...</p>
+                </div>
+
+                <div class="pdf-vacio" *ngIf="!pdfUrl && !cargandoPdf">
+                  <div class="pdf-vacio-icono">📄</div>
+                  <p>Seleccione un documento para visualizarlo.</p>
+                </div>
+              </div>
+
+            </ng-container>
+
+          </div>
+
+        </div>
+
+        <!-- ========================================= -->
+        <!-- 3. SEGUIMIENTO - SOLO QRD2 -->
+        <!-- ========================================= -->
+
+        <div
+          class="contenido-qrd contenido-seguimiento"
+          *ngIf="pestanaActiva === 3"
+        >
+
+          <div class="seguimiento-cabecera">
+            <div>
+              <h3>SEGUIMIENTO</h3>
+              <p *ngIf="!cargandoSeguimiento && !seguimientoGuardado">
+                No registra seguimiento
+              </p>
+              <p
+                class="seguimiento-ok"
+                *ngIf="!cargandoSeguimiento && seguimientoGuardado"
+              >
+                Seguimiento registrado
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="btn-agregar-seguimiento"
+              *ngIf="
+                !soloLectura &&
+                !seguimientoGuardado &&
+                !seguimientoActivo &&
+                !cargandoSeguimiento
+              "
+              (click)="activarSeguimiento()"
+              [disabled]="guardandoSeguimiento"
+            >
+              ＋ Agregar Seguimiento
+            </button>
+
+            <button
+              type="button"
+              class="btn-editar-seguimiento"
+              *ngIf="
+                !soloLectura &&
+                seguimientoGuardado &&
+                !seguimientoActivo &&
+                !cargandoSeguimiento
+              "
+              (click)="editarSeguimiento()"
+              [disabled]="guardandoSeguimiento"
+            >
+              ✎ EDITAR SEGUIMIENTO
+            </button>
+          </div>
+
+          <div
+            class="estado-seguimiento cargando"
+            *ngIf="cargandoSeguimiento"
+          >
+            <span class="mini-spinner"></span>
+            Cargando seguimiento...
+          </div>
+
+
+
+          <div
+            class="error-seguimiento"
+            *ngIf="errorSeguimiento && !cargandoSeguimiento"
+          >
+            {{ errorSeguimiento }}
+          </div>
+
+          <div
+            class="form-seguimiento"
+            *ngIf="
+              !cargandoSeguimiento &&
+              (seguimientoActivo || seguimientoGuardado)
+            "
+          >
+
+            <div class="campo-seguimiento">
+              <label>EMPIEZA</label>
+              <input
+                type="date"
+                [(ngModel)]="fechaInicioSeguimiento"
+                (change)="calcularDiasSeguimiento()"
+                [disabled]="
+                  guardandoSeguimiento ||
+                  soloLectura ||
+                  (seguimientoGuardado && !seguimientoActivo)
+                "
+              >
+            </div>
+
+            <div class="campo-seguimiento">
+              <label>TERMINA</label>
+              <input
+                type="date"
+                [(ngModel)]="fechaFinSeguimiento"
+                (change)="calcularDiasSeguimiento()"
+                [disabled]="
+                  guardandoSeguimiento ||
+                  soloLectura ||
+                  (seguimientoGuardado && !seguimientoActivo)
+                "
+              >
+            </div>
+
+            <div class="campo-seguimiento">
+              <label>CANTIDAD DE DÍAS</label>
+              <input
+                type="number"
+                [value]="cantidadDiasSeguimiento"
+                readonly
+              >
+            </div>
+
+            <div
+              class="acciones-seguimiento"
+              *ngIf="seguimientoActivo && !soloLectura"
+            >
+              <button
+                type="button"
+                class="btn-guardar-seguimiento"
+                (click)="guardarSeguimiento()"
+                [disabled]="
+                  guardandoSeguimiento ||
+                  !fechaInicioSeguimiento ||
+                  !fechaFinSeguimiento
+                "
+              >
+                {{ guardandoSeguimiento ? 'GUARDANDO...' : 'GUARDAR' }}
+              </button>
+
+              <button
+                type="button"
+                class="btn-cancelar-seguimiento"
+                (click)="cancelarSeguimiento()"
+                [disabled]="guardandoSeguimiento"
+              >
+                CANCELAR
+              </button>
+            </div>
+
+          </div>
+
+
+        </div>
+
+      </main>
+
+      <!-- ========================================= -->
+      <!-- PANEL DERECHO: ACCIONES + OBSERVACIÓN -->
+      <!-- ========================================= -->
+
+      <aside class="panel-lateral">
+
+        <div class="acciones-titulo">ACCIONES</div>
+        <div class="linea-acciones"></div>
+
+        <button
+          type="button"
+          class="btn-enviar-nivel3"
+          *ngIf="!soloLectura"
+          [disabled]="
+            guardandoObservacion ||
+            guardandoDestino ||
+            guardandoSeguimiento
+          "
+          (click)="solicitarEnvioNivel3()"
+        >
+          <span class="icono-accion">⇧</span>
+          ENVIAR A INSPECTORÍA NIVEL 3
+        </button>
+
+        <button
+          type="button"
+          class="btn-salir"
+          (click)="cerrarModal()"
+        >
+          <span class="icono-accion">↩</span>
+          SALIR
+        </button>
+
+        <div class="observacion-lateral">
+          <div class="observacion-titulo">OBSERVACIÓN / INDICACIONES</div>
+
+          <textarea
+            [(ngModel)]="observacionActual"
+            maxlength="2000"
+            placeholder="Escriba una observación o indicación..."
+            (ngModelChange)="cambioObservacion()"
+            [readonly]="soloLectura"
+          ></textarea>
+
+          <div class="estado-observacion-lateral">
+            <div
+              class="estado-observacion guardando"
+              *ngIf="guardandoObservacion"
+            >
+              <span class="mini-spinner"></span>
+              Guardando...
+            </div>
+
+            <div
+              class="estado-observacion guardado"
+              *ngIf="observacionGuardada && !guardandoObservacion"
+            >
+              ✓ Guardado
+            </div>
+
+            <span
+              class="error-observacion"
+              *ngIf="errorObservacion"
+            >
+              {{ errorObservacion }}
+            </span>
+
+            <span class="contador-observacion">
+              {{ observacionActual.length }}/2000
+            </span>
+          </div>
+        </div>
+
+      </aside>
+      
+
+    </div>
+
+  </div>
+</div>

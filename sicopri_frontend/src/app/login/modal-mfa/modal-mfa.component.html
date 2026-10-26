@@ -1,0 +1,76 @@
+<mat-card class="dialog-card large" [ngStyle]="{
+  'padding': status === 0 ? '' : '15px',
+  'height': status === 0 ? '550px' : 'auto',
+  'width': status === 0 ? '1000px' : 'auto',
+  'display': 'flex',
+  'justify-content': status === 0 ? 'initial' : 'center',
+  'align-items': status === 0 ? 'initial' : 'center'
+}" *ngIf="status === 0">
+  <br>
+  <div class="title-container">
+    <h2 class="title">Doble Factor de Autentificación</h2>
+  </div>
+  <div class="content-container">
+    <div class="info-container">
+      <br>
+      <div class="qr-info">
+        <p>Necesita activar el doble factor de autentificación para poder ingresar al sistema:</p>
+        <p>Pasos a seguir:</p>
+        <p>1.- Ingrese a la tienda de aplicaciones de su celular y descargue la APP <span class="red-text">Google
+            Authenticator</span>, en la  <span class="red-text">APPSTORE</span> como en la <span
+            class="red-text">PLAYSTORE</span>.</p>
+        <p>2.- Deberá abrir la APP instalada y seleccionar escanear QR, con la cámara de su celular.</p>
+        <p>3.- Una vez escaneado el QR, tendrá que ingresar el código de 6 dígitos generado.</p>
+        <p>4.- A partir de ahora para ingresar al sistema solo te pedirá ingresar el código generado cada 30 segundos.
+        </p>
+        <div class="image-container">
+          <img src="assets/google.png" alt="google" class="custom-image">
+        </div>
+      </div>
+    </div>
+    <div class="qr-container">
+      <div class="qr-wrapper">
+        <ng-container>
+          <img class="qr-code" [src]="authResponse" alt="QR Code">
+        </ng-container>
+        <input class="validation-input" type="text" id="validationCode" name="validationCode" [(ngModel)]="otpCode"
+          maxlength="6" (keypress)="validarNumero($event)" (input)="validarLongitud()"   >
+          <div class="message-container">
+            <label class="message">{{ status === 0 ? 'Ingrese código de validación' : '' }}</label>
+          </div>
+        <br>
+        <button class="verify-button blue-button" type="button" (click)="SecretVerify()"
+          [disabled]="otpCode.length < 6 || showProgressBar || botonBloqueado">Verificar código</button>
+        <br>
+        <label class="time-left-message bold-red-text">Te quedan: {{ tiempoRestante }} segundos</label>
+      </div>
+    </div>
+  </div>
+</mat-card>
+<mat-card class="dialog-card large" [ngStyle]="{
+  'padding': status === 1 ? '15px' : '15px',
+  'height': status === 1 ? 'auto' : 'auto',
+  'width': status === 1 ? 'auto' : 'auto',
+  'display': 'flex',
+  'justify-content': status === 1 ? 'center' : 'center',
+  'align-items': status === 1 ? 'center' : 'center'
+}" *ngIf="status === 1">
+  <div class="title-container">
+    <h2 class="title">Doble Factor de<br>Autentificación</h2>
+  </div>
+
+  <div class="qr-container">
+    <div class="qr-wrapper">
+      <input class="validation-input" type="text" id="validationCode" name="validationCode" [(ngModel)]="otpCode"
+        maxlength="6" (keypress)="validarNumero($event)" (input)="validarLongitud()">
+      <div class="message-container">
+        <label class="message">{{ status === 1 ? 'Ingrese código de validación' : '' }}</label>
+      </div>
+      <br>
+      <button class="verify-button blue-button" type="button"  (click)="SecretVerify()"
+        [disabled]="otpCode.length < 6 || showProgressBar || botonBloqueado">Verificar código</button>
+      <br>
+      <label class="time-left-message bold-red-text">Te quedan: {{ tiempoRestante }} segundos</label>
+    </div>
+  </div>
+</mat-card>

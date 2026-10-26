@@ -1,0 +1,835 @@
+:host {
+  display: block;
+}
+
+
+/* ==============================================
+   OVERLAY
+============================================== */
+
+.editar-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 900000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  box-sizing: border-box;
+
+  background: rgba(7, 20, 28, 0.72);
+
+  backdrop-filter: blur(2px);
+}
+
+
+/* ==============================================
+   MODAL
+============================================== */
+
+.editar-modal {
+  width: min(1050px, 94vw);
+
+  max-height: 90vh;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 25px 70px
+    rgba(0, 0, 0, 0.42);
+}
+
+
+/* ==============================================
+   HEADER
+============================================== */
+
+.editar-header {
+  min-height: 72px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding:
+    0
+    26px;
+
+  box-sizing: border-box;
+
+  background: #315f27;
+
+  color: #ffffff;
+}
+
+
+.editar-header h2 {
+  margin: 0;
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+
+.editar-header p {
+  margin:
+    5px
+    0
+    0;
+
+  font-size: 11px;
+
+  opacity: 0.86;
+}
+
+
+/* ==============================================
+   CERRAR
+============================================== */
+
+.btn-cerrar {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.17);
+
+  color: #ffffff;
+
+  font-size: 17px;
+
+  cursor: pointer;
+}
+
+
+.btn-cerrar:hover {
+  background:
+    rgba(255, 255, 255, 0.28);
+}
+
+
+/* ==============================================
+   BODY
+============================================== */
+
+.editar-body {
+  flex: 1;
+
+  min-height: 0;
+
+  padding: 24px;
+
+  overflow-y: auto;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+}
+
+
+/* ==============================================
+   FORM GRID
+============================================== */
+
+.form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 16px;
+}
+
+
+/* ==============================================
+   CAMPOS
+============================================== */
+
+.campo {
+  min-width: 0;
+}
+
+
+.campo-doble {
+  grid-column:
+    span 2;
+}
+
+
+.campo-completo {
+  grid-column:
+    1 / -1;
+}
+
+
+.campo label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #37483e;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid #cdd7d1;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #39443e;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.campo input,
+.campo select {
+  height: 42px;
+
+  padding:
+    0
+    11px;
+}
+
+
+.campo textarea {
+  min-height: 95px;
+
+  padding: 11px;
+
+  resize: vertical;
+}
+
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  border-color: #315f27;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(49, 95, 39, 0.10);
+}
+
+
+/* ==============================================
+   DOCUMENTOS
+============================================== */
+
+.documentos-section {
+  margin-top: 24px;
+
+  padding: 18px;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid #dce5e0;
+
+  border-radius: 10px;
+
+  background: #f8faf9;
+}
+
+
+/* ==============================================
+   HEADER DOCUMENTOS
+============================================== */
+
+.documentos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 14px;
+}
+
+
+.documentos-header h3 {
+  margin: 0;
+
+  color: #315f27;
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+
+.documentos-header p {
+  margin:
+    4px
+    0
+    0;
+
+  color: #89958f;
+
+  font-size: 10px;
+}
+
+
+/* ==============================================
+   CONTADOR
+============================================== */
+
+.contador-pdf {
+  min-width: 55px;
+
+  padding:
+    7px
+    10px;
+
+  box-sizing: border-box;
+
+  border-radius: 20px;
+
+  background: #315f27;
+
+  color: #ffffff;
+
+  text-align: center;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+/* ==============================================
+   ESTADOS ARCHIVOS
+============================================== */
+
+.estado-archivos,
+.sin-archivos {
+  padding:
+    25px
+    15px;
+
+  border:
+    1px dashed #cad6cf;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #78857e;
+
+  text-align: center;
+
+  font-size: 11px;
+}
+
+
+/* ==============================================
+   LISTAS
+============================================== */
+
+.lista-archivos,
+.nuevos-documentos {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+
+/* ==============================================
+   ARCHIVO
+============================================== */
+
+.archivo-item {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  overflow: hidden;
+
+  border:
+    1px solid #dce5e0;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+}
+
+
+/* ==============================================
+   ARCHIVO PRINCIPAL
+============================================== */
+
+.archivo-principal {
+  flex: 1;
+
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding:
+    10px
+    11px;
+
+  border: none;
+
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease;
+}
+
+
+.archivo-principal:hover {
+  background: #eef6eb;
+}
+
+
+.archivo-principal.no-click {
+  cursor: default;
+}
+
+
+.archivo-principal.no-click:hover {
+  background: transparent;
+}
+
+
+/* ==============================================
+   PDF ICONO
+============================================== */
+
+.pdf-icono {
+  flex-shrink: 0;
+
+  width: 36px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 5px;
+
+  background: #e8f2e4;
+
+  color: #315f27;
+
+  font-size: 8px;
+  font-weight: 900;
+}
+
+
+/* ==============================================
+   PDF DATOS
+============================================== */
+
+.archivo-datos {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.archivo-datos strong {
+  overflow: hidden;
+
+  color: #405047;
+
+  font-size: 11px;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+.archivo-datos small {
+  color: #7a8980;
+
+  font-size: 9px;
+}
+
+
+/* ==============================================
+   ELIMINAR PDF
+============================================== */
+
+.btn-eliminar-pdf,
+.btn-quitar-nuevo {
+  flex-shrink: 0;
+
+  width: 38px;
+  height: 38px;
+
+  margin-right: 8px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background: #fff0ef;
+
+  color: #b42318;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+
+.btn-eliminar-pdf:hover,
+.btn-quitar-nuevo:hover {
+  background: #ffe1de;
+
+  transform:
+    translateY(-1px);
+}
+
+
+/* ==============================================
+   NUEVOS
+============================================== */
+
+.nuevos-documentos {
+  margin-top: 15px;
+}
+
+
+.subtitulo-nuevos {
+  margin-bottom: 7px;
+
+  color: #315f27;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+/* ==============================================
+   AGREGAR PDF
+============================================== */
+
+.agregar-pdf-area {
+  margin-top: 15px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+
+.input-pdf-oculto {
+  display: none;
+}
+
+
+.btn-agregar-pdf {
+  min-height: 40px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding:
+    8px
+    15px;
+
+  border: none;
+
+  border-radius: 7px;
+
+  background: #315f27;
+
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 4px 10px
+    rgba(49, 95, 39, 0.18);
+}
+
+
+.btn-agregar-pdf:hover:not(:disabled) {
+  background: #24491d;
+}
+
+
+.btn-agregar-pdf:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+
+.simbolo-mas {
+  font-size: 17px;
+}
+
+
+.ayuda-pdf {
+  color: #829089;
+
+  font-size: 9px;
+}
+
+
+/* ==============================================
+   FOOTER
+============================================== */
+
+.editar-footer {
+  flex-shrink: 0;
+
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  padding:
+    17px
+    24px;
+
+  border-top:
+    1px solid #e2e7e4;
+
+  background: #f8faf9;
+}
+
+
+/* ==============================================
+   BOTONES FOOTER
+============================================== */
+
+.btn-cancelar,
+.btn-guardar {
+  min-width: 145px;
+
+  height: 41px;
+
+  padding:
+    0
+    20px;
+
+  border-radius: 7px;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+
+.btn-cancelar {
+  border:
+    1px solid #ccd5d0;
+
+  background: #ffffff;
+
+  color: #56635c;
+}
+
+
+.btn-guardar {
+  border: none;
+
+  background: #315f27;
+
+  color: #ffffff;
+}
+
+
+.btn-guardar:hover:not(:disabled) {
+  background: #24491d;
+}
+
+
+.btn-cancelar:disabled,
+.btn-guardar:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+/* ==============================================
+   ESTADOS
+============================================== */
+
+.estado {
+  padding:
+    60px
+    20px;
+
+  text-align: center;
+
+  color: #66726c;
+
+  font-size: 14px;
+}
+
+
+.estado.error {
+  color: #b42318;
+}
+
+
+/* ==============================================
+   SCROLL
+============================================== */
+
+.editar-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+
+.editar-body::-webkit-scrollbar-track {
+  background: #f1f3f2;
+}
+
+
+.editar-body::-webkit-scrollbar-thumb {
+  background: #aeb8b2;
+
+  border-radius: 10px;
+}
+
+
+/* ==============================================
+   TABLET
+============================================== */
+
+@media (max-width: 900px) {
+
+  .form-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+
+  .campo-doble {
+    grid-column:
+      1 / -1;
+  }
+
+}
+
+
+/* ==============================================
+   MÓVIL
+============================================== */
+
+@media (max-width: 600px) {
+
+  .editar-overlay {
+    padding: 8px;
+  }
+
+
+  .editar-modal {
+    width: 100%;
+
+    max-height: 97vh;
+  }
+
+
+  .form-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .campo-doble,
+  .campo-completo {
+    grid-column: auto;
+  }
+
+
+  .documentos-header {
+    align-items: flex-start;
+  }
+
+
+  .agregar-pdf-area {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+
+  .editar-footer {
+    flex-direction: column;
+  }
+
+
+  .btn-cancelar,
+  .btn-guardar {
+    width: 100%;
+  }
+
+}

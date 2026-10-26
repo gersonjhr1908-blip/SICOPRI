@@ -1,0 +1,684 @@
+<div
+  class="editar-overlay"
+  (click)="salir()">
+
+
+  <div
+    class="editar-modal"
+    (click)="$event.stopPropagation()">
+
+
+    <!-- ===================================== -->
+    <!-- CABECERA -->
+    <!-- ===================================== -->
+
+    <div class="editar-header">
+
+
+      <div>
+
+        <h2>
+          EDITAR DENUNCIA DE INTEGRIDAD
+        </h2>
+
+
+        <p *ngIf="cinv">
+          {{ cinv }}
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="btn-cerrar"
+        (click)="salir()">
+
+        ✕
+
+      </button>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- CARGANDO -->
+    <!-- ===================================== -->
+
+    <div
+      class="estado"
+      *ngIf="cargando">
+
+      Cargando información...
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- ERROR -->
+    <!-- ===================================== -->
+
+    <div
+      class="estado error"
+      *ngIf="
+        !cargando &&
+        error
+      ">
+
+      {{ error }}
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- BODY -->
+    <!-- ===================================== -->
+
+    <div
+      class="editar-body"
+      *ngIf="
+        !cargando &&
+        !error
+      ">
+
+
+      <!-- =================================== -->
+      <!-- DATOS -->
+      <!-- =================================== -->
+
+      <div class="form-grid">
+
+
+        <!-- TIPO DOC -->
+
+        <div class="campo">
+
+          <label>
+            TIPO DOC:
+          </label>
+
+
+          <select
+            [(ngModel)]="tipoDocumento">
+
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option value="SOLICITUD">
+              Solicitud
+            </option>
+
+            <option value="OFICIO">
+              Oficio
+            </option>
+
+            <option value="INFORME">
+              Informe
+            </option>
+
+            <option value="CARTA_NOTARIAL">
+              Carta notarial
+            </option>
+
+            <option value="FAX">
+              Fax
+            </option>
+
+            <option value="OTROS">
+              Otros
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- DNI -->
+
+        <div class="campo">
+
+          <label>
+            N° DNI:
+          </label>
+
+
+          <input
+            type="text"
+            [(ngModel)]="dni">
+
+        </div>
+
+
+        <!-- CORREO -->
+
+        <div class="campo">
+
+          <label>
+            CORREO ELEC:
+          </label>
+
+
+          <input
+            type="email"
+            [(ngModel)]="correo">
+
+        </div>
+
+
+        <!-- TELÉFONO -->
+
+        <div class="campo">
+
+          <label>
+            TELEF:
+          </label>
+
+
+          <input
+            type="text"
+            [(ngModel)]="telefono">
+
+        </div>
+
+
+        <!-- FECHA -->
+
+        <div class="campo">
+
+          <label>
+            FECHA ACTO DE CORRUPCIÓN:
+          </label>
+
+
+          <input
+            type="date"
+            [(ngModel)]="fechaActoCorrupcion">
+
+        </div>
+
+
+        <!-- SEXO -->
+
+        <div class="campo">
+
+          <label>
+            SEXO:
+          </label>
+
+
+          <select
+            [(ngModel)]="sexo">
+
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option value="MASCULINO">
+              Masculino
+            </option>
+
+            <option value="FEMENINO">
+              Femenino
+            </option>
+
+            <option value="NO_DECLARA">
+              Prefiero no decirlo
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- MOTIVO -->
+
+        <div class="campo campo-doble">
+
+          <label>
+            MOTIVO DE LA DENUNCIA:
+          </label>
+
+
+          <select
+            [(ngModel)]="motivoDenuncia">
+
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option value="APROPIACION">
+              Apropiación o uso indebido de recursos, bienes o información del Estado.
+            </option>
+
+            <option value="FAVORECIMIENTO">
+              Favorecimiento indebido.
+            </option>
+
+            <option value="VENTAJAS">
+              Acceso a ventajas indebidas.
+            </option>
+
+            <option value="INFLUENCIAS">
+              Invocación de influencias en el Estado.
+            </option>
+
+            <option value="CONFLICTO">
+              Mantener intereses en conflicto.
+            </option>
+
+            <option value="OBSTRUCCION">
+              Obstrucción al acceso a la información pública.
+            </option>
+
+            <option value="AUTORIDAD">
+              Abuso de autoridad.
+            </option>
+
+            <option value="OTROS">
+              Otros.
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- MEDIDA -->
+
+        <div class="campo">
+
+          <label>
+            MEDIDAS DE PROTECCIÓN:
+          </label>
+
+
+          <select
+            [(ngModel)]="medidaProteccion">
+
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option value="RESERVA_IDENTIDAD">
+              Solicito reserva de identidad
+            </option>
+
+            <option value="PROTECCION_LABORAL">
+              Solicito protección laboral
+            </option>
+
+            <option value="POSTOR">
+              Protección como postor
+            </option>
+
+            <option value="NINGUNA">
+              No solicito medidas de protección
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- IDENTIFICACIÓN -->
+
+        <div class="campo campo-doble">
+
+          <label>
+            IDENTIFICACIÓN DEL DENUNCIANTE:
+          </label>
+
+
+          <select
+            [(ngModel)]="identificacion">
+
+            <option [ngValue]="null">
+              Seleccione
+            </option>
+
+            <option value="DENUNCIANTE">
+              Denuncia del denunciante
+            </option>
+
+            <option value="ANONIMA">
+              Denunciante anónima
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- DETALLE -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            DETALLE:
+          </label>
+
+
+          <textarea
+            rows="4"
+            [(ngModel)]="detalle">
+          </textarea>
+
+        </div>
+
+
+        <!-- OTROS -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            DETALLE (OTROS):
+          </label>
+
+
+          <textarea
+            rows="4"
+            [(ngModel)]="detalleOtros">
+          </textarea>
+
+        </div>
+
+      </div>
+
+
+      <!-- ===================================== -->
+      <!-- DOCUMENTOS PDF -->
+      <!-- ===================================== -->
+
+      <div class="documentos-section">
+
+
+        <div class="documentos-header">
+
+          <div>
+
+            <h3>
+              DOCUMENTOS ADJUNTOS
+            </h3>
+
+            <p>
+              Archivos PDF asociados a esta denuncia
+            </p>
+
+          </div>
+
+
+          <div class="contador-pdf">
+
+            {{
+              archivosActuales.length +
+              archivosNuevos.length
+            }}
+            /
+            {{ maxArchivos }}
+
+          </div>
+
+        </div>
+
+
+        <!-- CARGANDO -->
+
+        <div
+          class="estado-archivos"
+          *ngIf="cargandoArchivos">
+
+          Cargando documentos...
+
+        </div>
+
+
+        <!-- SIN PDF -->
+
+        <div
+          class="sin-archivos"
+          *ngIf="
+            !cargandoArchivos &&
+            archivosActuales.length === 0 &&
+            archivosNuevos.length === 0
+          ">
+
+          No existen documentos PDF adjuntos actualmente.
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- PDF ACTUALES -->
+        <!-- ================================= -->
+
+        <div
+          class="lista-archivos"
+          *ngIf="
+            !cargandoArchivos &&
+            archivosActuales.length > 0
+          ">
+
+
+          <div
+            class="archivo-item"
+            *ngFor="
+              let archivo
+              of archivosActuales
+            ">
+
+
+            <button
+              type="button"
+              class="archivo-principal"
+              (click)="verPdf(archivo)">
+
+
+              <span class="pdf-icono">
+                PDF
+              </span>
+
+
+              <span class="archivo-datos">
+
+                <strong>
+                  {{ archivo.nombreArchivo }}
+                </strong>
+
+                <small>
+                  Documento actual · Clic para visualizar
+                </small>
+
+              </span>
+
+            </button>
+
+
+            <button
+              type="button"
+              class="btn-eliminar-pdf"
+              title="Eliminar PDF"
+              [disabled]="
+                guardando ||
+                eliminandoArchivo === archivo.idArchivo
+              "
+              (click)="eliminarPdf(archivo)">
+
+              {{
+                eliminandoArchivo ===
+                  archivo.idArchivo
+                  ? '...'
+                  : '🗑'
+              }}
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- NUEVOS PDF -->
+        <!-- ================================= -->
+
+        <div
+          class="nuevos-documentos"
+          *ngIf="
+            archivosNuevos.length > 0
+          ">
+
+
+          <div class="subtitulo-nuevos">
+            NUEVOS DOCUMENTOS POR AGREGAR
+          </div>
+
+
+          <div
+            class="archivo-item archivo-nuevo"
+            *ngFor="
+              let archivo
+              of archivosNuevos;
+              let i = index
+            ">
+
+
+            <div
+              class="archivo-principal no-click">
+
+
+              <span class="pdf-icono">
+                PDF
+              </span>
+
+
+              <span class="archivo-datos">
+
+                <strong>
+                  {{ archivo.name }}
+                </strong>
+
+                <small>
+                  {{ obtenerTamanoArchivo(archivo.size) }}
+                  · Pendiente de guardar
+                </small>
+
+              </span>
+
+            </div>
+
+
+            <button
+              type="button"
+              class="btn-quitar-nuevo"
+              title="Quitar"
+              [disabled]="guardando"
+              (click)="quitarArchivoNuevo(i)">
+
+              ✕
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- AGREGAR PDF -->
+        <!-- ================================= -->
+
+        <div class="agregar-pdf-area">
+
+
+          <input
+            #inputPdf
+            type="file"
+            class="input-pdf-oculto"
+            accept=".pdf,application/pdf"
+            multiple
+            (change)="seleccionarArchivos($event)">
+
+
+          <button
+            type="button"
+            class="btn-agregar-pdf"
+            [disabled]="
+              guardando ||
+              archivosActuales.length +
+              archivosNuevos.length >=
+              maxArchivos
+            "
+            (click)="inputPdf.click()">
+
+            <span class="simbolo-mas">
+              +
+            </span>
+
+            AGREGAR PDF
+
+          </button>
+
+
+          <small class="ayuda-pdf">
+
+            Máximo 5 archivos PDF en total.
+            Hasta 10 MB por archivo.
+
+          </small>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- FOOTER -->
+    <!-- ===================================== -->
+
+    <div
+      class="editar-footer"
+      *ngIf="
+        !cargando &&
+        !error
+      ">
+
+
+      <button
+        type="button"
+        class="btn-cancelar"
+        [disabled]="
+          guardando ||
+          eliminandoArchivo !== null
+        "
+        (click)="salir()">
+
+        CANCELAR
+
+      </button>
+
+
+      <button
+        type="button"
+        class="btn-guardar"
+        [disabled]="
+          guardando ||
+          eliminandoArchivo !== null
+        "
+        (click)="guardarCambios()">
+
+        {{
+          guardando
+            ? 'GUARDANDO...'
+            : 'GUARDAR CAMBIOS'
+        }}
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

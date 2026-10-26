@@ -1,0 +1,9 @@
+<div class="checkbox-container">
+  <div *ngFor="let role of roles">
+    <mat-checkbox [(ngModel)]="role.checked" >
+      {{ role.name }} 
+    </mat-checkbox>
+  </div>
+</div>
+
+<button mat-raised-button color="primary" (click)="cambiarRoles()">Guardar Cambios</button>

@@ -1,0 +1,10 @@
+.full-width {
+  width: 100%;
+  min-width: 320px;
+}
+
+.hint-id {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+}

@@ -1,0 +1,576 @@
+<div class="integridad-page">
+
+  <div class="integridad-card">
+
+    <!-- ===================================== -->
+    <!-- CABECERA -->
+    <!-- ===================================== -->
+
+    <div class="titulo-container">
+
+      <div class="titulo-icono">
+        📋
+      </div>
+
+      <div>
+
+        <h2>
+          LISTADO DE DENUNCIAS (PUD) REGISTRADOS
+        </h2>
+
+        <p>
+          Gestión y consulta de denuncias registradas
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- BUSCADOR + NUEVO DOCUMENTO -->
+    <!-- ===================================== -->
+
+    <div class="toolbar-integridad">
+
+      <div class="buscador">
+
+        <input
+          type="text"
+          [(ngModel)]="search"
+          (keyup.enter)="buscar()"
+          placeholder="BUSCADOR CÓDIGO DENUNCIA (PUD):"
+        />
+
+        <button
+          *ngIf="search"
+          type="button"
+          class="btn-limpiar"
+          (click)="limpiarBusqueda()"
+          title="Limpiar búsqueda">
+
+          ✕
+
+        </button>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="btn-nuevo"
+        (click)="nuevoDocumento()">
+
+        ＋ NUEVO DOCUMENTO
+
+      </button>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- TABLA -->
+    <!-- ===================================== -->
+
+    <div class="tabla-wrapper">
+
+      <table class="integridad-table">
+
+        <thead>
+
+          <tr>
+
+            <th>CÓDIGO</th>
+
+            <th>
+              FECHA DE REGISTRO
+            </th>
+
+            <th>
+              FECHA DE ACTO DE CORRUPCIÓN
+            </th>
+
+            <th>
+              MOTIVO DE TU DENUNCIA
+            </th>
+
+            <th>ESTADO</th>
+
+            <th>ACCIONES</th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <!-- ===================================== -->
+          <!-- REGISTROS -->
+          <!-- ===================================== -->
+
+          <tr
+            *ngFor="
+              let denuncia
+              of denunciasPaginadas
+            ">
+
+            <!-- CÓDIGO -->
+
+            <td>
+              {{ denuncia.cinv }}
+            </td>
+
+
+            <!-- FECHA REGISTRO -->
+
+            <td>
+
+              {{
+                denuncia.fechaRegistro
+                  | date:'dd/MM/yyyy HH:mm'
+              }}
+
+            </td>
+
+
+            <!-- FECHA ACTO -->
+
+            <td>
+
+              {{
+                denuncia.fechaActoCorrupcion
+                  | date:'dd/MM/yyyy'
+              }}
+
+            </td>
+
+
+            <!-- MOTIVO -->
+
+            <td>
+
+              {{
+                obtenerMotivoCompleto(
+                  denuncia.motivoDenuncia
+                )
+              }}
+
+            </td>
+
+
+            <!-- ESTADO -->
+
+            <td>
+
+              <span class="estado-badge">
+
+                {{ denuncia.estado }}
+
+              </span>
+
+            </td>
+
+
+            <!-- ===================================== -->
+            <!-- ACCIONES -->
+            <!-- ===================================== -->
+
+            <td class="td-acciones">
+
+              <div class="acciones-menu">
+
+                <button
+                  type="button"
+                  class="btn-tres-puntos"
+                  title="Acciones"
+                  (click)="
+                    toggleMenuAcciones(
+                      denuncia,
+                      $event
+                    )
+                  ">
+
+                  ⋮
+
+                </button>
+
+
+                <div
+                  class="dropdown-acciones"
+                  *ngIf="
+                    menuAbiertoId ===
+                    denuncia.idExpediente
+                  ">
+
+
+                  <!-- VER CASO -->
+
+                  <button
+                    type="button"
+                    class="opcion-accion"
+                    (click)="verCaso(denuncia)">
+
+                    <span class="opcion-icono">
+                      👁
+                    </span>
+
+                    <span>
+                      Ver Caso
+                    </span>
+
+                  </button>
+
+
+                  <!-- EDITAR -->
+
+                  <button
+                    type="button"
+                    class="opcion-accion"
+                    (click)="editarCaso(denuncia)">
+
+                    <span class="opcion-icono">
+                      ✏️
+                    </span>
+
+                    <span>
+                      Editar
+                    </span>
+
+                  </button>
+
+
+                  <!-- ELIMINAR -->
+
+                  <button
+                    type="button"
+                    class="opcion-accion opcion-eliminar"
+                    (click)="eliminarCaso(denuncia)">
+
+                    <span class="opcion-icono">
+                      🗑️
+                    </span>
+
+                    <span>
+                      Eliminar
+                    </span>
+
+                  </button>
+
+                </div>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+
+          <!-- ===================================== -->
+          <!-- SIN REGISTROS -->
+          <!-- ===================================== -->
+
+          <tr
+            *ngIf="
+              denuncias.length === 0
+            ">
+
+            <td
+              colspan="6"
+              class="sin-registros">
+
+              <div class="sin-icono">
+                📁
+              </div>
+
+              <h3>
+                No se encontraron denuncias
+              </h3>
+
+              <p>
+                No hay denuncias registradas.
+                Haz clic en "Nuevo Documento"
+                para comenzar.
+              </p>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+    <!-- ===================================== -->
+    <!-- PAGINACIÓN -->
+    <!-- ===================================== -->
+
+    <div
+      class="paginacion-container"
+      *ngIf="
+        denuncias.length > 0
+      ">
+
+
+      <div class="paginacion-info">
+
+        Mostrando
+
+        <strong>
+          {{ primerRegistroMostrado }}
+        </strong>
+
+        a
+
+        <strong>
+          {{ ultimoRegistroMostrado }}
+        </strong>
+
+        de
+
+        <strong>
+          {{ denuncias.length }}
+        </strong>
+
+        registros
+
+      </div>
+
+
+      <div class="paginacion-botones">
+
+
+        <!-- ANTERIOR -->
+
+        <button
+          type="button"
+          class="btn-pagina"
+          [disabled]="
+            paginaActual === 1
+          "
+          (click)="
+            cambiarPagina(
+              paginaActual - 1
+            )
+          ">
+
+          ‹
+
+        </button>
+
+
+        <!-- NÚMEROS -->
+
+        <button
+          type="button"
+          class="btn-pagina"
+          *ngFor="
+            let pagina of paginas
+          "
+          [class.activa]="
+            paginaActual === pagina
+          "
+          (click)="
+            cambiarPagina(pagina)
+          ">
+
+          {{ pagina }}
+
+        </button>
+
+
+        <!-- SIGUIENTE -->
+
+        <button
+          type="button"
+          class="btn-pagina"
+          [disabled]="
+            paginaActual ===
+            totalPaginas
+          "
+          (click)="
+            cambiarPagina(
+              paginaActual + 1
+            )
+          ">
+
+          ›
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- MODAL NUEVO DOCUMENTO -->
+<!-- ================================================= -->
+
+<div
+  class="modal-overlay"
+  *ngIf="mostrarModalNuevo"
+  (click)="cerrarNuevoDocumento()">
+
+  <div
+    class="modal-integridad"
+    (click)="$event.stopPropagation()">
+
+
+    <!-- CABECERA -->
+
+    <div class="modal-header">
+
+      <div class="modal-title">
+
+        <div class="modal-title-icon">
+          📄
+        </div>
+
+        <div>
+
+          <h2>
+            REGISTRAR NUEVO DOCUMENTO
+          </h2>
+
+          <p>
+            Registro de denuncia de Integridad
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="modal-close"
+        (click)="cerrarNuevoDocumento()"
+        title="Cerrar">
+
+        ✕
+
+      </button>
+
+    </div>
+
+
+    <!-- FORMULARIO -->
+
+    <div class="modal-body">
+
+      <app-nuevo-registro-integridad
+        (guardado)="registroGuardado($event)">
+
+      </app-nuevo-registro-integridad>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- MENSAJE REGISTRO EXITOSO -->
+<!-- ================================================= -->
+
+<div
+  class="mensaje-overlay"
+  *ngIf="mensajeExito">
+
+  <div
+    class="mensaje-exito"
+    (click)="$event.stopPropagation()">
+
+    <div class="icono-exito">
+      ✓
+    </div>
+
+
+    <h2>
+      REGISTRO EXITOSO
+    </h2>
+
+
+    <p>
+      {{ mensajeExito }}
+    </p>
+
+
+    <div
+      class="cinv-generado"
+      *ngIf="cinvExito">
+
+      <span>
+        CINV GENERADO
+      </span>
+
+      <strong>
+        {{ cinvExito }}
+      </strong>
+
+    </div>
+
+
+    <button
+      type="button"
+      class="btn-aceptar-exito"
+      (click)="cerrarMensajeExito()">
+
+      ACEPTAR
+
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- VER CASO INTEGRIDAD -->
+<!-- ================================================= -->
+
+<app-ver-caso-integridad
+
+  *ngIf="
+    mostrarVerCaso &&
+    denunciaSeleccionada
+  "
+
+  [denuncia]="denunciaSeleccionada"
+
+  (cerrar)="cerrarVerCaso()"
+
+  (enviado)="cargarDenuncias()">
+
+</app-ver-caso-integridad>
+
+
+<!-- ================================================= -->
+<!-- EDITAR CASO INTEGRIDAD -->
+<!-- ================================================= -->
+
+<app-editar-integridad
+
+  *ngIf="
+    mostrarEditar &&
+    denunciaEditar
+  "
+
+  [denuncia]="denunciaEditar"
+
+  (cerrar)="cerrarEditar()"
+
+  (actualizado)="
+    denunciaActualizada($event)
+  ">
+
+</app-editar-integridad>

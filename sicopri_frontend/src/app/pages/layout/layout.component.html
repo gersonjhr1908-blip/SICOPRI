@@ -1,0 +1,232 @@
+<div class="layout-container">
+
+  <mat-sidenav-container class="sidenav-container">
+
+    <!-- ====================================== -->
+    <!-- MENÚ LATERAL -->
+    <!-- ====================================== -->
+
+    <mat-sidenav
+      id="sidenav"
+      #sidenav
+      class="sidenav"
+      mode="side"
+      opened="true"
+      disableClose="true">
+
+      <div class="sidenav-header">
+
+        <div class="logo-container">
+
+          <img
+            class="logo-img"
+            src="assets/ep.png"
+            alt="Logo Ejército del Perú"
+            width="105"
+            height="110">
+
+        </div>
+
+        <mat-divider class="divider"></mat-divider>
+
+        <div style="text-align: center;">
+
+          <h2 class="soporte-title">
+            SISTEMA
+          </h2>
+
+          <h2
+            class="role-title"
+            *ngIf="roleNameActivo">
+            {{ roleNameActivo }}
+          </h2>
+
+        </div>
+
+      </div>
+
+
+      <!-- ====================================== -->
+      <!-- OPCIONES DEL MENÚ -->
+      <!-- ====================================== -->
+
+      <nav class="menu-nav">
+
+        <button
+          *ngFor="let menuItem of menus; trackBy: trackByMenuId"
+          class="menu-button"
+          [routerLinkActive]="['active']"
+          [routerLink]="getMenuUrl(menuItem)"
+          (click)="selectMenu(getMenuUrl(menuItem))">
+
+          <mat-icon class="menu-icon">
+            {{ menuItem.icon }}
+          </mat-icon>
+
+          <span class="menu-text">
+            {{ menuItem.name }}
+          </span>
+
+        </button>
+
+
+        <!-- SIN MENÚS -->
+
+        <div
+          class="no-menus"
+          *ngIf="menus.length === 0">
+
+          <p>
+            No hay menús disponibles
+          </p>
+
+        </div>
+
+      </nav>
+
+    </mat-sidenav>
+
+
+    <!-- ====================================== -->
+    <!-- CONTENIDO PRINCIPAL -->
+    <!-- ====================================== -->
+
+    <mat-sidenav-content class="app-content">
+
+
+      <!-- ====================================== -->
+      <!-- TOOLBAR -->
+      <!-- ====================================== -->
+
+      <mat-toolbar class="toolbar">
+
+
+        <!-- TÍTULO -->
+
+        <div class="toolbar-title">
+
+          <h1>
+            SISTEMA -EP
+          </h1>
+
+        </div>
+
+
+        <span class="toolbar-spacer"></span>
+
+
+        <!-- ====================================== -->
+        <!-- CAMBIAR VISTA DE ROL -->
+        <!-- SOLO ADMINISTRADOR -->
+        <!-- ====================================== -->
+
+        <div
+          class="role-switcher"
+          *ngIf="esAdministrador">
+
+          <span class="role-switcher-label">
+            VISTA:
+          </span>
+
+
+          <select
+            class="role-switcher-select"
+            [(ngModel)]="rolActivoId"
+            (ngModelChange)="cambiarVistaRol($event)">
+
+            <option
+              *ngFor="let rol of rolesVista"
+              [ngValue]="rol.id">
+
+              {{ rol.nombre }}
+
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- ====================================== -->
+        <!-- USUARIO -->
+        <!-- ====================================== -->
+
+        <div class="user-section">
+
+          <span class="welcome-text">
+            BIENVENIDO:&nbsp;
+          </span>
+
+          <span class="username-text">
+            {{ username }}
+          </span>
+
+        </div>
+
+
+        <!-- ====================================== -->
+        <!-- BOTÓN USUARIO / SALIR -->
+        <!-- ====================================== -->
+
+        <button
+          mat-icon-button
+          [matMenuTriggerFor]="userMenu"
+          class="user-menu-button"
+          aria-label="Menú de usuario">
+
+          <mat-icon>
+            settings_power
+          </mat-icon>
+
+        </button>
+
+
+        <!-- ====================================== -->
+        <!-- MENÚ DEL USUARIO -->
+        <!-- ====================================== -->
+
+        <mat-menu #userMenu="matMenu">
+
+          <button
+            mat-menu-item
+            (click)="logout()">
+
+            <mat-icon class="logout-icon">
+              exit_to_app
+            </mat-icon>
+
+            <span>
+              Cerrar Sesión
+            </span>
+
+          </button>
+
+        </mat-menu>
+
+      </mat-toolbar>
+
+
+      <!-- ====================================== -->
+      <!-- CONTENIDO DE LAS PÁGINAS -->
+      <!-- ====================================== -->
+
+      <main class="page-content-area">
+
+        <router-outlet></router-outlet>
+
+      </main>
+
+
+      <!-- ====================================== -->
+      <!-- FOOTER -->
+      <!-- ====================================== -->
+
+      <app-footer class="app-footer">
+      </app-footer>
+
+
+    </mat-sidenav-content>
+
+  </mat-sidenav-container>
+
+</div>
