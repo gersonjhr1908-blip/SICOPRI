@@ -140,8 +140,12 @@ import {
 
 
 // =====================================================
-// INTEGRIDAD
+// INTEGRIDAD NIVEL 2
 // =====================================================
+
+import {
+  InicioIntegridadComponent
+} from './integridad/inicio-integridad/inicio-integridad.component';
 
 import {
   RegistrarIntegridadComponent
@@ -150,6 +154,67 @@ import {
 import {
   PendientesIntegridadComponent
 } from './integridad/pendientes-integridad/pendientes-integridad.component';
+
+import {
+  ListadoTotalIntegridadComponent
+} from './integridad/listadototal-integridad/listadototal-integridad.component';
+
+import {
+  EstadisticaIntegridadComponent
+} from './integridad/estadistica-integridad/estadistica-integridad.component';
+
+import {
+  ManualIntegridadComponent
+} from './integridad/manual-integridad/manual-integridad.component';
+
+
+// =====================================================
+// INTEGRIDAD NIVEL 3
+// =====================================================
+
+import {
+  InicioIntegridad3Component
+} from './integridad-nivel3/inicio-integridad3/inicio-integridad3.component';
+
+import {
+  PendientesIntegridad3Component
+} from './integridad-nivel3/pendientes-integridad3/pendientes-integridad3.component';
+
+import {
+  ListadoTotalIntegridad3Component
+} from './integridad-nivel3/listadototal-integridad3/listadototal-integridad3.component';
+
+import {
+  EstadisticaIntegridad3Component
+} from './integridad-nivel3/estadistica-integridad3/estadistica-integridad3.component';
+import {
+  ManualIntegridad3Component
+} from './integridad-nivel3/manual-integridad3/manual-integridad3.component';
+
+
+// =====================================================
+// INTEGRIDAD NIVEL 4
+// =====================================================
+
+import {
+  InicioIntegridad4Component
+} from './integridad-nivel4/inicio-integridad4/inicio-integridad4.component';
+
+import {
+  PendientesIntegridad4Component
+} from './integridad-nivel4/pendientes-integridad4/pendientes-integridad4.component';
+
+import {
+  ListadoTotalIntegridad4Component
+} from './integridad-nivel4/listadototal-integridad4/listadototal-integridad4.component';
+
+import {
+  EstadisticaIntegridad4Component
+} from './integridad-nivel4/estadistica-integridad4/estadistica-integridad4.component';
+
+import {
+  ManualIntegridad4Component
+} from './integridad-nivel4/manual-integridad4/manual-integridad4.component';
 
 
 // =====================================================
@@ -305,8 +370,14 @@ export const pagesRoutes: Routes = [
 
 
   // ===================================================
-  // INTEGRIDAD
+  // INTEGRIDAD NIVEL 2 - ROL 2
   // ===================================================
+
+  {
+    path: 'integridad/inicio',
+    component: InicioIntegridadComponent,
+    canActivate: [certGuard]
+  },
 
   {
     path: 'integridad/registrar',
@@ -317,6 +388,94 @@ export const pagesRoutes: Routes = [
   {
     path: 'integridad/pendientes',
     component: PendientesIntegridadComponent,
+    canActivate: [certGuard]
+  },
+
+  {
+    path: 'integridad/listado',
+    component: ListadoTotalIntegridadComponent,
+    canActivate: [certGuard]
+  },
+
+  {
+    path: 'integridad/estadistica',
+    component: EstadisticaIntegridadComponent,
+    canActivate: [certGuard]
+  },
+
+  {
+    path: 'integridad/manual',
+    component: ManualIntegridadComponent,
+    canActivate: [certGuard]
+  },
+
+
+  // ===================================================
+  // INTEGRIDAD NIVEL 3 - ROL 4
+  // ===================================================
+
+  {
+    path: 'integridad3/inicio',
+    component: InicioIntegridad3Component,
+    canActivate: [certGuard]
+  },
+
+  {
+    path: 'integridad3/pendientes',
+    component: PendientesIntegridad3Component,
+    canActivate: [certGuard]
+  },
+
+  {
+    path: 'integridad3/listado',
+    component: ListadoTotalIntegridad3Component,
+    canActivate: [certGuard]
+  },
+
+  {
+    path: 'integridad3/estadistica',
+    component: EstadisticaIntegridad3Component,
+    canActivate: [certGuard]
+  },
+
+  {
+    path: 'integridad3/manual',
+    component: ManualIntegridad3Component,
+    canActivate: [certGuard]
+  },
+
+
+  // ===================================================
+  // INTEGRIDAD NIVEL 4 - ROL 6
+  // ===================================================
+
+  {
+    path: 'integridad4/inicio',
+    component: InicioIntegridad4Component,
+    canActivate: [certGuard]
+  },
+
+  {
+    path: 'integridad4/pendientes',
+    component: PendientesIntegridad4Component,
+    canActivate: [certGuard]
+  },
+
+  {
+    path: 'integridad4/listado',
+    component: ListadoTotalIntegridad4Component,
+    canActivate: [certGuard]
+  },
+
+  {
+    path: 'integridad4/estadistica',
+    component: EstadisticaIntegridad4Component,
+    canActivate: [certGuard]
+  },
+
+  {
+    path: 'integridad4/manual',
+    component: ManualIntegridad4Component,
     canActivate: [certGuard]
   },
 
@@ -387,12 +546,10 @@ export const pagesRoutes: Routes = [
     component: MantoComponent,
 
     children: [
-
       {
         path: 'register',
         component: RegisterComponent
       }
-
     ],
 
     canActivate: [certGuard]

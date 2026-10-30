@@ -4,3 +4,11 @@ target/
 dist/
 build/
 sicopri_backend/uploads/
+
+# Configuracion privada y archivos locales
+.env.*
+*.dmp
+*.log
+*.pem
+*.key
+.angular/

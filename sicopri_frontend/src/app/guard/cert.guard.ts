@@ -176,9 +176,13 @@ export const certGuard = (
           rolActivo === 1;
 
 
-        const esIntegridad =
-          rolActivo === 2 ||
-          rolActivo === 4 ||
+        const esIntegridadNivel2 =
+          rolActivo === 2;
+
+        const esIntegridadNivel3 =
+          rolActivo === 4;
+
+        const esIntegridadNivel4 =
           rolActivo === 6;
 
 
@@ -300,28 +304,84 @@ export const certGuard = (
 
 
         // =================================================
-        // 8. PROTEGER INTEGRIDAD
+        // 8. PROTEGER INTEGRIDAD NIVEL 2
+        // ROL 2 O ADMINISTRADOR
         // =================================================
 
         if (
-          url.startsWith('/pages/integridad/') &&
-          !esIntegridad &&
-          !esAdministrador
+          url === '/pages/integridad' ||
+          url.startsWith('/pages/integridad/')
         ) {
+          if (
+            !esIntegridadNivel2 &&
+            !esAdministrador
+          ) {
+            console.warn(
+              'ACCESO INTEGRIDAD NIVEL 2 DENEGADO PARA ROL:',
+              rolActivo
+            );
 
-          console.warn(
-            'ACCESO INTEGRIDAD DENEGADO PARA ROL:',
-            rolActivo
-          );
-
-
-          return of(
-            router.createUrlTree([
-              '/pages/not-403'
-            ])
-          );
+            return of(
+              router.createUrlTree([
+                '/pages/not-403'
+              ])
+            );
+          }
         }
 
+
+        // =================================================
+        // 8.1 PROTEGER INTEGRIDAD NIVEL 3
+        // ROL 4 O ADMINISTRADOR
+        // =================================================
+
+        if (
+          url === '/pages/integridad3' ||
+          url.startsWith('/pages/integridad3/')
+        ) {
+          if (
+            !esIntegridadNivel3 &&
+            !esAdministrador
+          ) {
+            console.warn(
+              'ACCESO INTEGRIDAD NIVEL 3 DENEGADO PARA ROL:',
+              rolActivo
+            );
+
+            return of(
+              router.createUrlTree([
+                '/pages/not-403'
+              ])
+            );
+          }
+        }
+
+
+        // =================================================
+        // 8.2 PROTEGER INTEGRIDAD NIVEL 4
+        // ROL 6 O ADMINISTRADOR
+        // =================================================
+
+        if (
+          url === '/pages/integridad4' ||
+          url.startsWith('/pages/integridad4/')
+        ) {
+          if (
+            !esIntegridadNivel4 &&
+            !esAdministrador
+          ) {
+            console.warn(
+              'ACCESO INTEGRIDAD NIVEL 4 DENEGADO PARA ROL:',
+              rolActivo
+            );
+
+            return of(
+              router.createUrlTree([
+                '/pages/not-403'
+              ])
+            );
+          }
+        }
 
         // =================================================
         // 9. OBTENER MENÚS DEL USUARIO
@@ -556,29 +616,146 @@ export const certGuard = (
 
 
               // =================================================
-              // INTEGRIDAD - REGISTRAR
+              // INTEGRIDAD NIVEL 2
               // =================================================
+
+              if (
+                url === '/pages/integridad/inicio'
+              ) {
+                urlsValidas.push(
+                  '/pages/home'
+                );
+              }
 
               if (
                 url === '/pages/integridad/registrar'
               ) {
-
                 urlsValidas.push(
                   '/pages/registrar'
                 );
               }
 
-
-              // =================================================
-              // INTEGRIDAD - PENDIENTES
-              // =================================================
-
               if (
                 url === '/pages/integridad/pendientes'
               ) {
-
                 urlsValidas.push(
                   '/pages/pendientes'
+                );
+              }
+
+              if (
+                url === '/pages/integridad/listado'
+              ) {
+                urlsValidas.push(
+                  '/pages/listado-total'
+                );
+              }
+
+              if (
+                url === '/pages/integridad/estadistica'
+              ) {
+                urlsValidas.push(
+                  '/pages/estadistica'
+                );
+              }
+
+              if (
+                url === '/pages/integridad/manual'
+              ) {
+                urlsValidas.push(
+                  '/pages/manual'
+                );
+              }
+
+
+              // =================================================
+              // INTEGRIDAD NIVEL 3
+              // NO TIENE REGISTRAR
+              // =================================================
+
+              if (
+                url === '/pages/integridad3/inicio'
+              ) {
+                urlsValidas.push(
+                  '/pages/home'
+                );
+              }
+
+              if (
+                url === '/pages/integridad3/pendientes'
+              ) {
+                urlsValidas.push(
+                  '/pages/pendientes'
+                );
+              }
+
+              if (
+                url === '/pages/integridad3/listado'
+              ) {
+                urlsValidas.push(
+                  '/pages/listado-total'
+                );
+              }
+
+              if (
+                url === '/pages/integridad3/estadistica'
+              ) {
+                urlsValidas.push(
+                  '/pages/estadistica'
+                );
+              }
+
+              if (
+                url === '/pages/integridad3/manual'
+              ) {
+                urlsValidas.push(
+                  '/pages/manual'
+                );
+              }
+
+
+              // =================================================
+              // INTEGRIDAD NIVEL 4
+              // NO TIENE REGISTRAR
+              // =================================================
+
+              if (
+                url === '/pages/integridad4/inicio'
+              ) {
+                urlsValidas.push(
+                  '/pages/home'
+                );
+              }
+
+              if (
+                url === '/pages/integridad4/pendientes'
+              ) {
+                urlsValidas.push(
+                  '/pages/pendientes'
+                );
+              }
+
+              if (
+                url === '/pages/integridad4/listado'
+              ) {
+                urlsValidas.push(
+                  '/pages/listado-total'
+                );
+              }
+
+              if (
+                url === '/pages/integridad4/estadistica'
+              ) {
+                urlsValidas.push(
+                  '/pages/estadistica'
+                );
+              }
+
+              if (
+                url === '/pages/integridad4/manual'
+              ) {
+                urlsValidas.push(
+                  '/pages/manual'
                 );
               }
 

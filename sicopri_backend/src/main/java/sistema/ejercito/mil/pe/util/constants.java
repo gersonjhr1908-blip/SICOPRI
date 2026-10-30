@@ -34,7 +34,7 @@ constants {
     // Catpcha
    // public static final String RECAPTCHA_SITE_KEY = "6LdfMKYrAAAAAIrOiH1Febo1AvNz8NWGwi_1c1nK",
     public static final String RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify";
-    public static final String RECAPTCHA_SECRET_KEY = "6LdfMKYrAAAAAHSyBYbKJravlQnhHvddtLjQiVCJ";
+    public static final String RECAPTCHA_SECRET_KEY = System.getenv().getOrDefault("RECAPTCHA_SECRET_KEY", "");
 
     // direccion para guardar archivos
     public static final String RUTA_PDF = "D:\\SISLLAA\\PDF\\";

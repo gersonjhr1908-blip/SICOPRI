@@ -173,7 +173,7 @@ export class LayoutComponent
     private router:
       Router
 
-  ) {}
+  ) { }
 
 
   // =========================================
@@ -591,41 +591,36 @@ export class LayoutComponent
   // RUTA INICIO POR ROL
   // =========================================
 
-  private obtenerRutaInicioPorRol():
-    string {
+  private obtenerRutaInicioPorRol(): string {
+    switch (this.rolActivoId) {
 
-
-    switch (
-      this.rolActivoId
-    ) {
-
-
-      // Integridad
+      // INTEGRIDAD NIVEL 2
       case 2:
-      case 4:
-      case 6:
-        return '/pages/home';
-
+        return '/pages/integridad/inicio';
 
       // QRD NIVEL 2
       case 3:
         return '/pages/qrd2/inicio';
 
+      // INTEGRIDAD NIVEL 3
+      case 4:
+        return '/pages/integridad3/inicio';
 
       // QRD NIVEL 3
       case 5:
         return '/pages/qrd3/inicio';
 
+      // INTEGRIDAD NIVEL 4
+      case 6:
+        return '/pages/integridad4/inicio';
 
       // QRD NIVEL 4
       case 7:
         return '/pages/qrd4/inicio';
 
-
-      // Administrador
+      // ADMINISTRADOR
       default:
         return '/pages/home';
-
     }
 
   }
@@ -635,245 +630,212 @@ export class LayoutComponent
   // OBTENER URL SEGÚN ROL ACTIVO
   // =========================================
 
-  getMenuUrl(
-    menuItem: Menu
-  ): string {
+  getMenuUrl(menuItem: Menu): string {
+  const nombreMenu = String(
+    menuItem.name || ''
+  )
+    .trim()
+    .toUpperCase();
 
 
-    const nombreMenu =
-      String(
-        menuItem.name || ''
-      )
-        .trim()
-        .toUpperCase();
+  // =========================================
+  // INTEGRIDAD NIVEL 2
+  // ROL 2
+  // =========================================
 
+  if (this.rolActivoId === 2) {
+    switch (nombreMenu) {
 
-    // =========================================
-    // INTEGRIDAD
-    //
-    // 2 = Integridad N2
-    // 4 = Integridad N3
-    // 6 = Integridad N4
-    // =========================================
+      case 'INICIO':
+        return '/pages/integridad/inicio';
 
-    const esIntegridad =
-      this.rolActivoId === 2 ||
-      this.rolActivoId === 4 ||
-      this.rolActivoId === 6;
+      case 'REGISTRAR':
+        return '/pages/integridad/registrar';
 
+      case 'PENDIENTES':
+        return '/pages/integridad/pendientes';
 
-    if (esIntegridad) {
+      case 'LISTADO TOTAL':
+        return '/pages/integridad/listado';
 
+      case 'ESTADISTICA':
+      case 'ESTADÍSTICA':
+        return '/pages/integridad/estadistica';
 
-      switch (nombreMenu) {
+      case 'MANUAL':
+        return '/pages/integridad/manual';
 
-
-        case 'INICIO':
-
-          return '/pages/home';
-
-
-        case 'REGISTRAR':
-
-          return '/pages/integridad/registrar';
-
-
-        case 'PENDIENTES':
-
-          return '/pages/integridad/pendientes';
-
-
-        case 'LISTADO TOTAL':
-
-          return menuItem.url;
-
-
-        case 'ESTADISTICA':
-        case 'ESTADÍSTICA':
-
-          return menuItem.url;
-
-
-        case 'MANUAL':
-
-          return '/pages/manual';
-
-
-        default:
-
-          return menuItem.url;
-
-      }
-
+      default:
+        return menuItem.url;
     }
-
-
-    // =========================================
-    // QRD NIVEL 2
-    // ROL 3
-    // =========================================
-
-    if (
-      this.rolActivoId === 3
-    ) {
-
-
-      switch (nombreMenu) {
-
-
-        case 'INICIO':
-
-          return '/pages/qrd2/inicio';
-
-
-        case 'REGISTRAR':
-
-          return '/pages/qrd2/registrar';
-
-
-        case 'PENDIENTES':
-
-          return '/pages/qrd2/pendientes';
-
-
-        case 'LISTADO TOTAL':
-
-          return '/pages/qrd2/listado';
-
-
-        case 'ESTADISTICA':
-        case 'ESTADÍSTICA':
-
-          return '/pages/qrd2/estadistica';
-
-
-        case 'MANUAL':
-
-          return '/pages/qrd2/manual';
-
-
-        default:
-
-          return menuItem.url;
-
-      }
-
-    }
-
-
-    // =========================================
-    // QRD NIVEL 3
-    // ROL 5
-    // =========================================
-
-    if (
-      this.rolActivoId === 5
-    ) {
-
-
-      switch (nombreMenu) {
-
-
-        case 'INICIO':
-
-          return '/pages/qrd3/inicio';
-
-
-        case 'REGISTRAR':
-
-          return '/pages/qrd3/registrar';
-
-
-        case 'PENDIENTES':
-
-          return '/pages/qrd3/pendientes';
-
-
-        case 'LISTADO TOTAL':
-
-          return '/pages/qrd3/listado';
-
-
-        case 'ESTADISTICA':
-        case 'ESTADÍSTICA':
-
-          return '/pages/qrd3/estadistica';
-
-
-        case 'MANUAL':
-
-          return '/pages/qrd3/manual';
-
-
-        default:
-
-          return menuItem.url;
-
-      }
-
-    }
-
-
-    // =========================================
-    // QRD NIVEL 4
-    // ROL 7
-    // =========================================
-
-    if (
-      this.rolActivoId === 7
-    ) {
-
-
-      switch (nombreMenu) {
-
-
-        case 'INICIO':
-
-          return '/pages/qrd4/inicio';
-
-
-        case 'REGISTRAR':
-
-          return '/pages/qrd4/registrar';
-
-
-        case 'PENDIENTES':
-
-          return '/pages/qrd4/pendientes';
-
-
-        case 'LISTADO TOTAL':
-
-          return '/pages/qrd4/listado';
-
-
-        case 'ESTADISTICA':
-        case 'ESTADÍSTICA':
-
-          return '/pages/qrd4/estadistica';
-
-
-        case 'MANUAL':
-
-          return '/pages/qrd4/manual';
-
-
-        default:
-
-          return menuItem.url;
-
-      }
-
-    }
-
-
-    // =========================================
-    // ADMIN
-    // =========================================
-
-    return menuItem.url;
-
   }
+
+
+  // =========================================
+  // QRD NIVEL 2
+  // ROL 3
+  // =========================================
+
+  if (this.rolActivoId === 3) {
+    switch (nombreMenu) {
+
+      case 'INICIO':
+        return '/pages/qrd2/inicio';
+
+      case 'REGISTRAR':
+        return '/pages/qrd2/registrar';
+
+      case 'PENDIENTES':
+        return '/pages/qrd2/pendientes';
+
+      case 'LISTADO TOTAL':
+        return '/pages/qrd2/listado';
+
+      case 'ESTADISTICA':
+      case 'ESTADÍSTICA':
+        return '/pages/qrd2/estadistica';
+
+      case 'MANUAL':
+        return '/pages/qrd2/manual';
+
+      default:
+        return menuItem.url;
+    }
+  }
+
+
+  // =========================================
+  // INTEGRIDAD NIVEL 3
+  // ROL 4
+  // =========================================
+
+  if (this.rolActivoId === 4) {
+    switch (nombreMenu) {
+
+      case 'INICIO':
+        return '/pages/integridad3/inicio';
+
+      case 'PENDIENTES':
+        return '/pages/integridad3/pendientes';
+
+      case 'LISTADO TOTAL':
+        return '/pages/integridad3/listado';
+
+      case 'ESTADISTICA':
+      case 'ESTADÍSTICA':
+        return '/pages/integridad3/estadistica';
+
+      case 'MANUAL':
+        return '/pages/integridad3/manual';
+
+      default:
+        return menuItem.url;
+    }
+  }
+
+
+  // =========================================
+  // QRD NIVEL 3
+  // ROL 5
+  // =========================================
+
+  if (this.rolActivoId === 5) {
+    switch (nombreMenu) {
+
+      case 'INICIO':
+        return '/pages/qrd3/inicio';
+
+      case 'REGISTRAR':
+        return '/pages/qrd3/registrar';
+
+      case 'PENDIENTES':
+        return '/pages/qrd3/pendientes';
+
+      case 'LISTADO TOTAL':
+        return '/pages/qrd3/listado';
+
+      case 'ESTADISTICA':
+      case 'ESTADÍSTICA':
+        return '/pages/qrd3/estadistica';
+
+      case 'MANUAL':
+        return '/pages/qrd3/manual';
+
+      default:
+        return menuItem.url;
+    }
+  }
+
+
+  // =========================================
+  // INTEGRIDAD NIVEL 4
+  // ROL 6
+  // =========================================
+
+  if (this.rolActivoId === 6) {
+    switch (nombreMenu) {
+
+      case 'INICIO':
+        return '/pages/integridad4/inicio';
+
+      case 'PENDIENTES':
+        return '/pages/integridad4/pendientes';
+
+      case 'LISTADO TOTAL':
+        return '/pages/integridad4/listado';
+
+      case 'ESTADISTICA':
+      case 'ESTADÍSTICA':
+        return '/pages/integridad4/estadistica';
+
+      case 'MANUAL':
+        return '/pages/integridad4/manual';
+
+      default:
+        return menuItem.url;
+    }
+  }
+
+
+  // =========================================
+  // QRD NIVEL 4
+  // ROL 7
+  // =========================================
+
+  if (this.rolActivoId === 7) {
+    switch (nombreMenu) {
+
+      case 'INICIO':
+        return '/pages/qrd4/inicio';
+
+      case 'REGISTRAR':
+        return '/pages/qrd4/registrar';
+
+      case 'PENDIENTES':
+        return '/pages/qrd4/pendientes';
+
+      case 'LISTADO TOTAL':
+        return '/pages/qrd4/listado';
+
+      case 'ESTADISTICA':
+      case 'ESTADÍSTICA':
+        return '/pages/qrd4/estadistica';
+
+      case 'MANUAL':
+        return '/pages/qrd4/manual';
+
+      default:
+        return menuItem.url;
+    }
+  }
+
+
+  // =========================================
+  // ADMINISTRADOR
+  // =========================================
+
+  return menuItem.url;
+}
 
 
   // =========================================

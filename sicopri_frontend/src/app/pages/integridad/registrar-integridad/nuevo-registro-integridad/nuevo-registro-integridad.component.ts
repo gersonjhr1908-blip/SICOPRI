@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   EventEmitter,
+  OnInit,
   Output
 } from '@angular/core';
 
@@ -11,6 +12,13 @@ import { FormsModule } from '@angular/forms';
 import {
   IntegridadService
 } from '../../../../services/integridad.service';
+
+import {
+  UsersService,
+  Nucleo,
+  Brigada,
+  Unidad
+} from '../../../../services/users.service';
 
 
 @Component({
@@ -29,7 +37,8 @@ import {
   styleUrl:
     './nuevo-registro-integridad.component.css'
 })
-export class NuevoRegistroIntegridadComponent {
+export class NuevoRegistroIntegridadComponent
+  implements OnInit {
 
 
   // =========================================
@@ -42,44 +51,82 @@ export class NuevoRegistroIntegridadComponent {
 
 
   // =========================================
-  // DATOS PRINCIPALES
+  // DATOS DEL DENUNCIANTE
+  // =========================================
+
+  identificacion: string | null = null;
+
+  nombres: string = '';
+
+  apellidos: string = '';
+
+  ruc: string = '';
+
+  dni: string = '';
+
+  telefono: string = '';
+
+  domicilio: string = '';
+
+  correo: string = '';
+
+  sexo: string | null = null;
+
+
+  // =========================================
+  // DATOS DEL DOCUMENTO
   // =========================================
 
   tipoDocumento: string | null = null;
-
-  dni: string = '';
 
   codigo: string = '';
 
   fechaRegistro: string = '';
 
-  correo: string = '';
 
-  telefono: string = '';
+  // =========================================
+  // DATOS DE LA DENUNCIA
+  // =========================================
 
   fechaActoCorrupcion: string = '';
-
-
-  // =========================================
-  // DENUNCIA
-  // =========================================
 
   motivoDenuncia: string | null = null;
 
   medidaProteccion: string | null = null;
 
-
-  // =========================================
-  // DENUNCIANTE
-  // =========================================
-
-  identificacion: string | null = null;
-
-  sexo: string | null = null;
-
   detalle: string = '';
 
   detalleOtros: string = '';
+
+
+  // =========================================
+  // UBICACIÓN ORIGINAL
+  // =========================================
+
+  nucleos: Nucleo[] = [];
+
+  brigadas: Brigada[] = [];
+
+  unidades: Unidad[] = [];
+
+  idNucleo: string | null = null;
+
+  idBrigada: string | null = null;
+
+  idUnidad: string | null = null;
+
+
+  // =========================================
+  // UBICACIÓN IG AUTOMÁTICA
+  // =========================================
+
+  nucleosIg: Nucleo[] = [];
+
+  brigadasIg: Brigada[] = [];
+
+  idNucleoIg: number | null = null;
+
+  idIg: string | null = null;
 
 
   // =========================================
@@ -95,10 +142,12 @@ export class NuevoRegistroIntegridadComponent {
 
 
   // =========================================
-  // CONTROL GUARDADO
+  // CONTROL
   // =========================================
 
   guardando: boolean = false;
+
+  intentoGuardar: boolean = false;
 
 
   // =========================================
@@ -106,11 +155,421 @@ export class NuevoRegistroIntegridadComponent {
   // =========================================
 
   constructor(
-
     private integridadService:
-      IntegridadService
+      IntegridadService,
 
-  ) { }
+    private usersService:
+      UsersService
+  ) {}
+
+
+  // =========================================
+  // INICIO
+  // =========================================
+
+  ngOnInit(): void {
+    this.cargarNucleos();
+  }
+
+
+  // =========================================
+  // DENUNCIANTE IDENTIFICADO
+  // =========================================
+
+  get esIdentificado(): boolean {
+    return this.identificacion ===
+      'DENUNCIANTE';
+  }
+
+
+  // =========================================
+  // VALIDAR CONTACTO
+  // =========================================
+
+  get errorContacto(): string {
+    const dni =
+      this.dni.trim();
+
+    const ruc =
+      this.ruc.trim();
+
+    const telefono =
+      this.telefono.trim();
+
+    const correo =
+      this.correo.trim();
+
+
+    if (
+      this.esIdentificado &&
+      !dni
+    ) {
+      return 'El DNI es obligatorio para el denunciante identificado.';
+    }
+
+
+    if (
+      dni &&
+      !/^\d{8}$/.test(dni)
+    ) {
+      return 'El DNI debe contener exactamente 8 dígitos.';
+    }
+
+
+    if (
+      ruc &&
+      !/^\d{11}$/.test(ruc)
+    ) {
+      return 'El RUC debe contener exactamente 11 dígitos.';
+    }
+
+
+    if (
+      this.esIdentificado &&
+      !telefono
+    ) {
+      return 'El teléfono es obligatorio para el denunciante identificado.';
+    }
+
+
+    if (
+      correo &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        correo
+      )
+    ) {
+      return 'Ingrese un correo electrónico válido.';
+    }
+
+
+    return '';
+  }
+
+
+  // =========================================
+  // VALIDAR ASIGNACIÓN
+  // =========================================
+
+  get asignacionInvalida(): boolean {
+    return (
+      !this.idNucleo ||
+      !this.idBrigada ||
+      !this.idUnidad ||
+      this.idNucleoIg === null ||
+      !this.idIg
+    );
+  }
+
+
+  // =========================================
+  // CARGAR NÚCLEOS
+  // =========================================
+
+  cargarNucleos(): void {
+    this.usersService
+      .getNucleos()
+      .subscribe({
+
+        next: (
+          data: Nucleo[]
+        ) => {
+          this.nucleos =
+            data || [];
+
+          this.nucleosIg =
+            data || [];
+        },
+
+        error: (
+          error: any
+        ) => {
+          console.error(
+            'ERROR AL CARGAR NÚCLEOS DE INTEGRIDAD:',
+            error
+          );
+
+          this.nucleos = [];
+
+          this.nucleosIg = [];
+        }
+
+      });
+  }
+
+
+  // =========================================
+  // CAMBIAR NÚCLEO
+  // =========================================
+
+  cambiarNucleo(): void {
+    this.idBrigada = null;
+
+    this.idUnidad = null;
+
+    this.idNucleoIg = null;
+
+    this.idIg = null;
+
+    this.brigadas = [];
+
+    this.unidades = [];
+
+    this.brigadasIg = [];
+
+
+    if (!this.idNucleo) {
+      return;
+    }
+
+
+    this.usersService
+      .getBrigadas(
+        this.idNucleo
+      )
+      .subscribe({
+
+        next: (
+          data: Brigada[]
+        ) => {
+          this.brigadas =
+            data || [];
+        },
+
+        error: (
+          error: any
+        ) => {
+          console.error(
+            'ERROR AL CARGAR GRANDES UNIDADES:',
+            error
+          );
+
+          this.brigadas = [];
+        }
+
+      });
+  }
+
+
+  // =========================================
+  // CAMBIAR GRAN UNIDAD
+  // =========================================
+
+  cambiarBrigada(): void {
+    this.idUnidad = null;
+
+    this.idNucleoIg = null;
+
+    this.idIg = null;
+
+    this.unidades = [];
+
+    this.brigadasIg = [];
+
+
+    if (
+      !this.idNucleo ||
+      !this.idBrigada
+    ) {
+      return;
+    }
+
+
+    this.usersService
+      .getUnidades(
+        this.idNucleo,
+        this.idBrigada
+      )
+      .subscribe({
+
+        next: (
+          data: Unidad[]
+        ) => {
+          this.unidades =
+            data || [];
+        },
+
+        error: (
+          error: any
+        ) => {
+          console.error(
+            'ERROR AL CARGAR UNIDADES:',
+            error
+          );
+
+          this.unidades = [];
+        }
+
+      });
+  }
+
+
+  // =========================================
+  // CAMBIAR UNIDAD
+  //
+  // AUTOCOMPLETA:
+  // NÚCLEO IG
+  // IG
+  // =========================================
+
+  cambiarUnidad(): void {
+    const unidadSeleccionada =
+      this.obtenerUnidadSeleccionada();
+
+
+    if (!unidadSeleccionada) {
+      this.idNucleoIg = null;
+
+      this.idIg = null;
+
+      this.brigadasIg = [];
+
+      return;
+    }
+
+
+    this.idNucleoIg =
+      Number(
+        unidadSeleccionada.idNucleo
+      );
+
+
+    const idIgAutomatico =
+      unidadSeleccionada.idBrigada
+        ? String(
+            unidadSeleccionada.idBrigada
+          )
+        : null;
+
+
+    this.idIg = null;
+
+    this.brigadasIg = [];
+
+
+    this.usersService
+      .getBrigadas(
+        String(
+          unidadSeleccionada.idNucleo
+        )
+      )
+      .subscribe({
+
+        next: (
+          data: Brigada[]
+        ) => {
+          this.brigadasIg =
+            data || [];
+
+          this.idIg =
+            idIgAutomatico;
+        },
+
+        error: (
+          error: any
+        ) => {
+          console.error(
+            'ERROR AUTOCOMPLETANDO IG:',
+            error
+          );
+
+          this.brigadasIg = [];
+
+          this.idIg = null;
+        }
+
+      });
+  }
+
+
+  // =========================================
+  // OBTENER UNIDAD SELECCIONADA
+  // =========================================
+
+  obtenerUnidadSeleccionada():
+    Unidad | undefined {
+
+    return this.unidades.find(
+      (
+        unidad: Unidad
+      ) =>
+        String(
+          unidad.idUnidad
+        ) ===
+        String(
+          this.idUnidad
+        )
+    );
+  }
+
+
+  // =========================================
+  // NOMBRE VISUAL NÚCLEO IG
+  // =========================================
+
+  obtenerNombreNucleoIg(
+    nucleo: Nucleo
+  ): string {
+
+    const nombre =
+      String(
+        nucleo?.nombre || ''
+      ).trim();
+
+
+    const unidadSeleccionada =
+      this.obtenerUnidadSeleccionada();
+
+
+    if (
+      unidadSeleccionada &&
+      String(
+        unidadSeleccionada.idNucleo
+      ) ===
+      String(
+        nucleo.idNucleo
+      ) &&
+      unidadSeleccionada.guarnicion
+    ) {
+      return (
+        nombre +
+        ' - ' +
+        String(
+          unidadSeleccionada.guarnicion
+        ).trim()
+      );
+    }
+
+
+    return nombre;
+  }
+
+
+  // =========================================
+  // NOMBRE VISUAL IG
+  // =========================================
+
+  obtenerNombreIg(): string {
+    if (!this.idIg) {
+      return '';
+    }
+
+
+    const ig =
+      this.brigadasIg.find(
+        (
+          brigada: Brigada
+        ) =>
+          String(
+            brigada.idBrigada
+          ) ===
+          String(
+            this.idIg
+          )
+      );
+
+
+    return ig?.nombre || '';
+  }
 
 
   // =========================================
@@ -129,9 +588,7 @@ export class NuevoRegistroIntegridadComponent {
       !input.files ||
       input.files.length === 0
     ) {
-
       return;
-
     }
 
 
@@ -143,8 +600,9 @@ export class NuevoRegistroIntegridadComponent {
 
     const pdfValidos =
       seleccionados.filter(
-        (archivo: File) => {
-
+        (
+          archivo: File
+        ) => {
 
           const esPdf =
             archivo.type ===
@@ -156,13 +614,11 @@ export class NuevoRegistroIntegridadComponent {
 
 
           if (!esPdf) {
-
             alert(
               `El archivo "${archivo.name}" no es PDF.`
             );
 
             return false;
-
           }
 
 
@@ -170,38 +626,34 @@ export class NuevoRegistroIntegridadComponent {
             archivo.size >
             this.maxTamanoPdf
           ) {
-
             alert(
               `El archivo "${archivo.name}" supera los 10 MB.`
             );
 
             return false;
-
           }
 
 
           return true;
-
         }
       );
 
 
     const nuevos =
       pdfValidos.filter(
-        (archivo: File) =>
-
+        (
+          archivo: File
+        ) =>
           !this.archivos.some(
-            (existente: File) =>
-
+            (
+              existente: File
+            ) =>
               existente.name ===
-              archivo.name
-
+                archivo.name
               &&
-
               existente.size ===
-              archivo.size
+                archivo.size
           )
-
       );
 
 
@@ -210,7 +662,6 @@ export class NuevoRegistroIntegridadComponent {
       nuevos.length >
       this.maxArchivos
     ) {
-
       alert(
         `Solo se permiten máximo ${this.maxArchivos} archivos PDF.`
       );
@@ -218,7 +669,6 @@ export class NuevoRegistroIntegridadComponent {
       input.value = '';
 
       return;
-
     }
 
 
@@ -229,7 +679,6 @@ export class NuevoRegistroIntegridadComponent {
 
 
     input.value = '';
-
   }
 
 
@@ -250,7 +699,6 @@ export class NuevoRegistroIntegridadComponent {
     this.archivos = [
       ...this.archivos
     ];
-
   }
 
 
@@ -262,13 +710,10 @@ export class NuevoRegistroIntegridadComponent {
     bytes: number
   ): string {
 
-
     if (
       bytes < 1024
     ) {
-
       return `${bytes} B`;
-
     }
 
 
@@ -276,11 +721,9 @@ export class NuevoRegistroIntegridadComponent {
       bytes <
       1024 * 1024
     ) {
-
       return (
         bytes / 1024
       ).toFixed(1) + ' KB';
-
     }
 
 
@@ -288,7 +731,6 @@ export class NuevoRegistroIntegridadComponent {
       bytes /
       (1024 * 1024)
     ).toFixed(1) + ' MB';
-
   }
 
 
@@ -297,57 +739,87 @@ export class NuevoRegistroIntegridadComponent {
   // =========================================
 
   guardar(): void {
+    this.intentoGuardar = true;
+
+
+    if (!this.identificacion) {
+      alert(
+        'Debe seleccionar la identificación del denunciante.'
+      );
+
+      return;
+    }
+
+
+    if (this.errorContacto) {
+      alert(
+        this.errorContacto
+      );
+
+      return;
+    }
 
 
     if (!this.fechaActoCorrupcion) {
-
       alert(
         'Debe ingresar la fecha del acto de corrupción.'
       );
 
       return;
-
     }
 
 
     if (!this.motivoDenuncia) {
-
       alert(
         'Debe seleccionar el motivo de la denuncia.'
       );
 
       return;
+    }
 
+
+    if (this.asignacionInvalida) {
+      alert(
+        'Debe seleccionar Núcleo, Gran Unidad y Unidad.'
+      );
+
+      return;
     }
 
 
     if (this.guardando) {
-
       return;
-
     }
 
 
     // =======================================
     // EXPEDIENTE GENERAL
-    //
-    // YA NO ENVÍA:
-    // NÚCLEO
-    // BRIGADA
-    // UNIDAD
     // =======================================
 
     const expediente = {
-
       categoria:
         'INTEGRIDAD',
 
       nroDocumento:
-        this.codigo || null,
+        this.codigo.trim() || null,
 
       descripcion:
-        this.detalle || null
+        this.detalle.trim() || null,
 
+      idNucleo:
+        this.idNucleo,
+
+      idBrigada:
+        this.idBrigada,
+
+      idUnidad:
+        this.idUnidad,
+
+      idNucleoIg:
+        this.idNucleoIg,
+
+      idIg:
+        this.idIg
     };
 
 
@@ -356,18 +828,29 @@ export class NuevoRegistroIntegridadComponent {
     // =======================================
 
     const datosIntegridad = {
-
       tipoDocumento:
         this.tipoDocumento,
 
-      dni:
-        this.dni,
+      nombres:
+        this.nombres.trim(),
 
-      correo:
-        this.correo,
+      apellidos:
+        this.apellidos.trim(),
+
+      ruc:
+        this.ruc.trim(),
+
+      dni:
+        this.dni.trim(),
 
       telefono:
-        this.telefono,
+        this.telefono.trim(),
+
+      domicilio:
+        this.domicilio.trim(),
+
+      correo:
+        this.correo.trim(),
 
       fechaActoCorrupcion:
         this.fechaActoCorrupcion,
@@ -385,64 +868,45 @@ export class NuevoRegistroIntegridadComponent {
         this.sexo,
 
       detalle:
-        this.detalle,
+        this.detalle.trim(),
 
       detalleOtros:
-        this.detalleOtros
-
+        this.detalleOtros.trim()
     };
 
 
-    this.guardando =
-      true;
+    this.guardando = true;
 
 
     this.integridadService
       .guardarDenuncia(
-
         expediente,
-
         datosIntegridad,
-
         this.archivos
-
       )
       .subscribe({
 
-
         next: (
-          respuesta
+          respuesta: any
         ) => {
-
-
-          this.guardando =
-            false;
-
+          this.guardando = false;
 
           console.log(
             'DENUNCIA INTEGRIDAD GUARDADA:',
             respuesta
           );
 
-
           this.limpiarFormulario();
-
 
           this.guardado.emit(
             respuesta
           );
-
         },
 
-
         error: (
-          error
+          error: any
         ) => {
-
-
-          this.guardando =
-            false;
-
+          this.guardando = false;
 
           console.error(
             'ERROR AL GUARDAR DENUNCIA DE INTEGRIDAD:',
@@ -457,31 +921,32 @@ export class NuevoRegistroIntegridadComponent {
           if (
             error?.error?.message
           ) {
-
             mensaje =
               error.error.message;
+          }
 
+          else if (
+            error?.error?.mensaje
+          ) {
+            mensaje =
+              error.error.mensaje;
           }
 
           else if (
             typeof error?.error ===
             'string'
           ) {
-
             mensaje =
               error.error;
-
           }
 
 
           alert(
             mensaje
           );
-
         }
 
       });
-
   }
 
 
@@ -490,49 +955,59 @@ export class NuevoRegistroIntegridadComponent {
   // =========================================
 
   limpiarFormulario(): void {
+    this.identificacion = null;
 
-    this.tipoDocumento =
-      null;
+    this.nombres = '';
 
-    this.dni =
-      '';
+    this.apellidos = '';
 
-    this.codigo =
-      '';
+    this.ruc = '';
 
-    this.fechaRegistro =
-      '';
+    this.dni = '';
 
-    this.correo =
-      '';
+    this.telefono = '';
 
-    this.telefono =
-      '';
+    this.domicilio = '';
 
-    this.fechaActoCorrupcion =
-      '';
+    this.correo = '';
 
-    this.motivoDenuncia =
-      null;
+    this.sexo = null;
 
-    this.medidaProteccion =
-      null;
+    this.tipoDocumento = null;
 
-    this.identificacion =
-      null;
+    this.codigo = '';
 
-    this.sexo =
-      null;
+    this.fechaRegistro = '';
 
-    this.detalle =
-      '';
+    this.fechaActoCorrupcion = '';
 
-    this.detalleOtros =
-      '';
+    this.motivoDenuncia = null;
 
-    this.archivos =
-      [];
+    this.medidaProteccion = null;
 
+    this.detalle = '';
+
+    this.detalleOtros = '';
+
+    this.idNucleo = null;
+
+    this.idBrigada = null;
+
+    this.idUnidad = null;
+
+    this.idNucleoIg = null;
+
+    this.idIg = null;
+
+    this.brigadas = [];
+
+    this.unidades = [];
+
+    this.brigadasIg = [];
+
+    this.archivos = [];
+
+    this.intentoGuardar = false;
   }
 
 }

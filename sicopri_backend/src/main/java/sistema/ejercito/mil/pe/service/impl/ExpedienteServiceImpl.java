@@ -386,10 +386,13 @@ public class ExpedienteServiceImpl
                 Integer.valueOf(3).equals(estado)
                         && Integer.valueOf(2).equals(nivelActual);
 
-        if (!registradoEnOrigen && !observadoEnNivel2) {
+        boolean archivado =
+                Integer.valueOf(5).equals(estado);
+
+        if (!registradoEnOrigen && !observadoEnNivel2 && !archivado) {
             throw new IllegalArgumentException(
-                    "Solo se pueden eliminar expedientes registrados en su nivel de origen "
-                            + "u observados que se encuentren en QRD Nivel 2."
+                    "Solo se pueden eliminar expedientes registrados en su nivel de origen, "
+                            + "observados en QRD Nivel 2 o archivados."
             );
         }
 
