@@ -1,53 +1,29 @@
-<div
-  class="editar-overlay"
-  (click)="cerrarModal()">
-
-
-  <div
-    class="editar-modal"
-    (click)="$event.stopPropagation()">
-
-
+<div class="editar-overlay" (click)="cerrarModal()">
+  <div class="editar-modal" (click)="$event.stopPropagation()">
     <!-- ===================================== -->
     <!-- HEADER -->
     <!-- ===================================== -->
 
     <div class="editar-header">
-
       <div class="header-titulo">
-
-        <div class="header-icono">
-          ✎
-        </div>
-
+        <div class="header-icono">✎</div>
 
         <div>
+          <h2>EDITAR DOCUMENTO QRD</h2>
 
-          <h2>
-            EDITAR DOCUMENTO QRD
-          </h2>
-
-          <p>
-            Modifique la información permitida del expediente
-          </p>
-
+          <p>Modifique la información permitida del expediente</p>
         </div>
-
       </div>
-
 
       <button
         type="button"
         class="btn-cerrar"
         [disabled]="guardando"
-        (click)="cerrarModal()">
-
+        (click)="cerrarModal()"
+      >
         ✕
-
       </button>
-
     </div>
-
 
     <!-- ===================================== -->
     <!-- CINV -->
@@ -57,420 +33,414 @@
       <strong>
         {{ expediente?.cinv }}
       </strong>
-
     </div>
-
 
     <!-- ===================================== -->
     <!-- BODY -->
     <!-- ===================================== -->
 
     <div class="editar-body">
+      <section class="persona-seccion">
+        <button
+          type="button"
+          class="persona-toggle"
+          [attr.aria-expanded]="mostrarDatosPersona"
+          aria-controls="editar-qrd2-persona"
+          (click)="mostrarDatosPersona = !mostrarDatosPersona"
+        >
+          <span>
+            <strong>DATOS DE LA PERSONA</strong>
+            <small>Opcional</small>
+          </span>
 
+          <span aria-hidden="true">
+            {{ mostrarDatosPersona ? "−" : "+" }}
+          </span>
+        </button>
+
+        <div
+          id="editar-qrd2-persona"
+          class="persona-contenido"
+          [hidden]="!mostrarDatosPersona"
+        >
+          <p class="persona-ayuda">
+            Puede modificar o vaciar los campos. Cerrar esta sección no elimina
+            los datos.
+          </p>
+
+          <fieldset class="persona-grid" [disabled]="guardando">
+            <legend class="persona-sr">Datos opcionales de la persona</legend>
+
+            <div class="campo persona-nombres">
+              <label for="editar-persona-nombres">NOMBRES</label>
+              <input
+                id="editar-persona-nombres"
+                name="editarPersonaNombres"
+                type="text"
+                [(ngModel)]="datosPersona.nombres"
+                maxlength="100"
+                autocomplete="given-name"
+                placeholder="Ingrese los nombres"
+              />
+            </div>
+
+            <div class="campo persona-apellidos">
+              <label for="editar-persona-apellidos">APELLIDOS</label>
+              <input
+                id="editar-persona-apellidos"
+                name="editarPersonaApellidos"
+                type="text"
+                [(ngModel)]="datosPersona.apellidos"
+                maxlength="150"
+                autocomplete="family-name"
+                placeholder="Ingrese los apellidos"
+              />
+            </div>
+
+            <div class="campo persona-ruc">
+              <label for="editar-persona-ruc">RUC</label>
+              <input
+                id="editar-persona-ruc"
+                name="editarPersonaRuc"
+                type="text"
+                [(ngModel)]="datosPersona.ruc"
+                maxlength="11"
+                inputmode="numeric"
+                placeholder="Ingrese 11 dígitos"
+                [attr.aria-invalid]="erroresPersona.ruc ? 'true' : null"
+                [attr.aria-describedby]="
+                  erroresPersona.ruc ? 'editar-ruc-error' : null
+                "
+              />
+              <small
+                id="editar-ruc-error"
+                class="persona-error"
+                *ngIf="erroresPersona.ruc"
+              >
+                {{ erroresPersona.ruc }}
+              </small>
+            </div>
+
+            <div class="campo persona-dni">
+              <label for="editar-persona-dni">DNI</label>
+              <input
+                id="editar-persona-dni"
+                name="editarPersonaDni"
+                type="text"
+                [(ngModel)]="datosPersona.dni"
+                maxlength="8"
+                inputmode="numeric"
+                placeholder="Ingrese 8 dígitos"
+                [attr.aria-invalid]="erroresPersona.dni ? 'true' : null"
+                [attr.aria-describedby]="
+                  erroresPersona.dni ? 'editar-dni-error' : null
+                "
+              />
+              <small
+                id="editar-dni-error"
+                class="persona-error"
+                *ngIf="erroresPersona.dni"
+              >
+                {{ erroresPersona.dni }}
+              </small>
+            </div>
+
+            <div class="campo persona-telefono">
+              <label for="editar-persona-telefono">TELÉFONO</label>
+              <input
+                id="editar-persona-telefono"
+                name="editarPersonaTelefono"
+                type="tel"
+                [(ngModel)]="datosPersona.telefono"
+                maxlength="25"
+                autocomplete="tel"
+                placeholder="Ingrese el teléfono"
+              />
+            </div>
+
+            <div class="campo persona-domicilio">
+              <label for="editar-persona-domicilio">DOMICILIO</label>
+              <input
+                id="editar-persona-domicilio"
+                name="editarPersonaDomicilio"
+                type="text"
+                [(ngModel)]="datosPersona.domicilio"
+                maxlength="250"
+                autocomplete="street-address"
+                placeholder="Ingrese la dirección"
+              />
+            </div>
+
+            <div class="campo persona-correo">
+              <label for="editar-persona-correo">CORREO ELECTRÓNICO</label>
+              <input
+                id="editar-persona-correo"
+                name="editarPersonaCorreo"
+                type="email"
+                [(ngModel)]="datosPersona.correo"
+                maxlength="254"
+                autocomplete="email"
+                placeholder="Ingrese el correo"
+                [attr.aria-invalid]="erroresPersona.correo ? 'true' : null"
+                [attr.aria-describedby]="
+                  erroresPersona.correo ? 'editar-correo-error' : null
+                "
+              />
+              <small
+                id="editar-correo-error"
+                class="persona-error"
+                *ngIf="erroresPersona.correo"
+              >
+                {{ erroresPersona.correo }}
+              </small>
+            </div>
+          </fieldset>
+        </div>
+      </section>
 
       <!-- =================================== -->
       <!-- FILA 1 -->
       <!-- =================================== -->
 
       <div class="grid grid-3">
-
-
         <div class="campo">
-
-          <label>
-            CATEGORÍA
-          </label>
+          <label> CATEGORÍA </label>
 
           <select
             [(ngModel)]="formulario.idTipoExpediente"
-            (change)="cambiarTipoExpediente()">
-
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+            (change)="cambiarTipoExpediente()"
+          >
+            <option [ngValue]="null">Seleccione</option>
 
             <option
               *ngFor="let tipo of tiposExpediente"
-              [ngValue]="tipo.idTipoExpediente">
-
+              [ngValue]="tipo.idTipoExpediente"
+            >
               {{ tipo.nombre }}
-
             </option>
-
           </select>
-
         </div>
 
-
         <div class="campo">
-
-          <label>
-            TIPO DE DOC
-          </label>
+          <label> TIPO DE DOC </label>
 
           <select
             [(ngModel)]="formulario.idTipoDocumento"
-            (change)="cambiarTipoDocumento()">
-
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+            (change)="cambiarTipoDocumento()"
+          >
+            <option [ngValue]="null">Seleccione</option>
 
             <option
               *ngFor="let tipo of tiposDocumento"
-              [ngValue]="tipo.idTipoDocumento">
-
+              [ngValue]="tipo.idTipoDocumento"
+            >
               {{ tipo.nombre }}
-
             </option>
-
           </select>
-
         </div>
 
-
-        <div
-          class="campo campo-otro"
-          *ngIf="esTipoDocumentoOtros()">
-
-          <label>
-            ESPECIFIQUE TIPO DE DOCUMENTO
-          </label>
+        <div class="campo campo-otro" *ngIf="esTipoDocumentoOtros()">
+          <label> ESPECIFIQUE TIPO DE DOCUMENTO </label>
 
           <input
             type="text"
             maxlength="150"
             [(ngModel)]="formulario.otroTipoDocumento"
-            placeholder="Ej. Memorándum, Acta, Parte...">
-
+            placeholder="Ej. Memorándum, Acta, Parte..."
+          />
         </div>
-
       </div>
-
 
       <!-- =================================== -->
       <!-- FILA 2 -->
       <!-- =================================== -->
 
       <div class="grid grid-3">
-
-
         <div class="campo">
-
-          <label>
-            N° DOC
-          </label>
+          <label> N° DOC </label>
 
           <input
             type="text"
             [(ngModel)]="formulario.nroDocumento"
-            placeholder="Número de documento">
-
+            placeholder="Número de documento"
+          />
         </div>
 
-
         <div class="campo">
+          <label> FECHA </label>
 
-          <label>
-            FECHA
-          </label>
-
-          <input
-            type="date"
-            [(ngModel)]="formulario.fechaDocumento">
-
+          <input type="date" [(ngModel)]="formulario.fechaDocumento" />
         </div>
 
-
         <div class="campo">
+          <label> TIPIFICACIÓN </label>
 
-          <label>
-            TIPIFICACIÓN
-          </label>
-
-          <select
-            [(ngModel)]="formulario.idTipificacion">
-
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+          <select [(ngModel)]="formulario.idTipificacion">
+            <option [ngValue]="null">Seleccione</option>
 
             <option
               *ngFor="let tip of tipificaciones"
-              [ngValue]="tip.idTipificacion">
-
+              [ngValue]="tip.idTipificacion"
+            >
               {{ tip.nombre }}
-
             </option>
-
           </select>
-
         </div>
-
       </div>
-
 
       <!-- =================================== -->
       <!-- FILA 3 -->
       <!-- =================================== -->
 
       <div class="grid grid-3">
-
-
         <div class="campo">
+          <label> NÚCLEO </label>
 
-          <label>
-            NÚCLEO
-          </label>
+          <select [(ngModel)]="formulario.idNucleo" (change)="cambiarNucleo()">
+            <option [ngValue]="null">Seleccione</option>
 
-          <select
-            [(ngModel)]="formulario.idNucleo"
-            (change)="cambiarNucleo()">
-
-            <option [ngValue]="null">
-              Seleccione
-            </option>
-
-            <option
-              *ngFor="let nucleo of nucleos"
-              [ngValue]="nucleo.idNucleo">
-
+            <option *ngFor="let nucleo of nucleos" [ngValue]="nucleo.idNucleo">
               {{ nucleo.nombre }}
-
             </option>
-
           </select>
-
         </div>
 
-
         <div class="campo">
-
-          <label>
-            GRAN UNIDAD
-          </label>
+          <label> GRAN UNIDAD </label>
 
           <select
             [(ngModel)]="formulario.idBrigada"
             (change)="cambiarBrigada()"
-            [disabled]="!formulario.idNucleo">
-
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+            [disabled]="!formulario.idNucleo"
+          >
+            <option [ngValue]="null">Seleccione</option>
 
             <option
               *ngFor="let brigada of brigadas"
-              [ngValue]="brigada.idBrigada">
-
+              [ngValue]="brigada.idBrigada"
+            >
               {{ brigada.nombre }}
-
             </option>
-
           </select>
-
         </div>
 
-
         <div class="campo">
-
-          <label>
-            UNIDAD
-          </label>
+          <label> UNIDAD </label>
 
           <select
             [(ngModel)]="formulario.idUnidad"
             (change)="cambiarUnidad()"
-            [disabled]="!formulario.idBrigada">
+            [disabled]="!formulario.idBrigada"
+          >
+            <option [ngValue]="null">Seleccione</option>
 
-            <option [ngValue]="null">
-              Seleccione
-            </option>
-
-            <option
-              *ngFor="let unidad of unidades"
-              [ngValue]="unidad.idUnidad">
-
+            <option *ngFor="let unidad of unidades" [ngValue]="unidad.idUnidad">
               {{ unidad.nombre }}
-
             </option>
-
           </select>
-
         </div>
-
       </div>
-
 
       <!-- =================================== -->
       <!-- FILA 4 -->
       <!-- =================================== -->
 
       <div class="grid grid-3 grid-inspectoria">
-
-
         <div class="campo">
-
-          <label>
-            NÚCLEO IG
-          </label>
+          <label> NÚCLEO IG </label>
 
           <select
             [(ngModel)]="formulario.idNucleoIg"
-            (change)="cambiarNucleoIg()">
-
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+            (change)="cambiarNucleoIg()"
+          >
+            <option [ngValue]="null">Seleccione</option>
 
             <option
               *ngFor="let nucleo of nucleosIg"
-              [ngValue]="nucleo.idNucleo">
-
+              [ngValue]="nucleo.idNucleo"
+            >
               {{ obtenerNombreNucleoIg(nucleo) }}
-
             </option>
-
           </select>
-
         </div>
 
-
         <div class="campo">
-
-          <label>
-            IG
-          </label>
+          <label> IG </label>
 
           <select
             [(ngModel)]="formulario.idIg"
-            [disabled]="!formulario.idNucleoIg">
+            [disabled]="!formulario.idNucleoIg"
+          >
+            <option [ngValue]="null">Seleccione</option>
 
-            <option [ngValue]="null">
-              Seleccione
-            </option>
-
-            <option
-              *ngFor="let ig of igs"
-              [ngValue]="ig.idBrigada">
-
+            <option *ngFor="let ig of igs" [ngValue]="ig.idBrigada">
               {{ ig.nombre }}
-
             </option>
-
           </select>
-
         </div>
-
 
         <div class="campo">
+          <label> DESTINO </label>
 
-          <label>
-            DESTINO
-          </label>
+          <select [(ngModel)]="formulario.nivelDestino">
+            <option [ngValue]="null">Seleccione</option>
 
-          <select
-            [(ngModel)]="formulario.nivelDestino">
+            <option [ngValue]="3">Inspectoría QRD - Nivel 3</option>
 
-            <option [ngValue]="null">
-              Seleccione
-            </option>
-
-            <option [ngValue]="3">
-              Inspectoría QRD - Nivel 3
-            </option>
-
-            <option [ngValue]="4">
-              Inspectoría QRD - Nivel 4
-            </option>
-
+            <option [ngValue]="4">Inspectoría QRD - Nivel 4</option>
           </select>
-
         </div>
-
       </div>
-
 
       <!-- =================================== -->
       <!-- ASUNTO -->
       <!-- =================================== -->
 
       <div class="campo campo-completo">
-
-        <label>
-          ASUNTO
-        </label>
+        <label> ASUNTO </label>
 
         <input
           type="text"
           [(ngModel)]="formulario.asunto"
-          placeholder="Ingrese el asunto">
-
+          placeholder="Ingrese el asunto"
+        />
       </div>
-
 
       <!-- =================================== -->
       <!-- DESCRIPCIÓN -->
       <!-- =================================== -->
 
       <div class="campo campo-completo">
-
-        <label>
-          DESCRIPCIÓN
-        </label>
+        <label> DESCRIPCIÓN </label>
 
         <textarea
           rows="3"
           [(ngModel)]="formulario.descripcion"
-          placeholder="Ingrese la descripción">
+          placeholder="Ingrese la descripción"
+        >
         </textarea>
-
       </div>
-
 
       <!-- =================================== -->
       <!-- PDFs -->
       <!-- =================================== -->
 
       <div class="documentos-section">
-
-
         <div class="documentos-header">
-
-
           <div>
+            <span class="documentos-label"> PDFs DEL EXPEDIENTE </span>
 
-            <span class="documentos-label">
-              PDFs DEL EXPEDIENTE
-            </span>
-
-            <small>
-              Máximo 5 archivos PDF · 10 MB por archivo
-            </small>
-
+            <small> Máximo 5 archivos PDF · 10 MB por archivo </small>
           </div>
-
 
           <div class="contador-pdf">
-
-            {{
-              archivosActuales.length +
-              archivosNuevos.length
-            }}/5
-
+            {{ archivosActuales.length + archivosNuevos.length }}/5
           </div>
-
         </div>
 
-
-        <div
-          class="estado-archivos"
-          *ngIf="cargandoArchivos">
-
+        <div class="estado-archivos" *ngIf="cargandoArchivos">
           Cargando documentos...
-
         </div>
-
 
         <div
           class="sin-archivos"
@@ -478,222 +448,130 @@
             !cargandoArchivos &&
             archivosActuales.length === 0 &&
             archivosNuevos.length === 0
-          ">
-
+          "
+        >
           No existen documentos PDF adjuntos actualmente.
-
         </div>
-
 
         <div
           class="lista-archivos"
-          *ngIf="
-            !cargandoArchivos &&
-            archivosActuales.length > 0
-          ">
-
-
-          <div
-            class="archivo-item"
-            *ngFor="let archivo of archivosActuales">
-
-
+          *ngIf="!cargandoArchivos && archivosActuales.length > 0"
+        >
+          <div class="archivo-item" *ngFor="let archivo of archivosActuales">
             <button
               type="button"
               class="archivo-principal"
-              (click)="verPdf(archivo)">
-
-
-              <span class="pdf-icono">
-                PDF
-              </span>
-
+              (click)="verPdf(archivo)"
+            >
+              <span class="pdf-icono"> PDF </span>
 
               <span class="archivo-datos">
-
                 <strong>
                   {{ archivo.nombreArchivo }}
                 </strong>
 
-                <small>
-                  Documento actual · Clic para visualizar
-                </small>
-
+                <small> Documento actual · Clic para visualizar </small>
               </span>
-
             </button>
-
 
             <button
               type="button"
               class="btn-eliminar-pdf"
               title="Eliminar PDF"
-              [disabled]="
-                guardando ||
-                eliminandoArchivo === archivo.idArchivo
-              "
-              (click)="eliminarPdf(archivo)">
-
-              {{
-                eliminandoArchivo === archivo.idArchivo
-                  ? '...'
-                  : '🗑'
-              }}
-
+              [disabled]="guardando || eliminandoArchivo === archivo.idArchivo"
+              (click)="eliminarPdf(archivo)"
+            >
+              {{ eliminandoArchivo === archivo.idArchivo ? "..." : "🗑" }}
             </button>
-
           </div>
-
         </div>
 
-
-        <div
-          class="nuevos-documentos"
-          *ngIf="archivosNuevos.length > 0">
-
-
-          <div class="subtitulo-nuevos">
-
-            NUEVOS DOCUMENTOS POR AGREGAR
-
-          </div>
-
+        <div class="nuevos-documentos" *ngIf="archivosNuevos.length > 0">
+          <div class="subtitulo-nuevos">NUEVOS DOCUMENTOS POR AGREGAR</div>
 
           <div
             class="archivo-item archivo-nuevo"
-            *ngFor="
-              let archivo of archivosNuevos;
-              let i = index
-            ">
-
-
+            *ngFor="let archivo of archivosNuevos; let i = index"
+          >
             <div class="archivo-principal no-click">
-
-              <span class="pdf-icono">
-                PDF
-              </span>
-
+              <span class="pdf-icono"> PDF </span>
 
               <span class="archivo-datos">
-
                 <strong>
                   {{ archivo.name }}
                 </strong>
 
-                <small>
-                  Pendiente de guardar
-                </small>
-
+                <small> Pendiente de guardar </small>
               </span>
-
             </div>
-
 
             <button
               type="button"
               class="btn-quitar-nuevo"
               [disabled]="guardando"
-              (click)="quitarArchivoNuevo(i)">
-
+              (click)="quitarArchivoNuevo(i)"
+            >
               ✕
-
             </button>
-
           </div>
-
         </div>
 
-
         <div class="agregar-pdf-area">
-
-
           <input
             #inputPdf
             type="file"
             class="input-pdf-oculto"
             accept=".pdf,application/pdf"
             multiple
-            (change)="seleccionarArchivos($event)">
-
+            (change)="seleccionarArchivos($event)"
+          />
 
           <button
             type="button"
             class="btn-agregar-pdf"
             [disabled]="
-              guardando ||
-              archivosActuales.length +
-              archivosNuevos.length >= 5
+              guardando || archivosActuales.length + archivosNuevos.length >= 5
             "
-            (click)="inputPdf.click()">
-
-            <span class="simbolo-mas">
-              +
-            </span>
+            (click)="inputPdf.click()"
+          >
+            <span class="simbolo-mas"> + </span>
 
             AGREGAR PDF
-
           </button>
-
         </div>
-
       </div>
-
 
       <!-- =================================== -->
       <!-- ERROR -->
       <!-- =================================== -->
 
-      <div
-        class="mensaje-error"
-        *ngIf="error">
-
+      <div class="mensaje-error" *ngIf="error">
         {{ error }}
-
       </div>
-
 
       <!-- =================================== -->
       <!-- BOTONES -->
       <!-- =================================== -->
 
       <div class="acciones-editar">
-
-
         <button
           type="button"
           class="btn-cancelar"
-          [disabled]="
-            guardando ||
-            eliminandoArchivo !== null
-          "
-          (click)="cerrarModal()">
-
+          [disabled]="guardando || eliminandoArchivo !== null"
+          (click)="cerrarModal()"
+        >
           CANCELAR
-
         </button>
-
 
         <button
           type="button"
           class="btn-guardar"
-          [disabled]="
-            guardando ||
-            eliminandoArchivo !== null
-          "
-          (click)="guardarCambios()">
-
-          {{
-            guardando
-              ? 'GUARDANDO...'
-              : 'GUARDAR CAMBIOS'
-          }}
-
+          [disabled]="guardando || eliminandoArchivo !== null"
+          (click)="guardarCambios()"
+        >
+          {{ guardando ? "GUARDANDO..." : "GUARDAR CAMBIOS" }}
         </button>
-
       </div>
-
     </div>
-
   </div>
-
 </div>

@@ -1,0 +1,569 @@
+:host {
+  display: block;
+}
+
+/* VISTA PREVIA */
+
+.trazpdf-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1500000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background: rgba(6, 17, 28, 0.78);
+}
+
+.trazpdf-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(1200px, 96vw);
+  max-height: 94vh;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #e9eeeb;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+}
+
+.trazpdf-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 17px 22px;
+  border-bottom: 1px solid #dce5df;
+  background: #fff;
+}
+
+.trazpdf-toolbar h2 {
+  margin: 0;
+  color: #145c44;
+  font-size: 16px;
+}
+
+.trazpdf-toolbar p {
+  margin: 5px 0 0;
+  color: #66756c;
+  font-size: 12px;
+}
+
+.trazpdf-botones {
+  display: flex;
+  flex-shrink: 0;
+  gap: 9px;
+}
+
+.trazpdf-modal button {
+  padding: 10px 15px;
+  border: 0;
+  border-radius: 7px;
+  background: #176b49;
+  color: #fff;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.trazpdf-modal button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.trazpdf-modal .trazpdf-btn-cerrar {
+  background: #8f291a;
+}
+
+.trazpdf-body {
+  overflow: auto;
+  padding: 25px;
+}
+
+.trazpdf-estado,
+.trazpdf-error {
+  padding: 20px;
+  text-align: center;
+}
+
+.trazpdf-error {
+  color: #b42318;
+}
+
+/* HOJA DEL REPORTE */
+
+.trazpdf-reporte,
+.trazpdf-reporte * {
+  box-sizing: border-box;
+}
+
+.trazpdf-reporte {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 38px;
+  background: #fff;
+  color: #14263c;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  box-shadow: 0 5px 25px rgba(10, 35, 22, 0.1);
+}
+
+/* ENCABEZADO */
+
+.reporte-institucion {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid #879a90;
+}
+
+.reporte-institucion strong {
+  display: block;
+  color: #145c44;
+  font-size: 19px;
+}
+
+.reporte-institucion span {
+  display: block;
+  margin-top: 3px;
+  color: #526078;
+  font-size: 11px;
+}
+
+.reporte-identificador {
+  color: #526078;
+  font-size: 10px;
+  text-align: right;
+}
+
+/* PRESENTACIÓN */
+
+.reporte-presentacion {
+  margin: 25px 0;
+}
+
+.reporte-presentacion h1 {
+  margin: 0 0 8px;
+  color: #0c203d;
+  font-size: 27px;
+  line-height: 1.2;
+}
+
+.reporte-cinv {
+  color: #145c44;
+  font-size: 25px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.reporte-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 15px;
+  color: #526078;
+}
+
+.reporte-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border: 1px solid #cadbd2;
+  border-radius: 20px;
+  background: #edf5f0;
+  color: #145c44;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.reporte-estado-observado {
+  border-color: #e9cf91;
+  background: #fff8e8;
+  color: #946000;
+}
+
+.reporte-estado-concluido {
+  background: #dfede5;
+  color: #104a34;
+}
+
+/* DATOS DEL CASO */
+
+.reporte-titulo-seccion {
+  margin: 0;
+  padding: 11px 15px;
+  border: 1px solid #d1dfd6;
+  border-radius: 7px;
+  background: #eaf2ed;
+  color: #145c44;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.reporte-resumen {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 24px;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid #d1d9de;
+  border-top: 0;
+  border-radius: 0 0 7px 7px;
+}
+
+.reporte-resumen > div {
+  display: grid;
+  grid-template-columns: 115px minmax(0, 1fr);
+  gap: 9px;
+  padding: 8px 0;
+  border-bottom: 1px solid #edf0f2;
+}
+
+.reporte-resumen dt {
+  color: #41536b;
+  font-weight: 700;
+}
+
+.reporte-resumen dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+/* LÍNEA CRONOLÓGICA */
+
+.reporte-recorrido {
+  margin-top: 25px;
+}
+
+.reporte-linea {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reporte-paso {
+  position: relative;
+  margin: 0;
+  padding: 0 0 18px 48px;
+}
+
+.reporte-paso::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  bottom: -18px;
+  left: 16px;
+  width: 2px;
+  background: #2c7556;
+}
+
+.reporte-paso:last-child::before {
+  display: none;
+}
+
+.reporte-numero {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #145c44;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* TARJETAS DE MOVIMIENTO */
+
+.movimiento-tarjeta {
+  border: 1px solid #c5d6cb;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.movimiento-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 13px 14px;
+  border-radius: 8px 8px 0 0;
+  background: #eef6f0;
+}
+
+.movimiento-titulo {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.movimiento-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 37px;
+  height: 37px;
+  border-radius: 50%;
+  background: #dcece0;
+  color: #145c44;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.movimiento-titulo h3 {
+  margin: 0;
+  color: #145c44;
+  font-size: 14px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.movimiento-ruta {
+  margin: 3px 0 0;
+  font-size: 11px;
+}
+
+.movimiento-fecha {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.movimiento-fecha span {
+  display: block;
+  margin-bottom: 3px;
+  color: #68778b;
+  font-size: 9px;
+}
+
+.movimiento-fecha strong {
+  font-size: 10px;
+}
+
+.movimiento-detalle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 16px;
+  margin: 0;
+  padding: 12px 14px;
+}
+
+.movimiento-detalle dt {
+  margin-bottom: 4px;
+  color: #41536b;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.movimiento-detalle dd {
+  margin: 0;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.movimiento-observacion {
+  padding-left: 16px;
+  border-left: 1px solid #d7dfe4;
+}
+
+/* VARIANTES */
+
+.movimiento-envio .movimiento-cabecera {
+  background: #eef5fb;
+}
+
+.movimiento-envio .movimiento-icono {
+  background: #dcebf8;
+  color: #1f628d;
+}
+
+.movimiento-envio h3 {
+  color: #1f628d;
+}
+
+.movimiento-observado .movimiento-cabecera {
+  background: #fff8ec;
+}
+
+.movimiento-observado .movimiento-icono {
+  background: #ffedc6;
+  color: #946000;
+}
+
+.movimiento-observado h3 {
+  color: #946000;
+}
+
+.movimiento-respuesta .movimiento-cabecera {
+  background: #edf7f7;
+}
+
+.movimiento-respuesta .movimiento-icono {
+  background: #d8eded;
+  color: #17636c;
+}
+
+.movimiento-respuesta h3 {
+  color: #17636c;
+}
+
+.movimiento-archivo .movimiento-cabecera {
+  background: #eaf3ed;
+}
+
+/* CIERRE */
+
+.reporte-vacio {
+  padding: 20px;
+  color: #68778b;
+  text-align: center;
+}
+
+.reporte-observacion-final {
+  margin-top: 8px;
+  padding: 12px 15px;
+  border: 1px solid #ccd7df;
+  border-radius: 7px;
+  background: #f2f5f7;
+}
+
+.reporte-observacion-final strong {
+  color: #41536b;
+  font-size: 11px;
+}
+
+.reporte-observacion-final p {
+  margin: 5px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.reporte-pie {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 22px;
+  padding-top: 8px;
+  border-top: 1px solid #879a90;
+  color: #526078;
+  font-size: 9px;
+}
+
+/* PANTALLAS PEQUEÑAS */
+
+@media screen and (max-width: 700px) {
+  .trazpdf-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .trazpdf-body {
+    padding: 12px;
+  }
+
+  .trazpdf-reporte {
+    padding: 20px;
+  }
+
+  .reporte-resumen {
+    grid-template-columns: 1fr;
+  }
+
+  .movimiento-cabecera {
+    flex-direction: column;
+  }
+
+  .movimiento-fecha {
+    padding-left: 49px;
+    text-align: left;
+  }
+
+  .movimiento-detalle {
+    grid-template-columns: 1fr;
+  }
+
+  .movimiento-observacion {
+    padding: 0;
+    border: 0;
+  }
+
+  .reporte-presentacion h1 {
+    font-size: 22px;
+  }
+
+  .reporte-cinv {
+    font-size: 21px;
+  }
+}
+
+/* IMPRESIÓN */
+
+@page {
+  size: A4 portrait;
+  margin: 12mm;
+}
+
+@media print {
+  .trazpdf-reporte {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    font-size: 10px;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .reporte-presentacion h1 {
+    font-size: 23px;
+  }
+
+  .reporte-cinv {
+    font-size: 22px;
+  }
+
+  .reporte-titulo-seccion {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .reporte-institucion,
+  .reporte-presentacion,
+  .reporte-datos {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .reporte-paso {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .movimiento-cabecera {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .movimiento-detalle dd,
+  .reporte-observacion-final p {
+    overflow: visible;
+  }
+
+  .reporte-pie {
+    break-inside: avoid;
+  }
+}

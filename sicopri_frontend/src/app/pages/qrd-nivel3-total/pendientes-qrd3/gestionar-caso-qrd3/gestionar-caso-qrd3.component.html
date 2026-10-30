@@ -1,7 +1,4 @@
-<div
-  class="ver-caso-qrd-overlay"
-  (click)="cerrarModal()"
->
+<div class="ver-caso-qrd-overlay" (click)="cerrarModal()">
   <div
     class="ver-caso-qrd-modal"
     [class.modal-pdf]="pestanaActiva === 2"
@@ -25,7 +22,6 @@
 
     <div class="estructura-caso">
       <main class="zona-principal">
-
         <!-- PESTAÑAS PRINCIPALES -->
         <div class="tabs-qrd">
           <button
@@ -47,10 +43,7 @@
 
             <b
               class="cantidad-adjuntos"
-              *ngIf="
-                archivosCargados &&
-                archivos.length > 0
-              "
+              *ngIf="archivosCargados && archivos.length > 0"
             >
               {{ archivos.length }}
             </b>
@@ -67,19 +60,45 @@
         </div>
 
         <!-- DOCUMENTO REGISTRADO -->
-        <div
-          class="contenido-qrd"
-          *ngIf="pestanaActiva === 1"
-        >
+        <div class="contenido-qrd" *ngIf="pestanaActiva === 1">
+          <section class="persona-consulta">
+            <button
+              type="button"
+              class="persona-consulta-toggle"
+              [attr.aria-expanded]="mostrarDatosPersona"
+              (click)="mostrarDatosPersona = !mostrarDatosPersona"
+            >
+              <strong>DATOS DE LA PERSONA</strong>
+
+              <span aria-hidden="true">
+                {{ mostrarDatosPersona ? "−" : "+" }}
+              </span>
+            </button>
+
+            <div
+              class="persona-consulta-contenido"
+              [hidden]="!mostrarDatosPersona"
+            >
+              <dl class="persona-consulta-grid">
+                <div
+                  class="persona-consulta-campo"
+                  *ngFor="let campo of camposPersona"
+                  [class.persona-medio]="
+                    campo.clave === 'nombres' || campo.clave === 'apellidos'
+                  "
+                  [class.persona-ancho]="campo.clave === 'domicilio'"
+                >
+                  <dt>{{ campo.etiqueta }}</dt>
+                  <dd>{{ obtenerDatoPersona(campo.clave) }}</dd>
+                </div>
+              </dl>
+            </div>
+          </section>
           <div class="grid-qrd grid-4">
             <div class="campo-qrd">
               <label>CATEGORÍA</label>
 
-              <input
-                type="text"
-                [value]="obtenerCategoriaQrd()"
-                readonly
-              >
+              <input type="text" [value]="obtenerCategoriaQrd()" readonly />
             </div>
 
             <div class="campo-qrd">
@@ -89,7 +108,7 @@
                 type="text"
                 [value]="nombreTipoDocumento || '-'"
                 readonly
-              >
+              />
             </div>
 
             <div class="campo-qrd">
@@ -99,7 +118,7 @@
                 type="text"
                 [value]="expediente?.nroDocumento || '-'"
                 readonly
-              >
+              />
             </div>
 
             <div class="campo-qrd">
@@ -107,12 +126,9 @@
 
               <input
                 type="text"
-                [value]="
-                  expediente?.fechaRegistro
-                    | date:'dd/MM/yyyy'
-                "
+                [value]="expediente?.fechaRegistro | date: 'dd/MM/yyyy'"
                 readonly
-              >
+              />
             </div>
           </div>
 
@@ -120,11 +136,7 @@
             <div class="campo-qrd">
               <label>TIPIFICACIÓN</label>
 
-              <input
-                type="text"
-                [value]="nombreTipificacion || '-'"
-                readonly
-              >
+              <input type="text" [value]="nombreTipificacion || '-'" readonly />
             </div>
           </div>
 
@@ -132,31 +144,19 @@
             <div class="campo-qrd">
               <label>NÚCLEO</label>
 
-              <input
-                type="text"
-                [value]="nombreNucleo || '-'"
-                readonly
-              >
+              <input type="text" [value]="nombreNucleo || '-'" readonly />
             </div>
 
             <div class="campo-qrd">
               <label>GRAN UNIDAD</label>
 
-              <input
-                type="text"
-                [value]="nombreBrigada || '-'"
-                readonly
-              >
+              <input type="text" [value]="nombreBrigada || '-'" readonly />
             </div>
 
             <div class="campo-qrd">
               <label>UNIDAD</label>
 
-              <input
-                type="text"
-                [value]="nombreUnidad || '-'"
-                readonly
-              >
+              <input type="text" [value]="nombreUnidad || '-'" readonly />
             </div>
           </div>
 
@@ -164,21 +164,13 @@
             <div class="campo-qrd">
               <label>NÚCLEO IG</label>
 
-              <input
-                type="text"
-                [value]="nombreNucleoIg || '-'"
-                readonly
-              >
+              <input type="text" [value]="nombreNucleoIg || '-'" readonly />
             </div>
 
             <div class="campo-qrd">
               <label>IG</label>
 
-              <input
-                type="text"
-                [value]="nombreIg || '-'"
-                readonly
-              >
+              <input type="text" [value]="nombreIg || '-'" readonly />
             </div>
 
             <div class="campo-qrd">
@@ -188,12 +180,11 @@
                 type="text"
                 [value]="
                   nivelDestinoSeleccionado
-                    ? 'Inspectoría QRD - Nivel '
-                      + nivelDestinoSeleccionado
+                    ? 'Inspectoría QRD - Nivel ' + nivelDestinoSeleccionado
                     : '-'
                 "
                 readonly
-              >
+              />
             </div>
           </div>
 
@@ -219,71 +210,42 @@
         </div>
 
         <!-- DOCUMENTOS ADJUNTOS -->
-        <div
-          class="contenido-qrd contenido-pdf"
-          *ngIf="pestanaActiva === 2"
-        >
-          <div
-            *ngIf="cargandoArchivos"
-            class="estado-archivos"
-          >
+        <div class="contenido-qrd contenido-pdf" *ngIf="pestanaActiva === 2">
+          <div *ngIf="cargandoArchivos" class="estado-archivos">
             <span class="spinner-archivos"></span>
             <p>Cargando documentos adjuntos...</p>
           </div>
 
           <div
-            *ngIf="
-              errorArchivos &&
-              !cargandoArchivos
-            "
+            *ngIf="errorArchivos && !cargandoArchivos"
             class="error-archivos"
           >
-            <strong>
-              No se pudieron cargar los documentos
-            </strong>
+            <strong> No se pudieron cargar los documentos </strong>
 
             <p>{{ errorArchivos }}</p>
           </div>
 
           <div
-            *ngIf="
-              !cargandoArchivos &&
-              !errorArchivos &&
-              archivos.length === 0
-            "
+            *ngIf="!cargandoArchivos && !errorArchivos && archivos.length === 0"
             class="sin-archivos"
           >
-            <div class="sin-archivos-icono">
-              📁
-            </div>
+            <div class="sin-archivos-icono">📁</div>
 
-            <h3>
-              No hay documentos adjuntos
-            </h3>
+            <h3>No hay documentos adjuntos</h3>
 
-            <p>
-              Este expediente no tiene archivos PDF registrados.
-            </p>
+            <p>Este expediente no tiene archivos PDF registrados.</p>
           </div>
 
           <div
             class="pdf-seccion"
-            *ngIf="
-              !cargandoArchivos &&
-              !errorArchivos &&
-              archivos.length > 0
-            "
+            *ngIf="!cargandoArchivos && !errorArchivos && archivos.length > 0"
           >
             <div class="selector-pdfs">
               <button
-                *ngFor="
-                  let archivo of archivos;
-                  let i = index
-                "
+                *ngFor="let archivo of archivos; let i = index"
                 type="button"
                 [class.activo]="
-                  archivoSeleccionado?.idArchivo ===
-                  archivo.idArchivo
+                  archivoSeleccionado?.idArchivo === archivo.idArchivo
                 "
                 (click)="seleccionarArchivo(archivo)"
               >
@@ -298,38 +260,22 @@
             </div>
 
             <div class="pdf-visor">
-              <div
-                *ngIf="cargandoPdf"
-                class="estado-archivos"
-              >
+              <div *ngIf="cargandoPdf" class="estado-archivos">
                 <span class="spinner-archivos"></span>
                 <p>Abriendo PDF...</p>
               </div>
 
               <iframe
-                *ngIf="
-                  pdfUrl &&
-                  !cargandoPdf
-                "
+                *ngIf="pdfUrl && !cargandoPdf"
                 class="pdf-frame"
                 [src]="pdfUrl"
                 title="Documento adjunto"
               ></iframe>
 
-              <div
-                *ngIf="
-                  !pdfUrl &&
-                  !cargandoPdf
-                "
-                class="pdf-vacio"
-              >
-                <div class="pdf-vacio-icono">
-                  📄
-                </div>
+              <div *ngIf="!pdfUrl && !cargandoPdf" class="pdf-vacio">
+                <div class="pdf-vacio-icono">📄</div>
 
-                <p>
-                  Selecciona un documento para visualizarlo.
-                </p>
+                <p>Selecciona un documento para visualizarlo.</p>
               </div>
             </div>
           </div>
@@ -344,15 +290,11 @@
             <div>
               <h3>SEGUIMIENTO</h3>
 
-              <p
-                [class.seguimiento-ok]="
-                  seguimientoGuardado
-                "
-              >
+              <p [class.seguimiento-ok]="seguimientoGuardado">
                 {{
                   seguimientoGuardado
-                    ? 'Seguimiento registrado'
-                    : 'Seguimiento pendiente'
+                    ? "Seguimiento registrado"
+                    : "Seguimiento pendiente"
                 }}
               </p>
             </div>
@@ -373,20 +315,14 @@
             </button>
           </div>
 
-          <div
-            class="estado-seguimiento cargando"
-            *ngIf="cargandoSeguimiento"
-          >
+          <div class="estado-seguimiento cargando" *ngIf="cargandoSeguimiento">
             <span class="mini-spinner"></span>
             Cargando seguimiento...
           </div>
 
           <div
             class="error-seguimiento"
-            *ngIf="
-              errorSeguimiento &&
-              !cargandoSeguimiento
-            "
+            *ngIf="errorSeguimiento && !cargandoSeguimiento"
           >
             {{ errorSeguimiento }}
           </div>
@@ -394,11 +330,7 @@
           <div
             class="form-seguimiento"
             *ngIf="
-              !cargandoSeguimiento &&
-              (
-                seguimientoActivo ||
-                seguimientoGuardado
-              )
+              !cargandoSeguimiento && (seguimientoActivo || seguimientoGuardado)
             "
           >
             <div class="campo-seguimiento">
@@ -412,12 +344,9 @@
                   guardandoSeguimiento ||
                   soloLectura ||
                   !modoGestion ||
-                  (
-                    seguimientoGuardado &&
-                    !seguimientoActivo
-                  )
+                  (seguimientoGuardado && !seguimientoActivo)
                 "
-              >
+              />
             </div>
 
             <div class="campo-seguimiento">
@@ -431,31 +360,20 @@
                   guardandoSeguimiento ||
                   soloLectura ||
                   !modoGestion ||
-                  (
-                    seguimientoGuardado &&
-                    !seguimientoActivo
-                  )
+                  (seguimientoGuardado && !seguimientoActivo)
                 "
-              >
+              />
             </div>
 
             <div class="campo-seguimiento">
               <label>CANTIDAD DE DÍAS</label>
 
-              <input
-                type="number"
-                [value]="cantidadDiasSeguimiento"
-                readonly
-              >
+              <input type="number" [value]="cantidadDiasSeguimiento" readonly />
             </div>
 
             <div
               class="acciones-seguimiento"
-              *ngIf="
-                seguimientoActivo &&
-                modoGestion &&
-                !soloLectura
-              "
+              *ngIf="seguimientoActivo && modoGestion && !soloLectura"
             >
               <button
                 type="button"
@@ -467,11 +385,7 @@
                   !fechaFinSeguimiento
                 "
               >
-                {{
-                  guardandoSeguimiento
-                    ? 'GUARDANDO...'
-                    : 'GUARDAR'
-                }}
+                {{ guardandoSeguimiento ? "GUARDANDO..." : "GUARDAR" }}
               </button>
 
               <button
@@ -489,9 +403,7 @@
 
       <!-- PANEL LATERAL -->
       <aside class="panel-lateral">
-        <div class="acciones-titulo">
-          ACCIONES
-        </div>
+        <div class="acciones-titulo">ACCIONES</div>
 
         <div class="linea-acciones"></div>
 
@@ -554,19 +466,13 @@
         </button>
 
         <!-- SALIR -->
-        <button
-          type="button"
-          class="btn-salir"
-          (click)="cerrarModal()"
-        >
+        <button type="button" class="btn-salir" (click)="cerrarModal()">
           <span class="icono-accion">↩</span>
           SALIR
         </button>
 
         <div class="observacion-lateral">
-          <div class="observacion-titulo">
-            OBSERVACIÓN / INDICACIONES
-          </div>
+          <div class="observacion-titulo">OBSERVACIÓN / INDICACIONES</div>
 
           <textarea
             [(ngModel)]="observacionActual"
@@ -587,18 +493,12 @@
 
             <div
               class="estado-observacion guardado"
-              *ngIf="
-                observacionGuardada &&
-                !guardandoObservacion
-              "
+              *ngIf="observacionGuardada && !guardandoObservacion"
             >
               ✓ Guardado
             </div>
 
-            <span
-              class="error-observacion"
-              *ngIf="errorObservacion"
-            >
+            <span class="error-observacion" *ngIf="errorObservacion">
               {{ errorObservacion }}
             </span>
 

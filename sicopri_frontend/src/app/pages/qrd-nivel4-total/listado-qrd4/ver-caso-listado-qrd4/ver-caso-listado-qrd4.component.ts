@@ -7,73 +7,53 @@ import {
   OnChanges,
   OnDestroy,
   Output,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 
-import {
-  FormsModule
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 
-import {
-  DomSanitizer,
-  SafeResourceUrl
-} from '@angular/platform-browser';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import {
-  ExpedienteService
-} from '../../../../services/expediente.service';
+import { ExpedienteService } from '../../../../services/expediente.service';
 
 import {
   UsersService,
   Nucleo,
   Brigada,
-  Unidad
+  Unidad,
 } from '../../../../services/users.service';
 
 import Swal from 'sweetalert2';
-
 
 @Component({
   selector: 'app-ver-caso-listado-qrd4',
 
   standalone: true,
 
-  imports: [
-    CommonModule,
-    FormsModule
-  ],
+  imports: [CommonModule, FormsModule],
 
-  templateUrl:
-    './ver-caso-listado-qrd4.component.html',
+  templateUrl: './ver-caso-listado-qrd4.component.html',
 
-  styleUrl:
-    './ver-caso-listado-qrd4.component.css'
+  styleUrl: './ver-caso-listado-qrd4.component.css',
 })
-export class VerCasoListadoQrd4Component
-  implements OnChanges, OnDestroy {
-
-
+export class VerCasoListadoQrd4Component implements OnChanges, OnDestroy {
   // =========================================
   // EXPEDIENTE
   // =========================================
 
   @Input()
-  expediente: any =
-    null;
+  expediente: any = null;
 
   // Desde Listado Total todo el contenido es consulta.
   @Input()
   soloLectura: boolean = true;
-
 
   // =========================================
   // OUTPUTS
   // =========================================
 
   @Output()
-  cerrar =
-    new EventEmitter<void>();
-
+  cerrar = new EventEmitter<void>();
 
   /*
    * IMPORTANTE:
@@ -86,9 +66,7 @@ export class VerCasoListadoQrd4Component
    * backend QRD4 -> QRD4 con trazabilidad.
    */
   @Output()
-  enviarQr3 =
-    new EventEmitter<any>();
-
+  enviarQr3 = new EventEmitter<any>();
 
   // =========================================
   // PESTAÑAS
@@ -98,259 +76,177 @@ export class VerCasoListadoQrd4Component
   // 3 = SEGUIMIENTO (SOLO LECTURA)
   // =========================================
 
-  pestanaActiva:
-    number = 1;
-
+  pestanaActiva: number = 1;
 
   // =========================================
   // DATOS VISUALES
   // =========================================
 
-  nombreTipoDocumento:
-    string = '';
+  nombreTipoDocumento: string = '';
 
-  nombreTipificacion:
-    string = '';
-
+  nombreTipificacion: string = '';
 
   // =========================================
   // UBICACIÓN
   // =========================================
 
-  nombreNucleo:
-    string = '';
+  nombreNucleo: string = '';
 
-  nombreBrigada:
-    string = '';
+  nombreBrigada: string = '';
 
-  nombreUnidad:
-    string = '';
+  nombreUnidad: string = '';
 
-  guarnicionUnidad:
-    string = '';
-
+  guarnicionUnidad: string = '';
 
   // =========================================
   // INSPECTORÍA
   // =========================================
 
-  nombreNucleoIg:
-    string = '';
+  nombreNucleoIg: string = '';
 
-  nombreIg:
-    string = '';
-
+  nombreIg: string = '';
 
   // =========================================
   // OBSERVACIÓN ACTUAL
   // =========================================
 
-  observacionActual:
-    string = '';
+  observacionActual: string = '';
 
+  guardandoObservacion: boolean = false;
 
-  guardandoObservacion:
-    boolean = false;
+  observacionGuardada: boolean = false;
 
+  errorObservacion: string = '';
 
-  observacionGuardada:
-    boolean = false;
-
-
-  errorObservacion:
-    string = '';
-
-
-  private temporizadorObservacion:
-    any = null;
-
+  private temporizadorObservacion: any = null;
 
   // =========================================
   // SEGUIMIENTO RECIBIDO DE QRD2
   // SOLO LECTURA EN QRD4
   // =========================================
 
-  seguimientoRegistrado:
-    boolean = false;
+  seguimientoRegistrado: boolean = false;
 
-  cargandoSeguimiento:
-    boolean = false;
+  cargandoSeguimiento: boolean = false;
 
-  errorSeguimiento:
-    string = '';
+  errorSeguimiento: string = '';
 
-  fechaInicioSeguimiento:
-    string = '';
+  fechaInicioSeguimiento: string = '';
 
-  fechaFinSeguimiento:
-    string = '';
+  fechaFinSeguimiento: string = '';
 
-  cantidadDiasSeguimiento:
-    number = 0;
-
+  cantidadDiasSeguimiento: number = 0;
 
   // =========================================
   // PDFs
   // =========================================
 
-  archivos:
-    any[] = [];
+  archivos: any[] = [];
 
+  archivoSeleccionado: any = null;
 
-  archivoSeleccionado:
-    any = null;
+  pdfUrl: SafeResourceUrl | null = null;
 
+  private objectUrlActual: string | null = null;
 
-  pdfUrl:
-    SafeResourceUrl | null =
-    null;
+  cargandoArchivos: boolean = false;
 
+  cargandoPdf: boolean = false;
 
-  private objectUrlActual:
-    string | null =
-    null;
+  archivosCargados: boolean = false;
 
+  errorArchivos: string = '';
 
-  cargandoArchivos:
-    boolean = false;
+  mostrarDatosPersona = false;
 
+  readonly camposPersona = [
+    { clave: 'nombres', etiqueta: 'NOMBRES' },
+    { clave: 'apellidos', etiqueta: 'APELLIDOS' },
+    { clave: 'ruc', etiqueta: 'RUC' },
+    { clave: 'dni', etiqueta: 'DNI' },
+    { clave: 'telefono', etiqueta: 'TELÉFONO' },
+    { clave: 'domicilio', etiqueta: 'DOMICILIO' },
+    { clave: 'correo', etiqueta: 'CORREO ELECTRÓNICO' },
+  ];
 
-  cargandoPdf:
-    boolean = false;
+  obtenerDatoPersona(clave: string): string {
+    const valor = this.expediente?.datosPersona?.[clave];
 
-
-  archivosCargados:
-    boolean = false;
-
-
-  errorArchivos:
-    string = '';
-
-
+    return String(valor ?? '').trim() || 'No registrado';
+  }
   // =========================================
   // CONSTRUCTOR
   // =========================================
 
   constructor(
+    private expedienteService: ExpedienteService,
 
-    private expedienteService:
-      ExpedienteService,
+    private usersService: UsersService,
 
-    private usersService:
-      UsersService,
-
-    private sanitizer:
-      DomSanitizer
-
+    private sanitizer: DomSanitizer,
   ) {}
-
 
   // =========================================
   // CAMBIO EXPEDIENTE
   // =========================================
 
-  ngOnChanges(
-    changes: SimpleChanges
-  ): void {
-
-    if (
-      changes['expediente'] &&
-      this.expediente
-    ) {
-
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['expediente'] && this.expediente) {
       this.inicializarCaso();
-
     }
-
   }
-
 
   // =========================================
   // DESTROY
   // =========================================
 
   ngOnDestroy(): void {
-
     this.limpiarPdf();
 
-
-    if (
-      this.temporizadorObservacion
-    ) {
-
-      clearTimeout(
-        this.temporizadorObservacion
-      );
-
+    if (this.temporizadorObservacion) {
+      clearTimeout(this.temporizadorObservacion);
     }
-
   }
-
 
   // =========================================
   // INICIALIZAR
   // =========================================
 
   inicializarCaso(): void {
+    const persona = this.expediente?.datosPersona;
 
-    this.pestanaActiva =
-      1;
+    this.mostrarDatosPersona =
+      !!persona &&
+      Object.values(persona).some((valor) => String(valor ?? '').trim() !== '');
+    this.pestanaActiva = 1;
 
+    this.nombreTipoDocumento = '';
 
-    this.nombreTipoDocumento =
-      '';
+    this.nombreTipificacion = '';
 
+    this.nombreNucleo = '';
 
-    this.nombreTipificacion =
-      '';
+    this.nombreBrigada = '';
 
+    this.nombreUnidad = '';
 
-    this.nombreNucleo =
-      '';
+    this.guarnicionUnidad = '';
 
+    this.nombreNucleoIg = '';
 
-    this.nombreBrigada =
-      '';
-
-
-    this.nombreUnidad =
-      '';
-
-
-    this.guarnicionUnidad =
-      '';
-
-
-    this.nombreNucleoIg =
-      '';
-
-
-    this.nombreIg =
-      '';
-
+    this.nombreIg = '';
 
     // =======================================
     // OBSERVACIÓN
     // =======================================
 
-    this.observacionActual =
-      String(
-        this.expediente
-          ?.observacionActual || ''
-      );
+    this.observacionActual = String(this.expediente?.observacionActual || '');
 
+    this.guardandoObservacion = false;
 
-    this.guardandoObservacion =
-      false;
+    this.observacionGuardada = false;
 
-
-    this.observacionGuardada =
-      false;
-
-
-    this.errorObservacion =
-      '';
-
+    this.errorObservacion = '';
 
     // =======================================
     // SEGUIMIENTO RECIBIDO DE QRD2
@@ -363,37 +259,23 @@ export class VerCasoListadoQrd4Component
     this.fechaFinSeguimiento = '';
     this.cantidadDiasSeguimiento = 0;
 
-
     // =======================================
     // PDFs
     // =======================================
 
-    this.archivos =
-      [];
+    this.archivos = [];
 
+    this.archivoSeleccionado = null;
 
-    this.archivoSeleccionado =
-      null;
+    this.archivosCargados = false;
 
+    this.cargandoArchivos = false;
 
-    this.archivosCargados =
-      false;
+    this.cargandoPdf = false;
 
-
-    this.cargandoArchivos =
-      false;
-
-
-    this.cargandoPdf =
-      false;
-
-
-    this.errorArchivos =
-      '';
-
+    this.errorArchivos = '';
 
     this.limpiarPdf();
-
 
     // =======================================
     // CATÁLOGOS
@@ -410,22 +292,18 @@ export class VerCasoListadoQrd4Component
     if (this.esExpedienteRecibidoDeQrd2()) {
       this.cargarSeguimiento();
     }
-
   }
-
 
   // =========================================
   // CARGAR SEGUIMIENTO - SOLO LECTURA
   // =========================================
 
   cargarSeguimiento(): void {
-
     if (!this.esExpedienteRecibidoDeQrd2()) {
       return;
     }
 
-    const idExpediente =
-      Number(this.expediente?.idExpediente);
+    const idExpediente = Number(this.expediente?.idExpediente);
 
     if (!idExpediente) {
       return;
@@ -434,94 +312,65 @@ export class VerCasoListadoQrd4Component
     this.cargandoSeguimiento = true;
     this.errorSeguimiento = '';
 
-    this.expedienteService
-      .obtenerSeguimiento(idExpediente)
-      .subscribe({
+    this.expedienteService.obtenerSeguimiento(idExpediente).subscribe({
+      next: (respuesta: any) => {
+        this.cargandoSeguimiento = false;
 
-        next: (respuesta: any) => {
+        const seguimiento = respuesta?.seguimiento ?? respuesta;
 
-          this.cargandoSeguimiento = false;
-
-          const seguimiento =
-            respuesta?.seguimiento ?? respuesta;
-
-          if (
-            !seguimiento ||
-            (
-              !seguimiento?.fechaInicio &&
-              !seguimiento?.fechaFin
-            )
-          ) {
-            return;
-          }
-
-          this.fechaInicioSeguimiento =
-            this.normalizarFecha(seguimiento.fechaInicio);
-
-          this.fechaFinSeguimiento =
-            this.normalizarFecha(seguimiento.fechaFin);
-
-          const dias =
-            Number(seguimiento.cantidadDias);
-
-          this.cantidadDiasSeguimiento =
-            Number.isFinite(dias) ? dias : 0;
-
-          this.seguimientoRegistrado = true;
-
-        },
-
-        error: (err: any) => {
-
-          this.cargandoSeguimiento = false;
-
-          // 404 significa que QRD2 aún no registró seguimiento.
-          if (err?.status === 404 || err?.status === 204) {
-            return;
-          }
-
-          console.error(
-            'ERROR AL CARGAR SEGUIMIENTO QRD4:',
-            err
-          );
-
-          this.errorSeguimiento =
-            'No se pudo cargar el seguimiento del expediente.';
-
+        if (
+          !seguimiento ||
+          (!seguimiento?.fechaInicio && !seguimiento?.fechaFin)
+        ) {
+          return;
         }
 
-      });
+        this.fechaInicioSeguimiento = this.normalizarFecha(
+          seguimiento.fechaInicio,
+        );
 
+        this.fechaFinSeguimiento = this.normalizarFecha(seguimiento.fechaFin);
+
+        const dias = Number(seguimiento.cantidadDias);
+
+        this.cantidadDiasSeguimiento = Number.isFinite(dias) ? dias : 0;
+
+        this.seguimientoRegistrado = true;
+      },
+
+      error: (err: any) => {
+        this.cargandoSeguimiento = false;
+
+        // 404 significa que QRD2 aún no registró seguimiento.
+        if (err?.status === 404 || err?.status === 204) {
+          return;
+        }
+
+        console.error('ERROR AL CARGAR SEGUIMIENTO QRD4:', err);
+
+        this.errorSeguimiento =
+          'No se pudo cargar el seguimiento del expediente.';
+      },
+    });
   }
 
-
-  private normalizarFecha(
-    fecha: any
-  ): string {
-
+  private normalizarFecha(fecha: any): string {
     if (!fecha) {
       return '';
     }
 
     return String(fecha).substring(0, 10);
-
   }
-
 
   // Se muestra cuando QRD2 ya procesó el expediente y lo
   // derivó a QRD4. El destino final para este nivel es Nivel 4.
   esExpedienteRecibidoDeQrd2(): boolean {
-
     const nivelDestino = Number(this.expediente?.nivelDestino);
 
-    return Number(this.expediente?.nivelActual) === 4 &&
-      nivelDestino === 4;
-
+    return Number(this.expediente?.nivelActual) === 4 && nivelDestino === 4;
   }
 
-
   obtenerDestinoFinal(): string {
-
     const nivelDestino = Number(this.expediente?.nivelDestino);
 
     if (nivelDestino === 3) {
@@ -533,27 +382,16 @@ export class VerCasoListadoQrd4Component
     }
 
     return '-';
-
   }
-
 
   // =========================================
   // CATEGORÍA
   // =========================================
 
   obtenerCategoriaQrd(): string {
+    const tipo = Number(this.expediente?.idTipoExpediente);
 
-    const tipo =
-      Number(
-        this.expediente
-          ?.idTipoExpediente
-      );
-
-
-    switch (
-      tipo
-    ) {
-
+    switch (tipo) {
       case 1:
         return 'DENUNCIA';
 
@@ -565,732 +403,284 @@ export class VerCasoListadoQrd4Component
 
       default:
         return '-';
-
     }
-
   }
-
 
   // =========================================
   // TIPO DOCUMENTO
   // =========================================
 
   cargarTipoDocumento(): void {
-
-    if (
-      !this.expediente
-    ) {
-
+    if (!this.expediente) {
       return;
-
     }
 
+    const idTipoDocumento = Number(this.expediente.idTipoDocumento);
 
-    const idTipoDocumento =
-      Number(
-        this.expediente
-          .idTipoDocumento
-      );
+    if (this.expediente.documento) {
+      this.nombreTipoDocumento = String(this.expediente.documento);
+    }
 
-
-    if (
-      this.expediente.documento
-    ) {
-
-      this.nombreTipoDocumento =
-        String(
-          this.expediente.documento
+    this.expedienteService.getTiposDocumento().subscribe({
+      next: (data: any[]) => {
+        const encontrado = (data || []).find(
+          (tipo: any) => Number(tipo.idTipoDocumento) === idTipoDocumento,
         );
 
-    }
-
-
-    this.expedienteService
-      .getTiposDocumento()
-      .subscribe({
-
-        next: (
-          data: any[]
-        ) => {
-
-          const encontrado =
-            (data || []).find(
-              (
-                tipo: any
-              ) =>
-                Number(
-                  tipo.idTipoDocumento
-                ) ===
-                idTipoDocumento
-            );
-
+        if (encontrado) {
+          const nombre = String(encontrado.nombre || '').trim();
 
           if (
-            encontrado
+            nombre.toUpperCase() === 'OTROS' &&
+            this.expediente.otroTipoDocumento
           ) {
-
-            const nombre =
-              String(
-                encontrado.nombre || ''
-              ).trim();
-
-
-            if (
-              nombre
-                .toUpperCase() ===
-                'OTROS'
-              &&
-              this.expediente
-                .otroTipoDocumento
-            ) {
-
-              this.nombreTipoDocumento =
-                this.expediente
-                  .otroTipoDocumento;
-
-            } else {
-
-              this.nombreTipoDocumento =
-                nombre;
-
-            }
-
+            this.nombreTipoDocumento = this.expediente.otroTipoDocumento;
+          } else {
+            this.nombreTipoDocumento = nombre;
           }
-
-
-          if (
-            !this.nombreTipoDocumento
-          ) {
-
-            this.nombreTipoDocumento =
-              '-';
-
-          }
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR TIPO DOCUMENTO QR4:',
-            err
-          );
-
-
-          this.nombreTipoDocumento =
-            this.expediente
-              ?.otroTipoDocumento
-            ||
-            this.expediente
-              ?.documento
-            ||
-            '-';
-
         }
 
-      });
+        if (!this.nombreTipoDocumento) {
+          this.nombreTipoDocumento = '-';
+        }
+      },
 
+      error: (err) => {
+        console.error('ERROR TIPO DOCUMENTO QR4:', err);
+
+        this.nombreTipoDocumento =
+          this.expediente?.otroTipoDocumento ||
+          this.expediente?.documento ||
+          '-';
+      },
+    });
   }
-
 
   // =========================================
   // TIPIFICACIÓN
   // =========================================
 
   cargarTipificacion(): void {
-
-    if (
-      !this.expediente
-    ) {
-
+    if (!this.expediente) {
       return;
-
     }
 
+    const idTipoExpediente = Number(this.expediente.idTipoExpediente);
 
-    const idTipoExpediente =
-      Number(
-        this.expediente
-          .idTipoExpediente
-      );
+    const idTipificacion = Number(this.expediente.idTipificacion);
 
-
-    const idTipificacion =
-      Number(
-        this.expediente
-          .idTipificacion
-      );
-
-
-    if (
-      !idTipoExpediente ||
-      !idTipificacion
-    ) {
-
-      this.nombreTipificacion =
-        '-';
+    if (!idTipoExpediente || !idTipificacion) {
+      this.nombreTipificacion = '-';
 
       return;
-
     }
 
+    this.expedienteService.getTipificaciones(idTipoExpediente).subscribe({
+      next: (data: any[]) => {
+        const encontrado = (data || []).find(
+          (item: any) => Number(item.idTipificacion) === idTipificacion,
+        );
 
-    this.expedienteService
-      .getTipificaciones(
-        idTipoExpediente
-      )
-      .subscribe({
+        this.nombreTipificacion = encontrado?.nombre || String(idTipificacion);
+      },
 
-        next: (
-          data: any[]
-        ) => {
+      error: (err) => {
+        console.error('ERROR TIPIFICACIÓN QR4:', err);
 
-          const encontrado =
-            (data || []).find(
-              (
-                item: any
-              ) =>
-                Number(
-                  item.idTipificacion
-                ) ===
-                idTipificacion
-            );
-
-
-          this.nombreTipificacion =
-            encontrado?.nombre
-            ||
-            String(
-              idTipificacion
-            );
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR TIPIFICACIÓN QR4:',
-            err
-          );
-
-
-          this.nombreTipificacion =
-            String(
-              idTipificacion
-            );
-
-        }
-
-      });
-
+        this.nombreTipificacion = String(idTipificacion);
+      },
+    });
   }
-
 
   // =========================================
   // UBICACIÓN NORMAL
   // =========================================
 
   cargarNombresUbicacion(): void {
-
-    if (
-      !this.expediente
-    ) {
-
+    if (!this.expediente) {
       return;
-
     }
 
+    const idNucleo = this.expediente.idNucleo;
 
-    const idNucleo =
-      this.expediente.idNucleo;
+    const idBrigada = this.expediente.idBrigada;
 
-
-    const idBrigada =
-      this.expediente.idBrigada;
-
-
-    const idUnidad =
-      this.expediente.idUnidad;
-
+    const idUnidad = this.expediente.idUnidad;
 
     // =======================================
     // NÚCLEO
     // =======================================
 
-    if (
-      idNucleo
-    ) {
+    if (idNucleo) {
+      this.usersService.getNucleos().subscribe({
+        next: (data: Nucleo[]) => {
+          const nucleo = (data || []).find(
+            (item: Nucleo) => String(item.idNucleo) === String(idNucleo),
+          );
 
-      this.usersService
-        .getNucleos()
-        .subscribe({
+          this.nombreNucleo = nucleo?.nombre || String(idNucleo);
+        },
 
-          next: (
-            data: Nucleo[]
-          ) => {
+        error: (err) => {
+          console.error('ERROR NÚCLEO QR4:', err);
 
-            const nucleo =
-              (data || []).find(
-                (
-                  item: Nucleo
-                ) =>
-                  String(
-                    item.idNucleo
-                  ) ===
-                  String(
-                    idNucleo
-                  )
-              );
-
-
-            this.nombreNucleo =
-              nucleo?.nombre
-              ||
-              String(
-                idNucleo
-              );
-
-          },
-
-
-          error: (
-            err
-          ) => {
-
-            console.error(
-              'ERROR NÚCLEO QR4:',
-              err
-            );
-
-
-            this.nombreNucleo =
-              String(
-                idNucleo
-              );
-
-          }
-
-        });
-
+          this.nombreNucleo = String(idNucleo);
+        },
+      });
     }
-
 
     // =======================================
     // GRAN UNIDAD
     // =======================================
 
-    if (
-      idNucleo &&
-      idBrigada
-    ) {
+    if (idNucleo && idBrigada) {
+      this.usersService.getBrigadas(String(idNucleo)).subscribe({
+        next: (data: Brigada[]) => {
+          const brigada = (data || []).find(
+            (item: Brigada) => String(item.idBrigada) === String(idBrigada),
+          );
 
-      this.usersService
-        .getBrigadas(
-          String(
-            idNucleo
-          )
-        )
-        .subscribe({
+          this.nombreBrigada = brigada?.nombre || String(idBrigada);
+        },
 
-          next: (
-            data: Brigada[]
-          ) => {
+        error: (err) => {
+          console.error('ERROR GRAN UNIDAD QR4:', err);
 
-            const brigada =
-              (data || []).find(
-                (
-                  item: Brigada
-                ) =>
-                  String(
-                    item.idBrigada
-                  ) ===
-                  String(
-                    idBrigada
-                  )
-              );
-
-
-            this.nombreBrigada =
-              brigada?.nombre
-              ||
-              String(
-                idBrigada
-              );
-
-          },
-
-
-          error: (
-            err
-          ) => {
-
-            console.error(
-              'ERROR GRAN UNIDAD QR4:',
-              err
-            );
-
-
-            this.nombreBrigada =
-              String(
-                idBrigada
-              );
-
-          }
-
-        });
-
+          this.nombreBrigada = String(idBrigada);
+        },
+      });
     }
-
 
     // =======================================
     // UNIDAD
     // =======================================
 
-    if (
-      idNucleo &&
-      idBrigada &&
-      idUnidad
-    ) {
-
+    if (idNucleo && idBrigada && idUnidad) {
       this.usersService
         .getUnidades(
+          String(idNucleo),
 
-          String(
-            idNucleo
-          ),
-
-          String(
-            idBrigada
-          )
-
+          String(idBrigada),
         )
         .subscribe({
-
-          next: (
-            data: Unidad[]
-          ) => {
-
-            const unidad =
-              (data || []).find(
-                (
-                  item: Unidad
-                ) =>
-                  String(
-                    item.idUnidad
-                  ) ===
-                  String(
-                    idUnidad
-                  )
-              );
-
-
-            this.nombreUnidad =
-              unidad?.nombre
-              ||
-              String(
-                idUnidad
-              );
-
-
-            this.guarnicionUnidad =
-              String(
-                unidad?.guarnicion || ''
-              ).trim();
-
-
-            this.actualizarNombreNucleoIg();
-
-          },
-
-
-          error: (
-            err
-          ) => {
-
-            console.error(
-              'ERROR UNIDAD QR4:',
-              err
+          next: (data: Unidad[]) => {
+            const unidad = (data || []).find(
+              (item: Unidad) => String(item.idUnidad) === String(idUnidad),
             );
 
+            this.nombreUnidad = unidad?.nombre || String(idUnidad);
 
-            this.nombreUnidad =
-              String(
-                idUnidad
-              );
+            this.guarnicionUnidad = String(unidad?.guarnicion || '').trim();
 
-          }
+            this.actualizarNombreNucleoIg();
+          },
 
+          error: (err) => {
+            console.error('ERROR UNIDAD QR4:', err);
+
+            this.nombreUnidad = String(idUnidad);
+          },
         });
-
     }
-
   }
-
 
   // =========================================
   // INSPECTORÍA
   // =========================================
 
   cargarNombresInspectoria(): void {
-
-    if (
-      !this.expediente
-    ) {
-
+    if (!this.expediente) {
       return;
-
     }
 
+    const idNucleoIg = this.expediente.idNucleoIg;
 
-    const idNucleoIg =
-      this.expediente.idNucleoIg;
-
-
-    const idIg =
-      this.expediente.idIg;
-
+    const idIg = this.expediente.idIg;
 
     // =======================================
     // NÚCLEO IG
     // =======================================
 
-    if (
-      idNucleoIg
-    ) {
+    if (idNucleoIg) {
+      this.usersService.getNucleos().subscribe({
+        next: (data: Nucleo[]) => {
+          const nucleo = (data || []).find(
+            (item: Nucleo) => String(item.idNucleo) === String(idNucleoIg),
+          );
 
-      this.usersService
-        .getNucleos()
-        .subscribe({
+          this.nombreNucleoIg = nucleo?.nombre || String(idNucleoIg);
 
-          next: (
-            data: Nucleo[]
-          ) => {
+          this.actualizarNombreNucleoIg();
+        },
 
-            const nucleo =
-              (data || []).find(
-                (
-                  item: Nucleo
-                ) =>
-                  String(
-                    item.idNucleo
-                  ) ===
-                  String(
-                    idNucleoIg
-                  )
-              );
+        error: (err) => {
+          console.error('ERROR NÚCLEO IG QR4:', err);
 
-
-            this.nombreNucleoIg =
-              nucleo?.nombre
-              ||
-              String(
-                idNucleoIg
-              );
-
-
-            this.actualizarNombreNucleoIg();
-
-          },
-
-
-          error: (
-            err
-          ) => {
-
-            console.error(
-              'ERROR NÚCLEO IG QR4:',
-              err
-            );
-
-
-            this.nombreNucleoIg =
-              String(
-                idNucleoIg
-              );
-
-          }
-
-        });
-
+          this.nombreNucleoIg = String(idNucleoIg);
+        },
+      });
     }
-
 
     // =======================================
     // IG
     // =======================================
 
-    if (
-      idNucleoIg &&
-      idIg
-    ) {
+    if (idNucleoIg && idIg) {
+      this.usersService.getBrigadas(String(idNucleoIg)).subscribe({
+        next: (data: Brigada[]) => {
+          const ig = (data || []).find(
+            (item: Brigada) => String(item.idBrigada) === String(idIg),
+          );
 
-      this.usersService
-        .getBrigadas(
-          String(
-            idNucleoIg
-          )
-        )
-        .subscribe({
+          this.nombreIg = ig?.nombre || String(idIg);
+        },
 
-          next: (
-            data: Brigada[]
-          ) => {
+        error: (err) => {
+          console.error('ERROR IG QR4:', err);
 
-            const ig =
-              (data || []).find(
-                (
-                  item: Brigada
-                ) =>
-                  String(
-                    item.idBrigada
-                  ) ===
-                  String(
-                    idIg
-                  )
-              );
-
-
-            this.nombreIg =
-              ig?.nombre
-              ||
-              String(
-                idIg
-              );
-
-          },
-
-
-          error: (
-            err
-          ) => {
-
-            console.error(
-              'ERROR IG QR4:',
-              err
-            );
-
-
-            this.nombreIg =
-              String(
-                idIg
-              );
-
-          }
-
-        });
-
+          this.nombreIg = String(idIg);
+        },
+      });
     }
-
   }
-
 
   // =========================================
   // NOMBRE VISUAL NÚCLEO IG
   // =========================================
 
   actualizarNombreNucleoIg(): void {
-
-    if (
-      !this.nombreNucleoIg
-    ) {
-
+    if (!this.nombreNucleoIg) {
       return;
-
     }
 
+    const base = this.nombreNucleoIg.split(' - ')[0].trim();
 
-    const base =
-      this.nombreNucleoIg
-        .split(
-          ' - '
-        )[0]
-        .trim();
-
-
-    if (
-      this.guarnicionUnidad
-    ) {
-
-      this.nombreNucleoIg =
-        `${base} - ${this.guarnicionUnidad}`;
-
+    if (this.guarnicionUnidad) {
+      this.nombreNucleoIg = `${base} - ${this.guarnicionUnidad}`;
     } else {
-
-      this.nombreNucleoIg =
-        base;
-
+      this.nombreNucleoIg = base;
     }
-
   }
-
 
   // =========================================
   // FECHA
   // =========================================
 
   obtenerFechaDocumento(): string {
+    const fecha = this.expediente?.fechaDocumento;
 
-    const fecha =
-      this.expediente
-        ?.fechaDocumento;
-
-
-    if (
-      !fecha
-    ) {
-
+    if (!fecha) {
       return '-';
-
     }
 
+    if (/^\d{4}-\d{2}-\d{2}/.test(String(fecha))) {
+      const partes = String(fecha).substring(0, 10).split('-');
 
-    if (
-      /^\d{4}-\d{2}-\d{2}/
-        .test(
-          String(
-            fecha
-          )
-        )
-    ) {
-
-      const partes =
-        String(
-          fecha
-        )
-          .substring(
-            0,
-            10
-          )
-          .split('-');
-
-
-      return (
-        partes[2]
-        +
-        '/'
-        +
-        partes[1]
-        +
-        '/'
-        +
-        partes[0]
-      );
-
+      return partes[2] + '/' + partes[1] + '/' + partes[0];
     }
 
-
-    return String(
-      fecha
-    );
-
+    return String(fecha);
   }
-
 
   // =========================================
   // OBSERVACIÓN
@@ -1298,143 +688,87 @@ export class VerCasoListadoQrd4Component
   // =========================================
 
   cambioObservacion(): void {
-
     if (this.soloLectura) {
       return;
     }
 
-    this.observacionGuardada =
-      false;
+    this.observacionGuardada = false;
 
+    this.errorObservacion = '';
 
-    this.errorObservacion =
-      '';
-
-
-    if (
-      this.temporizadorObservacion
-    ) {
-
-      clearTimeout(
-        this.temporizadorObservacion
-      );
-
+    if (this.temporizadorObservacion) {
+      clearTimeout(this.temporizadorObservacion);
     }
 
-
-    this.temporizadorObservacion =
-      setTimeout(
-        () => {
-
-          this.guardarObservacion();
-
-        },
-        900
-      );
-
+    this.temporizadorObservacion = setTimeout(() => {
+      this.guardarObservacion();
+    }, 900);
   }
-
 
   // =========================================
   // GUARDAR OBSERVACIÓN
   // =========================================
 
   guardarObservacion(): void {
-
     if (this.soloLectura) {
       return;
     }
 
-  if (!this.expediente?.idExpediente) {
-    return;
-  }
+    if (!this.expediente?.idExpediente) {
+      return;
+    }
 
-  this.guardandoObservacion = true;
-  this.observacionGuardada = false;
-  this.errorObservacion = '';
+    this.guardandoObservacion = true;
+    this.observacionGuardada = false;
+    this.errorObservacion = '';
 
-  const observacion =
-    String(this.observacionActual || '');
+    const observacion = String(this.observacionActual || '');
 
-  this.expedienteService
-    .actualizarObservacion(
-      this.expediente.idExpediente,
-      observacion
-    )
-    .subscribe({
+    this.expedienteService
+      .actualizarObservacion(this.expediente.idExpediente, observacion)
+      .subscribe({
+        next: (respuesta: any) => {
+          this.guardandoObservacion = false;
+          this.observacionGuardada = true;
 
-      next: (respuesta: any) => {
+          this.expediente.observacionActual =
+            respuesta?.observacionActual ?? observacion;
 
-        this.guardandoObservacion = false;
-        this.observacionGuardada = true;
+          console.log('OBSERVACIÓN QRD4 GUARDADA:', respuesta);
 
-        this.expediente.observacionActual =
-          respuesta?.observacionActual ?? observacion;
+          setTimeout(() => {
+            this.observacionGuardada = false;
+          }, 2200);
+        },
 
-        console.log(
-          'OBSERVACIÓN QRD4 GUARDADA:',
-          respuesta
-        );
+        error: (err) => {
+          console.error('ERROR GUARDANDO OBSERVACIÓN QRD4:', err);
 
-        setTimeout(() => {
+          this.guardandoObservacion = false;
           this.observacionGuardada = false;
-        }, 2200);
 
-      },
-
-      error: (err) => {
-
-        console.error(
-          'ERROR GUARDANDO OBSERVACIÓN QRD4:',
-          err
-        );
-
-        this.guardandoObservacion = false;
-        this.observacionGuardada = false;
-
-        this.errorObservacion =
-          'No se pudo guardar la observación.';
-
-      }
-
-    });
-
-}
-
+          this.errorObservacion = 'No se pudo guardar la observación.';
+        },
+      });
+  }
 
   // =========================================
   // SOLICITAR ENVÍO A INSPECTORÍA QRD NIVEL 3
   // =========================================
 
   solicitarEnvioQr3(): void {
-
-    if (
-      !this.expediente
-        ?.idExpediente
-    ) {
-
+    if (!this.expediente?.idExpediente) {
       return;
-
     }
 
-
-    if (
-      this.guardandoObservacion
-    ) {
-
+    if (this.guardandoObservacion) {
       return;
-
     }
-
 
     Swal.fire({
+      title: '¿Enviar a Inspectoría QRD Nivel 4?',
 
-      title:
-        '¿Enviar a Inspectoría QRD Nivel 4?',
-
-
-      html:
-        `
+      html: `
         <div style="
           color:#626d68;
           font-size:13px;
@@ -1470,387 +804,193 @@ export class VerCasoListadoQrd4Component
         </div>
         `,
 
+      icon: 'question',
 
-      icon:
-        'question',
+      showCancelButton: true,
 
+      confirmButtonText: 'SÍ, ENVIAR',
 
-      showCancelButton:
-        true,
+      cancelButtonText: 'CANCELAR',
 
+      confirmButtonColor: '#176b49',
 
-      confirmButtonText:
-        'SÍ, ENVIAR',
+      cancelButtonColor: '#8f9893',
 
+      reverseButtons: true,
 
-      cancelButtonText:
-        'CANCELAR',
+      allowOutsideClick: false,
+    }).then((resultado) => {
+      if (!resultado.isConfirmed) {
+        return;
+      }
 
+      /*
+       * Pasamos la observación actual
+       * junto con el expediente.
+       *
+       * El siguiente paso será conectar
+       * esto al endpoint backend que:
+       *
+       * 1. cambia NIVEL_ACTUAL 3 -> 2
+       * 2. pone ID_ESTADO = 2
+       * 3. conserva NIVEL_CREACION = 3
+       * 4. conserva NIVEL_DESTINO = NULL
+       * 5. crea EXP_EXPEDIENTE_MOVIMIENTO
+       */
 
-      confirmButtonColor:
-        '#176b49',
+      const expedienteEnviar = {
+        ...this.expediente,
 
+        observacionActual: this.observacionActual,
+      };
 
-      cancelButtonColor:
-        '#8f9893',
-
-
-      reverseButtons:
-        true,
-
-
-      allowOutsideClick:
-        false
-
-    })
-      .then(
-        resultado => {
-
-          if (
-            !resultado.isConfirmed
-          ) {
-
-            return;
-
-          }
-
-
-          /*
-           * Pasamos la observación actual
-           * junto con el expediente.
-           *
-           * El siguiente paso será conectar
-           * esto al endpoint backend que:
-           *
-           * 1. cambia NIVEL_ACTUAL 3 -> 2
-           * 2. pone ID_ESTADO = 2
-           * 3. conserva NIVEL_CREACION = 3
-           * 4. conserva NIVEL_DESTINO = NULL
-           * 5. crea EXP_EXPEDIENTE_MOVIMIENTO
-           */
-
-          const expedienteEnviar = {
-
-            ...this.expediente,
-
-            observacionActual:
-              this.observacionActual
-
-          };
-
-
-          this.enviarQr3.emit(
-            expedienteEnviar
-          );
-
-        }
-      );
-
+      this.enviarQr3.emit(expedienteEnviar);
+    });
   }
-
 
   // =========================================
   // CAMBIAR PESTAÑA
   // =========================================
 
-  cambiarPestana(
-    numero: number
-  ): void {
+  cambiarPestana(numero: number): void {
+    this.pestanaActiva = numero;
 
-    this.pestanaActiva =
-      numero;
-
-
-    if (
-      numero === 2 &&
-      !this.archivosCargados
-    ) {
-
+    if (numero === 2 && !this.archivosCargados) {
       this.cargarArchivos();
-
     }
-
   }
-
 
   // =========================================
   // CARGAR ARCHIVOS
   // =========================================
 
   cargarArchivos(): void {
-
-    if (
-      !this.expediente ||
-      !this.expediente.idExpediente
-    ) {
-
-      this.errorArchivos =
-        'No se encontró el ID del expediente.';
+    if (!this.expediente || !this.expediente.idExpediente) {
+      this.errorArchivos = 'No se encontró el ID del expediente.';
 
       return;
-
     }
 
+    this.cargandoArchivos = true;
 
-    this.cargandoArchivos =
-      true;
+    this.errorArchivos = '';
 
+    this.archivos = [];
 
-    this.errorArchivos =
-      '';
-
-
-    this.archivos =
-      [];
-
-
-    this.archivoSeleccionado =
-      null;
-
+    this.archivoSeleccionado = null;
 
     this.limpiarPdf();
 
-
     this.expedienteService
-      .listarArchivosExpediente(
-        this.expediente.idExpediente
-      )
+      .listarArchivosExpediente(this.expediente.idExpediente)
       .subscribe({
+        next: (respuesta: any[]) => {
+          this.archivos = respuesta || [];
 
-        next: (
-          respuesta: any[]
-        ) => {
+          this.archivosCargados = true;
 
-          this.archivos =
-            respuesta || [];
+          this.cargandoArchivos = false;
 
-
-          this.archivosCargados =
-            true;
-
-
-          this.cargandoArchivos =
-            false;
-
-
-          if (
-            this.archivos.length > 0
-          ) {
-
-            this.seleccionarArchivo(
-              this.archivos[0]
-            );
-
+          if (this.archivos.length > 0) {
+            this.seleccionarArchivo(this.archivos[0]);
           }
-
         },
 
+        error: (error) => {
+          console.error('ERROR ARCHIVOS QR4:', error);
 
-        error: (
-          error
-        ) => {
+          this.cargandoArchivos = false;
 
-          console.error(
-            'ERROR ARCHIVOS QR4:',
-            error
-          );
+          this.archivosCargados = false;
 
-
-          this.cargandoArchivos =
-            false;
-
-
-          this.archivosCargados =
-            false;
-
-
-          this.errorArchivos =
-            'No se pudieron cargar los documentos adjuntos.';
-
-        }
-
+          this.errorArchivos = 'No se pudieron cargar los documentos adjuntos.';
+        },
       });
-
   }
-
 
   // =========================================
   // SELECCIONAR PDF
   // =========================================
 
-  seleccionarArchivo(
-    archivo: any
-  ): void {
-
-    if (
-      !archivo ||
-      !archivo.idArchivo
-    ) {
-
+  seleccionarArchivo(archivo: any): void {
+    if (!archivo || !archivo.idArchivo) {
       return;
-
     }
 
-
-    this.archivoSeleccionado =
-      archivo;
-
+    this.archivoSeleccionado = archivo;
 
     this.limpiarPdf();
 
+    this.cargandoPdf = true;
 
-    this.cargandoPdf =
-      true;
+    this.errorArchivos = '';
 
+    this.expedienteService.verArchivo(archivo.idArchivo).subscribe({
+      next: (blob: Blob) => {
+        const pdfBlob = new Blob([blob], {
+          type: 'application/pdf',
+        });
 
-    this.errorArchivos =
-      '';
+        this.objectUrlActual = URL.createObjectURL(pdfBlob);
 
+        this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+          this.objectUrlActual,
+        );
 
-    this.expedienteService
-      .verArchivo(
-        archivo.idArchivo
-      )
-      .subscribe({
+        this.cargandoPdf = false;
+      },
 
-        next: (
-          blob: Blob
-        ) => {
+      error: (error) => {
+        console.error('ERROR PDF QR4:', error);
 
-          const pdfBlob =
-            new Blob(
-              [blob],
-              {
-                type:
-                  'application/pdf'
-              }
-            );
+        this.cargandoPdf = false;
 
+        this.pdfUrl = null;
 
-          this.objectUrlActual =
-            URL.createObjectURL(
-              pdfBlob
-            );
-
-
-          this.pdfUrl =
-            this.sanitizer
-              .bypassSecurityTrustResourceUrl(
-                this.objectUrlActual
-              );
-
-
-          this.cargandoPdf =
-            false;
-
-        },
-
-
-        error: (
-          error
-        ) => {
-
-          console.error(
-            'ERROR PDF QR4:',
-            error
-          );
-
-
-          this.cargandoPdf =
-            false;
-
-
-          this.pdfUrl =
-            null;
-
-
-          this.errorArchivos =
-            'No se pudo visualizar el documento PDF.';
-
-        }
-
-      });
-
+        this.errorArchivos = 'No se pudo visualizar el documento PDF.';
+      },
+    });
   }
-
 
   // =========================================
   // LIMPIAR PDF
   // =========================================
 
   private limpiarPdf(): void {
+    if (this.objectUrlActual) {
+      URL.revokeObjectURL(this.objectUrlActual);
 
-    if (
-      this.objectUrlActual
-    ) {
-
-      URL.revokeObjectURL(
-        this.objectUrlActual
-      );
-
-
-      this.objectUrlActual =
-        null;
-
+      this.objectUrlActual = null;
     }
 
-
-    this.pdfUrl =
-      null;
-
+    this.pdfUrl = null;
   }
-
 
   // =========================================
   // CERRAR
   // =========================================
 
   cerrarModal(): void {
-
     this.limpiarPdf();
 
-
-    if (
-      this.temporizadorObservacion
-    ) {
-
-      clearTimeout(
-        this.temporizadorObservacion
-      );
-
+    if (this.temporizadorObservacion) {
+      clearTimeout(this.temporizadorObservacion);
     }
 
+    this.archivos = [];
 
-    this.archivos =
-      [];
+    this.archivoSeleccionado = null;
 
+    this.archivosCargados = false;
 
-    this.archivoSeleccionado =
-      null;
+    this.cargandoArchivos = false;
 
+    this.cargandoPdf = false;
 
-    this.archivosCargados =
-      false;
+    this.errorArchivos = '';
 
-
-    this.cargandoArchivos =
-      false;
-
-
-    this.cargandoPdf =
-      false;
-
-
-    this.errorArchivos =
-      '';
-
-
-    this.pestanaActiva =
-      1;
-
+    this.pestanaActiva = 1;
 
     this.cerrar.emit();
-
   }
-
 }

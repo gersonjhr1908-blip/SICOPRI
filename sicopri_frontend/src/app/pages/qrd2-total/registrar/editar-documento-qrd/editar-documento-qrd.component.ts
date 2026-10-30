@@ -6,261 +6,206 @@ import {
   Input,
   OnChanges,
   Output,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 
-import {
-  FormsModule
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 
 import Swal from 'sweetalert2';
 
-import {
-  ExpedienteService
-} from '../../../../services/expediente.service';
+import { ExpedienteService } from '../../../../services/expediente.service';
 
 import {
   UsersService,
   Nucleo,
   Brigada,
-  Unidad
+  Unidad,
 } from '../../../../services/users.service';
-
 
 @Component({
   selector: 'app-editar-documento-qrd',
 
   standalone: true,
 
-  imports: [
-    CommonModule,
-    FormsModule
-  ],
+  imports: [CommonModule, FormsModule],
 
-  templateUrl:
-    './editar-documento-qrd.component.html',
+  templateUrl: './editar-documento-qrd.component.html',
 
-  styleUrl:
-    './editar-documento-qrd.component.css'
+  styleUrl: './editar-documento-qrd.component.css',
 })
-export class EditarDocumentoQrdComponent
-  implements OnChanges {
-
-
+export class EditarDocumentoQrdComponent implements OnChanges {
   // =========================================
   // EXPEDIENTE
   // =========================================
 
   @Input()
-  expediente: any =
-    null;
-
+  expediente: any = null;
 
   // =========================================
   // OUTPUTS
   // =========================================
 
   @Output()
-  cerrar =
-    new EventEmitter<void>();
-
+  cerrar = new EventEmitter<void>();
 
   @Output()
-  actualizado =
-    new EventEmitter<any>();
-
+  actualizado = new EventEmitter<any>();
 
   // =========================================
   // FORMULARIO
   // =========================================
 
   formulario: any = {
+    idExpediente: null,
 
-    idExpediente:
-      null,
+    idTipoExpediente: null,
 
-    idTipoExpediente:
-      null,
+    idTipoDocumento: null,
 
-    idTipoDocumento:
-      null,
+    otroTipoDocumento: '',
 
-    otroTipoDocumento:
-      '',
+    nroDocumento: '',
 
-    nroDocumento:
-      '',
+    fechaDocumento: '',
 
-    fechaDocumento:
-      '',
+    idTipificacion: null,
 
-    idTipificacion:
-      null,
+    idNucleo: null,
 
-    idNucleo:
-      null,
+    idBrigada: null,
 
-    idBrigada:
-      null,
+    idUnidad: null,
 
-    idUnidad:
-      null,
+    idNucleoIg: null,
 
-    idNucleoIg:
-      null,
+    idIg: null,
 
-    idIg:
-      null,
+    nivelDestino: null,
 
-    nivelDestino:
-      null,
+    asunto: '',
 
-    asunto:
-      '',
-
-    descripcion:
-      ''
-
+    descripcion: '',
   };
-
 
   // =========================================
   // CATÁLOGOS
   // =========================================
 
-  tiposExpediente: any[] =
-    [];
+  tiposExpediente: any[] = [];
 
-  tiposDocumento: any[] =
-    [];
+  tiposDocumento: any[] = [];
 
-  tipificaciones: any[] =
-    [];
-
+  tipificaciones: any[] = [];
 
   // =========================================
   // UBICACIÓN ORIGINAL
   // =========================================
 
-  nucleos: Nucleo[] =
-    [];
+  nucleos: Nucleo[] = [];
 
-  brigadas: Brigada[] =
-    [];
+  brigadas: Brigada[] = [];
 
-  unidades: Unidad[] =
-    [];
-
+  unidades: Unidad[] = [];
 
   // =========================================
   // UBICACIÓN IG
   // =========================================
 
-  nucleosIg: Nucleo[] =
-    [];
+  nucleosIg: Nucleo[] = [];
 
-  igs: Brigada[] =
-    [];
-
+  igs: Brigada[] = [];
 
   // =========================================
   // PDFs EXISTENTES
   // =========================================
 
-  archivosActuales: any[] =
-    [];
-
+  archivosActuales: any[] = [];
 
   // =========================================
   // PDFs NUEVOS
   // =========================================
 
-  archivosNuevos: File[] =
-    [];
-
+  archivosNuevos: File[] = [];
 
   // =========================================
   // ESTADOS
   // =========================================
 
-  guardando =
-    false;
+  guardando = false;
 
-  cargandoArchivos =
-    false;
+  cargandoArchivos = false;
 
-  eliminandoArchivo:
-    number | null =
-    null;
+  eliminandoArchivo: number | null = null;
 
-  error =
-    '';
+  error = '';
 
+  mostrarDatosPersona = false;
+
+  datosPersona = {
+    nombres: '',
+    apellidos: '',
+    ruc: '',
+    dni: '',
+    telefono: '',
+    domicilio: '',
+    correo: '',
+  };
+
+  get erroresPersona(): {
+    ruc: string;
+    dni: string;
+    correo: string;
+  } {
+    const ruc = this.datosPersona.ruc.trim();
+    const dni = this.datosPersona.dni.trim();
+    const correo = this.datosPersona.correo.trim();
+
+    return {
+      ruc: ruc && !/^\d{11}$/.test(ruc) ? 'Ingrese un RUC de 11 dígitos.' : '',
+      dni: dni && !/^\d{8}$/.test(dni) ? 'Ingrese un DNI de 8 dígitos.' : '',
+      correo:
+        correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)
+          ? 'Ingrese un correo válido.'
+          : '',
+    };
+  }
 
   // =========================================
   // CONSTRUCTOR
   // =========================================
 
   constructor(
+    private expedienteService: ExpedienteService,
 
-    private expedienteService:
-      ExpedienteService,
-
-    private usersService:
-      UsersService
-
+    private usersService: UsersService,
   ) {}
-
 
   // =========================================
   // CAMBIO DE EXPEDIENTE
   // =========================================
 
-  ngOnChanges(
-    changes: SimpleChanges
-  ): void {
-
-    if (
-      changes['expediente'] &&
-      this.expediente
-    ) {
-
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['expediente'] && this.expediente) {
       this.inicializarEdicion();
-
     }
-
   }
-
 
   // =========================================
   // INICIALIZAR
   // =========================================
 
   inicializarEdicion(): void {
+    this.error = '';
 
-    this.error =
-      '';
+    this.archivosNuevos = [];
 
+    this.brigadas = [];
 
-    this.archivosNuevos =
-      [];
+    this.unidades = [];
 
+    this.igs = [];
 
-    this.brigadas =
-      [];
-
-
-    this.unidades =
-      [];
-
-
-    this.igs =
-      [];
-
-
-    this.tipificaciones =
-      [];
-
+    this.tipificaciones = [];
 
     this.cargarFormulario();
 
@@ -269,669 +214,341 @@ export class EditarDocumentoQrdComponent
     this.cargarNucleos();
 
     this.cargarArchivosActuales();
-
   }
-
 
   // =========================================
   // CARGAR DATOS DEL EXPEDIENTE
   // =========================================
 
   cargarFormulario(): void {
+    const persona = this.expediente?.datosPersona;
 
+    this.datosPersona = {
+      nombres: persona?.nombres ?? '',
+      apellidos: persona?.apellidos ?? '',
+      ruc: persona?.ruc ?? '',
+      dni: persona?.dni ?? '',
+      telefono: persona?.telefono ?? '',
+      domicilio: persona?.domicilio ?? '',
+      correo: persona?.correo ?? '',
+    };
+
+    this.mostrarDatosPersona = Object.values(this.datosPersona).some(
+      (valor) => valor.trim() !== '',
+    );
     this.formulario = {
+      idExpediente: this.expediente?.idExpediente ?? null,
 
-      idExpediente:
-        this.expediente?.idExpediente ?? null,
+      idTipoExpediente: this.expediente?.idTipoExpediente ?? null,
 
+      idTipoDocumento: this.expediente?.idTipoDocumento ?? null,
 
-      idTipoExpediente:
-        this.expediente?.idTipoExpediente ?? null,
+      otroTipoDocumento: this.expediente?.otroTipoDocumento || '',
 
+      nroDocumento: this.expediente?.nroDocumento || '',
 
-      idTipoDocumento:
-        this.expediente?.idTipoDocumento ?? null,
+      fechaDocumento: this.expediente?.fechaDocumento || '',
 
+      idTipificacion: this.expediente?.idTipificacion ?? null,
 
-      otroTipoDocumento:
-        this.expediente?.otroTipoDocumento || '',
+      idNucleo: this.expediente?.idNucleo
+        ? String(this.expediente.idNucleo)
+        : null,
 
+      idBrigada: this.expediente?.idBrigada
+        ? String(this.expediente.idBrigada)
+        : null,
 
-      nroDocumento:
-        this.expediente?.nroDocumento || '',
-
-
-      fechaDocumento:
-        this.expediente?.fechaDocumento || '',
-
-
-      idTipificacion:
-        this.expediente?.idTipificacion ?? null,
-
-
-      idNucleo:
-        this.expediente?.idNucleo
-          ? String(
-              this.expediente.idNucleo
-            )
-          : null,
-
-
-      idBrigada:
-        this.expediente?.idBrigada
-          ? String(
-              this.expediente.idBrigada
-            )
-          : null,
-
-
-      idUnidad:
-        this.expediente?.idUnidad
-          ? String(
-              this.expediente.idUnidad
-            )
-          : null,
-
+      idUnidad: this.expediente?.idUnidad
+        ? String(this.expediente.idUnidad)
+        : null,
 
       idNucleoIg:
         this.expediente?.idNucleoIg !== null &&
         this.expediente?.idNucleoIg !== undefined
-          ? String(
-              this.expediente.idNucleoIg
-            )
+          ? String(this.expediente.idNucleoIg)
           : null,
 
-
-      idIg:
-        this.expediente?.idIg
-          ? String(
-              this.expediente.idIg
-            )
-          : null,
-
+      idIg: this.expediente?.idIg ? String(this.expediente.idIg) : null,
 
       nivelDestino:
         this.expediente?.nivelDestino !== null &&
         this.expediente?.nivelDestino !== undefined
-          ? Number(
-              this.expediente.nivelDestino
-            )
+          ? Number(this.expediente.nivelDestino)
           : null,
 
+      asunto: this.expediente?.asunto || '',
 
-      asunto:
-        this.expediente?.asunto || '',
-
-
-      descripcion:
-        this.expediente?.descripcion || ''
-
+      descripcion: this.expediente?.descripcion || '',
     };
-
   }
-
 
   // =========================================
   // CARGAR CATÁLOGOS
   // =========================================
 
   cargarCatalogos(): void {
-
-
     // =======================================
     // DENUNCIA / QUEJA / RECLAMO
     // =======================================
 
-    this.expedienteService
-      .getTiposExpediente()
-      .subscribe({
+    this.expedienteService.getTiposExpediente().subscribe({
+      next: (data) => {
+        // Integridad = 5
+        // no debe aparecer aquí.
 
-        next: (
-          data
-        ) => {
+        this.tiposExpediente = (data || []).filter(
+          (tipo: any) => Number(tipo.idTipoExpediente) !== 5,
+        );
 
-
-          // Integridad = 5
-          // no debe aparecer aquí.
-
-          this.tiposExpediente =
-            (data || [])
-              .filter(
-                (
-                  tipo: any
-                ) =>
-                  Number(
-                    tipo.idTipoExpediente
-                  ) !== 5
-              );
-
-
-          if (
-            this.formulario.idTipoExpediente
-          ) {
-
-            this.cargarTipificaciones();
-
-          }
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR TIPOS EXPEDIENTE:',
-            err
-          );
-
+        if (this.formulario.idTipoExpediente) {
+          this.cargarTipificaciones();
         }
+      },
 
-      });
-
+      error: (err) => {
+        console.error('ERROR TIPOS EXPEDIENTE:', err);
+      },
+    });
 
     // =======================================
     // TIPOS DE DOCUMENTO
     // =======================================
 
-    this.expedienteService
-      .getTiposDocumento()
-      .subscribe({
+    this.expedienteService.getTiposDocumento().subscribe({
+      next: (data) => {
+        this.tiposDocumento = data || [];
+      },
 
-        next: (
-          data
-        ) => {
-
-          this.tiposDocumento =
-            data || [];
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR TIPOS DOCUMENTO:',
-            err
-          );
-
-        }
-
-      });
-
+      error: (err) => {
+        console.error('ERROR TIPOS DOCUMENTO:', err);
+      },
+    });
   }
-
 
   // =========================================
   // TIPIFICACIONES
   // =========================================
 
   cargarTipificaciones(): void {
-
-    if (
-      !this.formulario.idTipoExpediente
-    ) {
-
-      this.tipificaciones =
-        [];
+    if (!this.formulario.idTipoExpediente) {
+      this.tipificaciones = [];
 
       return;
-
     }
 
-
     this.expedienteService
-      .getTipificaciones(
-        Number(
-          this.formulario.idTipoExpediente
-        )
-      )
+      .getTipificaciones(Number(this.formulario.idTipoExpediente))
       .subscribe({
-
-        next: (
-          data
-        ) => {
-
-          this.tipificaciones =
-            data || [];
-
+        next: (data) => {
+          this.tipificaciones = data || [];
         },
 
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR TIPIFICACIONES:',
-            err
-          );
-
-        }
-
+        error: (err) => {
+          console.error('ERROR TIPIFICACIONES:', err);
+        },
       });
-
   }
-
 
   // =========================================
   // CAMBIAR CATEGORÍA
   // =========================================
 
   cambiarTipoExpediente(): void {
+    this.formulario.idTipificacion = null;
 
-    this.formulario.idTipificacion =
-      null;
-
-
-    this.tipificaciones =
-      [];
-
+    this.tipificaciones = [];
 
     this.cargarTipificaciones();
-
   }
-
 
   // =========================================
   // TIPO DOCUMENTO = OTROS
   // =========================================
 
   esTipoDocumentoOtros(): boolean {
-
-    if (
-      !this.formulario.idTipoDocumento
-    ) {
-
+    if (!this.formulario.idTipoDocumento) {
       return false;
-
     }
 
+    const tipo = this.tiposDocumento.find(
+      (item: any) =>
+        Number(item.idTipoDocumento) ===
+        Number(this.formulario.idTipoDocumento),
+    );
 
-    const tipo =
-      this.tiposDocumento.find(
-        (
-          item: any
-        ) =>
-          Number(
-            item.idTipoDocumento
-          ) ===
-          Number(
-            this.formulario.idTipoDocumento
-          )
-      );
+    const nombre = String(tipo?.nombre || '')
+      .trim()
+      .toUpperCase();
 
-
-    const nombre =
-      String(
-        tipo?.nombre || ''
-      )
-        .trim()
-        .toUpperCase();
-
-
-    return nombre ===
-      'OTROS';
-
+    return nombre === 'OTROS';
   }
-
 
   // =========================================
   // CAMBIO TIPO DOCUMENTO
   // =========================================
 
   cambiarTipoDocumento(): void {
-
-    if (
-      !this.esTipoDocumentoOtros()
-    ) {
-
-      this.formulario.otroTipoDocumento =
-        '';
-
+    if (!this.esTipoDocumentoOtros()) {
+      this.formulario.otroTipoDocumento = '';
     }
-
   }
-
 
   // =========================================
   // CARGAR NÚCLEOS
   // =========================================
 
   cargarNucleos(): void {
+    this.usersService.getNucleos().subscribe({
+      next: (data) => {
+        this.nucleos = data || [];
 
-    this.usersService
-      .getNucleos()
-      .subscribe({
+        // Mismo catálogo base,
+        // pero manejado como selector
+        // independiente para IG.
 
-        next: (
-          data
-        ) => {
+        this.nucleosIg = data || [];
 
+        // ===================================
+        // PRECARGAR UBICACIÓN ORIGINAL
+        // ===================================
 
-          this.nucleos =
-            data || [];
-
-
-          // Mismo catálogo base,
-          // pero manejado como selector
-          // independiente para IG.
-
-          this.nucleosIg =
-            data || [];
-
-
-          // ===================================
-          // PRECARGAR UBICACIÓN ORIGINAL
-          // ===================================
-
-          if (
-            this.formulario.idNucleo
-          ) {
-
-            this.cargarBrigadasIniciales();
-
-          }
-
-
-          // ===================================
-          // PRECARGAR IG
-          // ===================================
-
-          if (
-            this.formulario.idNucleoIg
-          ) {
-
-            this.cargarIgsIniciales();
-
-          }
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR AL CARGAR NÚCLEOS:',
-            err
-          );
-
+        if (this.formulario.idNucleo) {
+          this.cargarBrigadasIniciales();
         }
 
-      });
+        // ===================================
+        // PRECARGAR IG
+        // ===================================
 
+        if (this.formulario.idNucleoIg) {
+          this.cargarIgsIniciales();
+        }
+      },
+
+      error: (err) => {
+        console.error('ERROR AL CARGAR NÚCLEOS:', err);
+      },
+    });
   }
-
 
   // =========================================
   // PRECARGAR BRIGADAS
   // =========================================
 
   cargarBrigadasIniciales(): void {
+    const idNucleoActual = this.formulario.idNucleo;
 
-    const idNucleoActual =
-      this.formulario.idNucleo;
+    const idBrigadaActual = this.formulario.idBrigada;
 
-
-    const idBrigadaActual =
-      this.formulario.idBrigada;
-
-
-    if (
-      !idNucleoActual
-    ) {
-
+    if (!idNucleoActual) {
       return;
-
     }
 
+    this.usersService.getBrigadas(String(idNucleoActual)).subscribe({
+      next: (data) => {
+        this.brigadas = data || [];
 
-    this.usersService
-      .getBrigadas(
-        String(
-          idNucleoActual
-        )
-      )
-      .subscribe({
+        this.formulario.idBrigada = idBrigadaActual;
 
-        next: (
-          data
-        ) => {
-
-
-          this.brigadas =
-            data || [];
-
-
-          this.formulario.idBrigada =
-            idBrigadaActual;
-
-
-          if (
-            this.formulario.idBrigada
-          ) {
-
-            this.cargarUnidadesIniciales();
-
-          }
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR BRIGADAS INICIALES:',
-            err
-          );
-
+        if (this.formulario.idBrigada) {
+          this.cargarUnidadesIniciales();
         }
+      },
 
-      });
-
+      error: (err) => {
+        console.error('ERROR BRIGADAS INICIALES:', err);
+      },
+    });
   }
-
 
   // =========================================
   // PRECARGAR UNIDADES
   // =========================================
 
   cargarUnidadesIniciales(): void {
+    const idUnidadActual = this.formulario.idUnidad;
 
-    const idUnidadActual =
-      this.formulario.idUnidad;
-
-
-    if (
-      !this.formulario.idNucleo ||
-      !this.formulario.idBrigada
-    ) {
-
+    if (!this.formulario.idNucleo || !this.formulario.idBrigada) {
       return;
-
     }
-
 
     this.usersService
       .getUnidades(
+        String(this.formulario.idNucleo),
 
-        String(
-          this.formulario.idNucleo
-        ),
-
-        String(
-          this.formulario.idBrigada
-        )
-
+        String(this.formulario.idBrigada),
       )
       .subscribe({
+        next: (data) => {
+          this.unidades = data || [];
 
-        next: (
-          data
-        ) => {
-
-
-          this.unidades =
-            data || [];
-
-
-          this.formulario.idUnidad =
-            idUnidadActual;
-
+          this.formulario.idUnidad = idUnidadActual;
         },
 
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR UNIDADES INICIALES:',
-            err
-          );
-
-        }
-
+        error: (err) => {
+          console.error('ERROR UNIDADES INICIALES:', err);
+        },
       });
-
   }
-
 
   // =========================================
   // CAMBIAR NÚCLEO
   // =========================================
 
   cambiarNucleo(): void {
+    this.formulario.idBrigada = null;
 
-    this.formulario.idBrigada =
-      null;
+    this.formulario.idUnidad = null;
 
+    this.brigadas = [];
 
-    this.formulario.idUnidad =
-      null;
+    this.unidades = [];
 
-
-    this.brigadas =
-      [];
-
-
-    this.unidades =
-      [];
-
-
-    if (
-      !this.formulario.idNucleo
-    ) {
-
+    if (!this.formulario.idNucleo) {
       return;
-
     }
 
+    this.usersService.getBrigadas(String(this.formulario.idNucleo)).subscribe({
+      next: (data) => {
+        this.brigadas = data || [];
+      },
 
-    this.usersService
-      .getBrigadas(
-        String(
-          this.formulario.idNucleo
-        )
-      )
-      .subscribe({
-
-        next: (
-          data
-        ) => {
-
-          this.brigadas =
-            data || [];
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR GRANDES UNIDADES:',
-            err
-          );
-
-        }
-
-      });
-
+      error: (err) => {
+        console.error('ERROR GRANDES UNIDADES:', err);
+      },
+    });
   }
-
 
   // =========================================
   // CAMBIAR GRAN UNIDAD
   // =========================================
 
   cambiarBrigada(): void {
+    this.formulario.idUnidad = null;
 
-    this.formulario.idUnidad =
-      null;
+    this.unidades = [];
 
-
-    this.unidades =
-      [];
-
-
-    if (
-      !this.formulario.idNucleo ||
-      !this.formulario.idBrigada
-    ) {
-
+    if (!this.formulario.idNucleo || !this.formulario.idBrigada) {
       return;
-
     }
-
 
     this.usersService
       .getUnidades(
+        String(this.formulario.idNucleo),
 
-        String(
-          this.formulario.idNucleo
-        ),
-
-        String(
-          this.formulario.idBrigada
-        )
-
+        String(this.formulario.idBrigada),
       )
       .subscribe({
-
-        next: (
-          data
-        ) => {
-
-          this.unidades =
-            data || [];
-
+        next: (data) => {
+          this.unidades = data || [];
         },
 
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR UNIDADES:',
-            err
-          );
-
-        }
-
+        error: (err) => {
+          console.error('ERROR UNIDADES:', err);
+        },
       });
-
   }
-
 
   // =========================================
   // CAMBIAR UNIDAD
@@ -943,31 +560,19 @@ export class EditarDocumentoQrdComponent
   // =========================================
 
   cambiarUnidad(): void {
+    const unidadSeleccionada = this.obtenerUnidadSeleccionada();
 
-    const unidadSeleccionada =
-      this.obtenerUnidadSeleccionada();
-
-
-    if (
-      !unidadSeleccionada
-    ) {
-
+    if (!unidadSeleccionada) {
       return;
-
     }
-
 
     // =======================================
     // NÚCLEO IG
     // =======================================
 
-    this.formulario.idNucleoIg =
-      unidadSeleccionada.idNucleo
-        ? String(
-            unidadSeleccionada.idNucleo
-          )
-        : null;
-
+    this.formulario.idNucleoIg = unidadSeleccionada.idNucleo
+      ? String(unidadSeleccionada.idNucleo)
+      : null;
 
     // =======================================
     // IG
@@ -975,94 +580,46 @@ export class EditarDocumentoQrdComponent
     // Guardamos IDBRIGADA.
     // =======================================
 
-    const idIgAutomatico =
-      unidadSeleccionada.idBrigada
-        ? String(
-            unidadSeleccionada.idBrigada
-          )
-        : null;
+    const idIgAutomatico = unidadSeleccionada.idBrigada
+      ? String(unidadSeleccionada.idBrigada)
+      : null;
 
+    this.formulario.idIg = null;
 
-    this.formulario.idIg =
-      null;
+    this.igs = [];
 
-
-    this.igs =
-      [];
-
-
-    if (
-      !this.formulario.idNucleoIg
-    ) {
-
+    if (!this.formulario.idNucleoIg) {
       return;
-
     }
 
-
     this.usersService
-      .getBrigadas(
-        String(
-          this.formulario.idNucleoIg
-        )
-      )
+      .getBrigadas(String(this.formulario.idNucleoIg))
       .subscribe({
-
-        next: (
-          data
-        ) => {
-
-
-          this.igs =
-            data || [];
-
+        next: (data) => {
+          this.igs = data || [];
 
           // Selecciona automáticamente
           // la brigada de la unidad.
 
-          this.formulario.idIg =
-            idIgAutomatico;
-
+          this.formulario.idIg = idIgAutomatico;
         },
 
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR AUTOCOMPLETANDO IG:',
-            err
-          );
-
-        }
-
+        error: (err) => {
+          console.error('ERROR AUTOCOMPLETANDO IG:', err);
+        },
       });
-
   }
-
 
   // =========================================
   // OBTENER UNIDAD SELECCIONADA
   // =========================================
 
-  obtenerUnidadSeleccionada():
-    Unidad | undefined {
-
+  obtenerUnidadSeleccionada(): Unidad | undefined {
     return this.unidades.find(
-      (
-        unidad: Unidad
-      ) =>
-        String(
-          unidad.idUnidad
-        ) ===
-        String(
-          this.formulario.idUnidad
-        )
+      (unidad: Unidad) =>
+        String(unidad.idUnidad) === String(this.formulario.idUnidad),
     );
-
   }
-
 
   // =========================================
   // NOMBRE VISUAL NÚCLEO IG
@@ -1071,336 +628,155 @@ export class EditarDocumentoQrdComponent
   // V DIVISION DE EJERCITO - IQUITOS
   // =========================================
 
-  obtenerNombreNucleoIg(
-    nucleo: Nucleo
-  ): string {
+  obtenerNombreNucleoIg(nucleo: Nucleo): string {
+    const nombre = nucleo?.nombre || '-';
 
-    const nombre =
-      nucleo?.nombre || '-';
-
-
-    const unidad =
-      this.obtenerUnidadSeleccionada();
-
+    const unidad = this.obtenerUnidadSeleccionada();
 
     if (
       unidad &&
-      String(
-        unidad.idNucleo
-      ) ===
-      String(
-        nucleo.idNucleo
-      ) &&
+      String(unidad.idNucleo) === String(nucleo.idNucleo) &&
       unidad.guarnicion
     ) {
-
-      return (
-        nombre +
-        ' - ' +
-        String(
-          unidad.guarnicion
-        ).trim()
-      );
-
+      return nombre + ' - ' + String(unidad.guarnicion).trim();
     }
 
-
     return nombre;
-
   }
-
 
   // =========================================
   // PRECARGAR IG EXISTENTE
   // =========================================
 
   cargarIgsIniciales(): void {
+    const idIgActual = this.formulario.idIg;
 
-    const idIgActual =
-      this.formulario.idIg;
-
-
-    if (
-      !this.formulario.idNucleoIg
-    ) {
-
-      this.igs =
-        [];
+    if (!this.formulario.idNucleoIg) {
+      this.igs = [];
 
       return;
-
     }
 
-
     this.usersService
-      .getBrigadas(
-        String(
-          this.formulario.idNucleoIg
-        )
-      )
+      .getBrigadas(String(this.formulario.idNucleoIg))
       .subscribe({
+        next: (data) => {
+          this.igs = data || [];
 
-        next: (
-          data
-        ) => {
-
-
-          this.igs =
-            data || [];
-
-
-          this.formulario.idIg =
-            idIgActual;
-
+          this.formulario.idIg = idIgActual;
         },
 
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR CARGANDO IG:',
-            err
-          );
-
-        }
-
+        error: (err) => {
+          console.error('ERROR CARGANDO IG:', err);
+        },
       });
-
   }
-
 
   // =========================================
   // CAMBIAR NÚCLEO IG MANUALMENTE
   // =========================================
 
   cambiarNucleoIg(): void {
+    this.formulario.idIg = null;
 
-    this.formulario.idIg =
-      null;
+    this.igs = [];
 
-
-    this.igs =
-      [];
-
-
-    if (
-      !this.formulario.idNucleoIg
-    ) {
-
+    if (!this.formulario.idNucleoIg) {
       return;
-
     }
 
-
     this.usersService
-      .getBrigadas(
-        String(
-          this.formulario.idNucleoIg
-        )
-      )
+      .getBrigadas(String(this.formulario.idNucleoIg))
       .subscribe({
-
-        next: (
-          data
-        ) => {
-
-          this.igs =
-            data || [];
-
+        next: (data) => {
+          this.igs = data || [];
         },
 
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR FILTRANDO IG:',
-            err
-          );
-
-        }
-
+        error: (err) => {
+          console.error('ERROR FILTRANDO IG:', err);
+        },
       });
-
   }
-
 
   // =========================================
   // CARGAR PDFs
   // =========================================
 
   cargarArchivosActuales(): void {
-
-    if (
-      !this.expediente?.idExpediente
-    ) {
-
-      this.archivosActuales =
-        [];
+    if (!this.expediente?.idExpediente) {
+      this.archivosActuales = [];
 
       return;
-
     }
 
-
-    this.cargandoArchivos =
-      true;
-
+    this.cargandoArchivos = true;
 
     this.expedienteService
-      .listarArchivosExpediente(
-        this.expediente.idExpediente
-      )
+      .listarArchivosExpediente(this.expediente.idExpediente)
       .subscribe({
+        next: (data) => {
+          this.archivosActuales = data || [];
 
-        next: (
-          data
-        ) => {
-
-
-          this.archivosActuales =
-            data || [];
-
-
-          this.cargandoArchivos =
-            false;
-
+          this.cargandoArchivos = false;
         },
 
+        error: (err) => {
+          console.error('ERROR AL CARGAR PDFs:', err);
 
-        error: (
-          err
-        ) => {
+          this.archivosActuales = [];
 
+          this.cargandoArchivos = false;
 
-          console.error(
-            'ERROR AL CARGAR PDFs:',
-            err
-          );
-
-
-          this.archivosActuales =
-            [];
-
-
-          this.cargandoArchivos =
-            false;
-
-
-          this.error =
-            'No se pudieron cargar los documentos adjuntos.';
-
-        }
-
+          this.error = 'No se pudieron cargar los documentos adjuntos.';
+        },
       });
-
   }
-
 
   // =========================================
   // VER PDF
   // =========================================
 
-  verPdf(
-    archivo: any
-  ): void {
-
-    if (
-      !archivo?.idArchivo
-    ) {
-
+  verPdf(archivo: any): void {
+    if (!archivo?.idArchivo) {
       return;
-
     }
 
+    this.expedienteService.verArchivo(archivo.idArchivo).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
 
-    this.expedienteService
-      .verArchivo(
-        archivo.idArchivo
-      )
-      .subscribe({
+        window.open(url, '_blank');
 
-        next: (
-          blob
-        ) => {
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 60000);
+      },
 
+      error: (err) => {
+        console.error('ERROR AL ABRIR PDF:', err);
 
-          const url =
-            URL.createObjectURL(
-              blob
-            );
-
-
-          window.open(
-            url,
-            '_blank'
-          );
-
-
-          setTimeout(
-            () => {
-
-              URL.revokeObjectURL(
-                url
-              );
-
-            },
-            60000
-          );
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-
-          console.error(
-            'ERROR AL ABRIR PDF:',
-            err
-          );
-
-
-          this.error =
-            'No se pudo abrir el PDF.';
-
-        }
-
-      });
-
+        this.error = 'No se pudo abrir el PDF.';
+      },
+    });
   }
-
 
   // =========================================
   // ELIMINAR PDF
   // =========================================
 
-  eliminarPdf(
-    archivo: any
-  ): void {
-
+  eliminarPdf(archivo: any): void {
     if (
       !archivo?.idArchivo ||
       this.guardando ||
       this.eliminandoArchivo !== null
     ) {
-
       return;
-
     }
 
-
     Swal.fire({
+      title: '¿Eliminar documento?',
 
-      title:
-        '¿Eliminar documento?',
-
-      html:
-        `
+      html: `
         Se eliminará el archivo
         <br><br>
         <strong>
@@ -1408,680 +784,364 @@ export class EditarDocumentoQrdComponent
         </strong>
         `,
 
-      icon:
-        'warning',
+      icon: 'warning',
 
-      showCancelButton:
-        true,
+      showCancelButton: true,
 
-      confirmButtonText:
-        'SÍ, ELIMINAR',
+      confirmButtonText: 'SÍ, ELIMINAR',
 
-      cancelButtonText:
-        'CANCELAR',
+      cancelButtonText: 'CANCELAR',
 
-      confirmButtonColor:
-        '#176b49',
+      confirmButtonColor: '#176b49',
 
-      cancelButtonColor:
-        '#8f9893',
+      cancelButtonColor: '#8f9893',
 
-      reverseButtons:
-        true,
+      reverseButtons: true,
 
-      allowOutsideClick:
-        false
+      allowOutsideClick: false,
+    }).then((resultado) => {
+      if (!resultado.isConfirmed) {
+        return;
+      }
 
-    })
-      .then(
-        resultado => {
+      this.error = '';
 
+      this.eliminandoArchivo = archivo.idArchivo;
 
-          if (
-            !resultado.isConfirmed
-          ) {
+      this.expedienteService
+        .eliminarArchivoExpediente(archivo.idArchivo)
+        .subscribe({
+          next: () => {
+            this.eliminandoArchivo = null;
 
-            return;
+            this.cargarArchivosActuales();
 
-          }
+            Swal.fire({
+              title: 'Documento eliminado',
 
+              text: 'El archivo PDF fue eliminado correctamente.',
 
-          this.error =
-            '';
+              icon: 'success',
 
+              confirmButtonText: 'OK',
 
-          this.eliminandoArchivo =
-            archivo.idArchivo;
-
-
-          this.expedienteService
-            .eliminarArchivoExpediente(
-              archivo.idArchivo
-            )
-            .subscribe({
-
-              next: () => {
-
-
-                this.eliminandoArchivo =
-                  null;
-
-
-                this.cargarArchivosActuales();
-
-
-                Swal.fire({
-
-                  title:
-                    'Documento eliminado',
-
-                  text:
-                    'El archivo PDF fue eliminado correctamente.',
-
-                  icon:
-                    'success',
-
-                  confirmButtonText:
-                    'OK',
-
-                  confirmButtonColor:
-                    '#176b49'
-
-                });
-
-              },
-
-
-              error: (
-                err
-              ) => {
-
-
-                console.error(
-                  'ERROR AL ELIMINAR PDF:',
-                  err
-                );
-
-
-                this.eliminandoArchivo =
-                  null;
-
-
-                Swal.fire({
-
-                  title:
-                    'No se pudo eliminar',
-
-                  text:
-                    'Ocurrió un error al eliminar el documento PDF.',
-
-                  icon:
-                    'error',
-
-                  confirmButtonText:
-                    'OK',
-
-                  confirmButtonColor:
-                    '#176b49'
-
-                });
-
-              }
-
+              confirmButtonColor: '#176b49',
             });
+          },
 
-        }
-      );
+          error: (err) => {
+            console.error('ERROR AL ELIMINAR PDF:', err);
 
+            this.eliminandoArchivo = null;
+
+            Swal.fire({
+              title: 'No se pudo eliminar',
+
+              text: 'Ocurrió un error al eliminar el documento PDF.',
+
+              icon: 'error',
+
+              confirmButtonText: 'OK',
+
+              confirmButtonColor: '#176b49',
+            });
+          },
+        });
+    });
   }
-
 
   // =========================================
   // SELECCIONAR NUEVOS PDFs
   // =========================================
 
-  seleccionarArchivos(
-    event: Event
-  ): void {
+  seleccionarArchivos(event: Event): void {
+    const input = event.target as HTMLInputElement;
 
-    const input =
-      event.target as HTMLInputElement;
-
-
-    if (
-      !input.files
-    ) {
-
+    if (!input.files) {
       return;
-
     }
 
-
-    const seleccionados =
-      Array.from(
-        input.files
-      );
-
+    const seleccionados = Array.from(input.files);
 
     // =======================================
     // MÁXIMO 5 EN TOTAL
     // =======================================
 
     const totalFinal =
-
-      this.archivosActuales.length
-      +
-      this.archivosNuevos.length
-      +
+      this.archivosActuales.length +
+      this.archivosNuevos.length +
       seleccionados.length;
 
+    if (totalFinal > 5) {
+      this.error = `Solo puede tener 5 PDFs en total. Actualmente tiene ${this.archivosActuales.length + this.archivosNuevos.length}.`;
 
-    if (
-      totalFinal > 5
-    ) {
-
-      this.error =
-        `Solo puede tener 5 PDFs en total. Actualmente tiene ${this.archivosActuales.length + this.archivosNuevos.length}.`;
-
-
-      input.value =
-        '';
-
+      input.value = '';
 
       return;
-
     }
-
 
     // =======================================
     // SOLO PDF
     // =======================================
 
-    const invalido =
-      seleccionados.some(
-        (
-          archivo: File
-        ) =>
+    const invalido = seleccionados.some(
+      (archivo: File) =>
+        archivo.type !== 'application/pdf' ||
+        !archivo.name.toLowerCase().endsWith('.pdf'),
+    );
 
-          archivo.type !==
-            'application/pdf'
+    if (invalido) {
+      this.error = 'Solo se permiten archivos PDF.';
 
-          ||
-
-          !archivo.name
-            .toLowerCase()
-            .endsWith(
-              '.pdf'
-            )
-      );
-
-
-    if (
-      invalido
-    ) {
-
-      this.error =
-        'Solo se permiten archivos PDF.';
-
-
-      input.value =
-        '';
-
+      input.value = '';
 
       return;
-
     }
-
 
     // =======================================
     // 10 MB
     // =======================================
 
-    const maxTamano =
-      10 *
-      1024 *
-      1024;
+    const maxTamano = 10 * 1024 * 1024;
 
+    const demasiadoGrande = seleccionados.some(
+      (archivo: File) => archivo.size > maxTamano,
+    );
 
-    const demasiadoGrande =
-      seleccionados.some(
-        (
-          archivo: File
-        ) =>
-          archivo.size >
-          maxTamano
-      );
+    if (demasiadoGrande) {
+      this.error = 'Cada archivo PDF debe pesar como máximo 10 MB.';
 
-
-    if (
-      demasiadoGrande
-    ) {
-
-      this.error =
-        'Cada archivo PDF debe pesar como máximo 10 MB.';
-
-
-      input.value =
-        '';
-
+      input.value = '';
 
       return;
-
     }
 
+    this.error = '';
 
-    this.error =
-      '';
+    this.archivosNuevos = [...this.archivosNuevos, ...seleccionados];
 
-
-    this.archivosNuevos = [
-
-      ...this.archivosNuevos,
-
-      ...seleccionados
-
-    ];
-
-
-    input.value =
-      '';
-
+    input.value = '';
   }
-
 
   // =========================================
   // QUITAR PDF NUEVO
   // =========================================
 
-  quitarArchivoNuevo(
-    index: number
-  ): void {
-
-    this.archivosNuevos =
-      this.archivosNuevos.filter(
-        (
-          _archivo,
-          i
-        ) =>
-          i !== index
-      );
-
+  quitarArchivoNuevo(index: number): void {
+    this.archivosNuevos = this.archivosNuevos.filter(
+      (_archivo, i) => i !== index,
+    );
   }
-
 
   // =========================================
   // VALIDAR
   // =========================================
 
   validarFormulario(): boolean {
+    const erroresPersona = this.erroresPersona;
 
-
-    if (
-      !this.formulario.idTipoExpediente
-    ) {
-
-      this.error =
-        'Seleccione una categoría.';
-
-      return false;
-
-    }
-
-
-    if (
-      !this.formulario.idTipoDocumento
-    ) {
+    if (erroresPersona.ruc || erroresPersona.dni || erroresPersona.correo) {
+      this.mostrarDatosPersona = true;
 
       this.error =
-        'Seleccione el tipo de documento.';
+        erroresPersona.ruc || erroresPersona.dni || erroresPersona.correo;
 
       return false;
-
     }
 
+    if (!this.formulario.idTipoExpediente) {
+      this.error = 'Seleccione una categoría.';
+
+      return false;
+    }
+
+    if (!this.formulario.idTipoDocumento) {
+      this.error = 'Seleccione el tipo de documento.';
+
+      return false;
+    }
 
     if (
       this.esTipoDocumentoOtros() &&
-      !String(
-        this.formulario.otroTipoDocumento || ''
-      ).trim()
+      !String(this.formulario.otroTipoDocumento || '').trim()
     ) {
-
-      this.error =
-        'Especifique el tipo de documento.';
+      this.error = 'Especifique el tipo de documento.';
 
       return false;
-
     }
 
+    if (!String(this.formulario.nroDocumento || '').trim()) {
+      this.error = 'Ingrese el número de documento.';
+
+      return false;
+    }
+
+    if (!this.formulario.fechaDocumento) {
+      this.error = 'Seleccione la fecha.';
+
+      return false;
+    }
+
+    if (!this.formulario.idTipificacion) {
+      this.error = 'Seleccione una tipificación.';
+
+      return false;
+    }
+
+    if (!this.formulario.idNucleo) {
+      this.error = 'Seleccione un núcleo.';
+
+      return false;
+    }
+
+    if (!this.formulario.idBrigada) {
+      this.error = 'Seleccione una gran unidad.';
+
+      return false;
+    }
+
+    if (!this.formulario.idUnidad) {
+      this.error = 'Seleccione una unidad.';
+
+      return false;
+    }
+
+    if (!this.formulario.idNucleoIg) {
+      this.error = 'Seleccione un Núcleo IG.';
+
+      return false;
+    }
+
+    if (!this.formulario.idIg) {
+      this.error = 'Seleccione una IG.';
+
+      return false;
+    }
 
     if (
-      !String(
-        this.formulario.nroDocumento || ''
-      ).trim()
+      Number(this.formulario.nivelDestino) !== 3 &&
+      Number(this.formulario.nivelDestino) !== 4
     ) {
-
-      this.error =
-        'Ingrese el número de documento.';
+      this.error = 'Seleccione un destino.';
 
       return false;
-
     }
 
-
-    if (
-      !this.formulario.fechaDocumento
-    ) {
-
-      this.error =
-        'Seleccione la fecha.';
+    if (!String(this.formulario.asunto || '').trim()) {
+      this.error = 'Ingrese el asunto.';
 
       return false;
-
     }
 
-
-    if (
-      !this.formulario.idTipificacion
-    ) {
-
-      this.error =
-        'Seleccione una tipificación.';
+    if (!String(this.formulario.descripcion || '').trim()) {
+      this.error = 'Ingrese la descripción.';
 
       return false;
-
     }
 
-
-    if (
-      !this.formulario.idNucleo
-    ) {
-
-      this.error =
-        'Seleccione un núcleo.';
+    if (this.archivosActuales.length + this.archivosNuevos.length > 5) {
+      this.error = 'El expediente solo puede tener máximo 5 archivos PDF.';
 
       return false;
-
     }
 
-
-    if (
-      !this.formulario.idBrigada
-    ) {
-
-      this.error =
-        'Seleccione una gran unidad.';
-
-      return false;
-
-    }
-
-
-    if (
-      !this.formulario.idUnidad
-    ) {
-
-      this.error =
-        'Seleccione una unidad.';
-
-      return false;
-
-    }
-
-
-    if (
-      !this.formulario.idNucleoIg
-    ) {
-
-      this.error =
-        'Seleccione un Núcleo IG.';
-
-      return false;
-
-    }
-
-
-    if (
-      !this.formulario.idIg
-    ) {
-
-      this.error =
-        'Seleccione una IG.';
-
-      return false;
-
-    }
-
-
-    if (
-      Number(
-        this.formulario.nivelDestino
-      ) !== 3
-      &&
-      Number(
-        this.formulario.nivelDestino
-      ) !== 4
-    ) {
-
-      this.error =
-        'Seleccione un destino.';
-
-      return false;
-
-    }
-
-
-    if (
-      !String(
-        this.formulario.asunto || ''
-      ).trim()
-    ) {
-
-      this.error =
-        'Ingrese el asunto.';
-
-      return false;
-
-    }
-
-
-    if (
-      !String(
-        this.formulario.descripcion || ''
-      ).trim()
-    ) {
-
-      this.error =
-        'Ingrese la descripción.';
-
-      return false;
-
-    }
-
-
-    if (
-      this.archivosActuales.length +
-      this.archivosNuevos.length >
-      5
-    ) {
-
-      this.error =
-        'El expediente solo puede tener máximo 5 archivos PDF.';
-
-      return false;
-
-    }
-
-
-    this.error =
-      '';
-
+    this.error = '';
 
     return true;
-
   }
-
 
   // =========================================
   // GUARDAR
   // =========================================
 
   guardarCambios(): void {
-
-    if (
-      !this.expediente?.idExpediente
-    ) {
-
+    if (!this.expediente?.idExpediente) {
       return;
-
     }
 
-
-    if (
-      this.guardando
-    ) {
-
+    if (this.guardando) {
       return;
-
     }
 
-
-    if (
-      !this.validarFormulario()
-    ) {
-
+    if (!this.validarFormulario()) {
       return;
-
     }
-
 
     const datosActualizar = {
-
-
+      datosPersona: {
+        nombres: this.datosPersona.nombres.trim(),
+        apellidos: this.datosPersona.apellidos.trim(),
+        ruc: this.datosPersona.ruc.trim(),
+        dni: this.datosPersona.dni.trim(),
+        telefono: this.datosPersona.telefono.trim(),
+        domicilio: this.datosPersona.domicilio.trim(),
+        correo: this.datosPersona.correo.trim(),
+      },
       // =====================================
       // CATEGORÍA QRD
       // =====================================
 
-      idTipoExpediente:
-        Number(
-          this.formulario.idTipoExpediente
-        ),
-
+      idTipoExpediente: Number(this.formulario.idTipoExpediente),
 
       // =====================================
       // TIPO DOCUMENTO
       // =====================================
 
-      idTipoDocumento:
-        Number(
-          this.formulario.idTipoDocumento
-        ),
+      idTipoDocumento: Number(this.formulario.idTipoDocumento),
 
-
-      otroTipoDocumento:
-        this.esTipoDocumentoOtros()
-          ? String(
-              this.formulario.otroTipoDocumento
-            ).trim()
-          : null,
-
+      otroTipoDocumento: this.esTipoDocumentoOtros()
+        ? String(this.formulario.otroTipoDocumento).trim()
+        : null,
 
       // =====================================
       // DOCUMENTO
       // =====================================
 
-      nroDocumento:
-        String(
-          this.formulario.nroDocumento
-        ).trim(),
+      nroDocumento: String(this.formulario.nroDocumento).trim(),
 
+      fechaDocumento: this.formulario.fechaDocumento,
 
-      fechaDocumento:
-        this.formulario.fechaDocumento,
-
-
-      idTipificacion:
-        Number(
-          this.formulario.idTipificacion
-        ),
-
+      idTipificacion: Number(this.formulario.idTipificacion),
 
       // =====================================
       // UBICACIÓN
       // =====================================
 
-      idNucleo:
-        String(
-          this.formulario.idNucleo
-        ),
+      idNucleo: String(this.formulario.idNucleo),
 
+      idBrigada: String(this.formulario.idBrigada),
 
-      idBrigada:
-        String(
-          this.formulario.idBrigada
-        ),
-
-
-      idUnidad:
-        String(
-          this.formulario.idUnidad
-        ),
-
+      idUnidad: String(this.formulario.idUnidad),
 
       // =====================================
       // IG
       // =====================================
 
-      idNucleoIg:
-        Number(
-          this.formulario.idNucleoIg
-        ),
+      idNucleoIg: Number(this.formulario.idNucleoIg),
 
-
-      idIg:
-        String(
-          this.formulario.idIg
-        ),
-
+      idIg: String(this.formulario.idIg),
 
       // =====================================
       // DESTINO
       // =====================================
 
-      nivelDestino:
-        Number(
-          this.formulario.nivelDestino
-        ),
-
+      nivelDestino: Number(this.formulario.nivelDestino),
 
       // =====================================
       // TEXTO
       // =====================================
 
-      asunto:
-        String(
-          this.formulario.asunto
-        ).trim(),
+      asunto: String(this.formulario.asunto).trim(),
 
-
-      descripcion:
-        String(
-          this.formulario.descripcion
-        ).trim()
-
+      descripcion: String(this.formulario.descripcion).trim(),
     };
 
-
     Swal.fire({
+      icon: 'question',
 
-      icon:
-        'question',
+      title: '¿Guardar cambios?',
 
-      title:
-        '¿Guardar cambios?',
-
-      html:
-        `
+      html: `
         Se actualizará el expediente
         <br><br>
         <strong>
@@ -2089,95 +1149,52 @@ export class EditarDocumentoQrdComponent
         </strong>
         `,
 
-      showCancelButton:
-        true,
+      showCancelButton: true,
 
-      confirmButtonText:
-        'SÍ, GUARDAR',
+      confirmButtonText: 'SÍ, GUARDAR',
 
-      cancelButtonText:
-        'CANCELAR',
+      cancelButtonText: 'CANCELAR',
 
-      confirmButtonColor:
-        '#176b49',
+      confirmButtonColor: '#176b49',
 
-      cancelButtonColor:
-        '#8f9893',
+      cancelButtonColor: '#8f9893',
 
-      reverseButtons:
-        true
+      reverseButtons: true,
+    }).then((resultado) => {
+      if (!resultado.isConfirmed) {
+        return;
+      }
 
-    })
-      .then(
-        resultado => {
-
-
-          if (
-            !resultado.isConfirmed
-          ) {
-
-            return;
-
-          }
-
-
-          this.actualizarExpediente(
-            datosActualizar
-          );
-
-        }
-      );
-
+      this.actualizarExpediente(datosActualizar);
+    });
   }
-
 
   // =========================================
   // ACTUALIZAR EXPEDIENTE
   // =========================================
 
-  private actualizarExpediente(
-    datosActualizar: any
-  ): void {
+  private actualizarExpediente(datosActualizar: any): void {
+    this.guardando = true;
 
-    this.guardando =
-      true;
-
-
-    this.error =
-      '';
-
+    this.error = '';
 
     this.expedienteService
       .actualizarExpediente(
-
         this.expediente.idExpediente,
 
-        datosActualizar
-
+        datosActualizar,
       )
       .subscribe({
-
-        next: (
-          respuesta
-        ) => {
-
-
+        next: (respuesta) => {
           // ===================================
           // SI NO HAY PDF NUEVOS
           // ===================================
 
-          if (
-            this.archivosNuevos.length === 0
-          ) {
-
-            this.finalizarActualizacion(
-              respuesta
-            );
+          if (this.archivosNuevos.length === 0) {
+            this.finalizarActualizacion(respuesta);
 
             return;
-
           }
-
 
           // ===================================
           // AGREGAR PDFs
@@ -2185,137 +1202,71 @@ export class EditarDocumentoQrdComponent
 
           this.expedienteService
             .agregarArchivosExpediente(
-
               this.expediente.idExpediente,
 
               this.expediente.cinv,
 
-              this.archivosNuevos
-
+              this.archivosNuevos,
             )
             .subscribe({
-
               next: () => {
+                this.archivosNuevos = [];
 
-
-                this.archivosNuevos =
-                  [];
-
-
-                this.finalizarActualizacion(
-                  respuesta
-                );
-
+                this.finalizarActualizacion(respuesta);
               },
 
+              error: (err) => {
+                console.error('ERROR AL AGREGAR PDFs:', err);
 
-              error: (
-                err
-              ) => {
-
-
-                console.error(
-                  'ERROR AL AGREGAR PDFs:',
-                  err
-                );
-
-
-                this.guardando =
-                  false;
-
+                this.guardando = false;
 
                 this.error =
                   'Los datos fueron actualizados, pero no se pudieron guardar los nuevos PDFs.';
-
-              }
-
+              },
             });
-
         },
 
+        error: (err) => {
+          console.error('ERROR AL ACTUALIZAR:', err);
 
-        error: (
-          err
-        ) => {
+          this.guardando = false;
 
-
-          console.error(
-            'ERROR AL ACTUALIZAR:',
-            err
-          );
-
-
-          this.guardando =
-            false;
-
-
-          this.error =
-            'No se pudo actualizar el documento.';
-
-        }
-
+          this.error = 'No se pudo actualizar el documento.';
+        },
       });
-
   }
-
 
   // =========================================
   // FINALIZAR
   // =========================================
 
-  private finalizarActualizacion(
-    respuesta: any
-  ): void {
-
-    this.guardando =
-      false;
-
+  private finalizarActualizacion(respuesta: any): void {
+    this.guardando = false;
 
     Swal.fire({
+      icon: 'success',
 
-      icon:
-        'success',
+      title: 'Documento actualizado',
 
-      title:
-        'Documento actualizado',
+      text: 'Los cambios fueron guardados correctamente.',
 
-      text:
-        'Los cambios fueron guardados correctamente.',
+      confirmButtonText: 'ACEPTAR',
 
-      confirmButtonText:
-        'ACEPTAR',
-
-      confirmButtonColor:
-        '#176b49'
-
+      confirmButtonColor: '#176b49',
     });
 
-
-    this.actualizado.emit(
-      respuesta
-    );
-
+    this.actualizado.emit(respuesta);
   }
-
 
   // =========================================
   // CERRAR
   // =========================================
 
   cerrarModal(): void {
-
-    if (
-      this.guardando ||
-      this.eliminandoArchivo !== null
-    ) {
-
+    if (this.guardando || this.eliminandoArchivo !== null) {
       return;
-
     }
 
-
     this.cerrar.emit();
-
   }
-
 }

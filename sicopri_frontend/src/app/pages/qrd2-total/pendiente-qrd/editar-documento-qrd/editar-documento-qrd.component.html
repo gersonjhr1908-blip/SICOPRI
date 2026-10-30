@@ -1,12 +1,5 @@
-<div
-  class="editar-overlay"
-  (click)="cerrarModal()"
->
-  <section
-    class="editar-modal"
-    (click)="$event.stopPropagation()"
-  >
-
+<div class="editar-overlay" (click)="cerrarModal()">
+  <section class="editar-modal" (click)="$event.stopPropagation()">
     <header class="editar-header">
       <div class="header-titulo">
         <div class="header-icono">✎</div>
@@ -17,11 +10,7 @@
         </div>
       </div>
 
-      <button
-        type="button"
-        class="btn-cerrar"
-        (click)="cerrarModal()"
-      >
+      <button type="button" class="btn-cerrar" (click)="cerrarModal()">
         ✕
       </button>
     </header>
@@ -29,14 +18,80 @@
     <div class="cinv-info">
       <span>CINV:</span>
       <strong>
-        {{ expediente?.cinv || '-' }}
+        {{ expediente?.cinv || "-" }}
       </strong>
     </div>
 
     <main class="editar-body">
+      <section class="persona-panel">
+        <button
+          type="button"
+          class="persona-toggle"
+          [attr.aria-expanded]="mostrarDatosPersona"
+          (click)="mostrarDatosPersona = !mostrarDatosPersona"
+        >
+          <span>
+            <strong>DATOS DE LA PERSONA</strong>
+            <small *ngIf="!personaSoloLectura">Opcional</small>
+          </span>
+
+          <span aria-hidden="true">
+            {{ mostrarDatosPersona ? "−" : "+" }}
+          </span>
+        </button>
+
+        <div class="persona-contenido" [hidden]="!mostrarDatosPersona">
+          <p class="persona-ayuda" *ngIf="!personaSoloLectura">
+            Puede modificar o vaciar los campos. Cerrar esta sección no elimina
+            los datos.
+          </p>
+
+          <div class="persona-grid">
+            <label
+              class="persona-campo"
+              *ngFor="let campo of camposPersona"
+              [class.persona-medio]="
+                campo.clave === 'nombres' || campo.clave === 'apellidos'
+              "
+              [class.persona-ancho]="campo.clave === 'domicilio'"
+            >
+              <span class="persona-label">{{ campo.etiqueta }}</span>
+
+              <input
+                *ngIf="!personaSoloLectura; else valorConsulta"
+                [type]="campo.tipo"
+                [name]="'persona_' + campo.clave"
+                [(ngModel)]="datosPersona[campo.clave]"
+                [maxlength]="campo.maximo"
+                [placeholder]="'Ingrese ' + campo.etiqueta.toLowerCase()"
+                [attr.inputmode]="
+                  campo.clave === 'ruc' || campo.clave === 'dni'
+                    ? 'numeric'
+                    : null
+                "
+                [attr.aria-invalid]="
+                  obtenerErrorPersona(campo.clave) ? 'true' : null
+                "
+              />
+
+              <ng-template #valorConsulta>
+                <span class="persona-valor">
+                  {{ datosPersona[campo.clave] || "No registrado" }}
+                </span>
+              </ng-template>
+
+              <small
+                class="persona-error"
+                *ngIf="!personaSoloLectura && obtenerErrorPersona(campo.clave)"
+              >
+                {{ obtenerErrorPersona(campo.clave) }}
+              </small>
+            </label>
+          </div>
+        </div>
+      </section>
 
       <div class="grid grid-3">
-
         <div class="campo">
           <label>CATEGORÍA</label>
 
@@ -44,9 +99,7 @@
             [(ngModel)]="formulario.idTipoExpediente"
             (change)="cambiarTipoExpediente()"
           >
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+            <option [ngValue]="null">Seleccione</option>
 
             <option
               *ngFor="let tipo of tiposExpediente"
@@ -64,9 +117,7 @@
             [(ngModel)]="formulario.idTipoDocumento"
             (change)="cambiarTipoDocumento()"
           >
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+            <option [ngValue]="null">Seleccione</option>
 
             <option
               *ngFor="let tipo of tiposDocumento"
@@ -77,10 +128,7 @@
           </select>
         </div>
 
-        <div
-          class="campo campo-otro"
-          *ngIf="esTipoDocumentoOtros()"
-        >
+        <div class="campo campo-otro" *ngIf="esTipoDocumentoOtros()">
           <label>ESPECIFIQUE TIPO DE DOCUMENTO</label>
 
           <input
@@ -89,38 +137,26 @@
             maxlength="150"
           />
         </div>
-
       </div>
 
       <div class="grid grid-3">
-
         <div class="campo">
           <label>N° DOC</label>
 
-          <input
-            type="text"
-            [(ngModel)]="formulario.nroDocumento"
-          />
+          <input type="text" [(ngModel)]="formulario.nroDocumento" />
         </div>
 
         <div class="campo">
           <label>FECHA</label>
 
-          <input
-            type="date"
-            [(ngModel)]="formulario.fechaDocumento"
-          />
+          <input type="date" [(ngModel)]="formulario.fechaDocumento" />
         </div>
 
         <div class="campo">
           <label>TIPIFICACIÓN</label>
 
-          <select
-            [(ngModel)]="formulario.idTipificacion"
-          >
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+          <select [(ngModel)]="formulario.idTipificacion">
+            <option [ngValue]="null">Seleccione</option>
 
             <option
               *ngFor="let tip of tipificaciones"
@@ -130,26 +166,16 @@
             </option>
           </select>
         </div>
-
       </div>
 
       <div class="grid grid-3">
-
         <div class="campo">
           <label>NÚCLEO</label>
 
-          <select
-            [(ngModel)]="formulario.idNucleo"
-            (change)="cambiarNucleo()"
-          >
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+          <select [(ngModel)]="formulario.idNucleo" (change)="cambiarNucleo()">
+            <option [ngValue]="null">Seleccione</option>
 
-            <option
-              *ngFor="let nucleo of nucleos"
-              [ngValue]="nucleo.idNucleo"
-            >
+            <option *ngFor="let nucleo of nucleos" [ngValue]="nucleo.idNucleo">
               {{ nucleo.nombre }}
             </option>
           </select>
@@ -163,9 +189,7 @@
             (change)="cambiarBrigada()"
             [disabled]="!formulario.idNucleo"
           >
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+            <option [ngValue]="null">Seleccione</option>
 
             <option
               *ngFor="let brigada of brigadas"
@@ -184,33 +208,21 @@
             (change)="cambiarUnidad()"
             [disabled]="!formulario.idBrigada"
           >
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+            <option [ngValue]="null">Seleccione</option>
 
-            <option
-              *ngFor="let unidad of unidades"
-              [ngValue]="unidad.idUnidad"
-            >
+            <option *ngFor="let unidad of unidades" [ngValue]="unidad.idUnidad">
               {{ unidad.nombre }}
             </option>
           </select>
         </div>
-
       </div>
 
       <div class="grid grid-3 grid-inspectoria">
-
         <div class="campo">
           <label>NÚCLEO IG</label>
 
-          <select
-            [(ngModel)]="formulario.idNucleoIg"
-            disabled
-          >
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+          <select [(ngModel)]="formulario.idNucleoIg" disabled>
+            <option [ngValue]="null">Seleccione</option>
 
             <option
               *ngFor="let nucleo of nucleosIg"
@@ -224,18 +236,10 @@
         <div class="campo">
           <label>IG</label>
 
-          <select
-            [(ngModel)]="formulario.idIg"
-            disabled
-          >
-            <option [ngValue]="null">
-              Seleccione
-            </option>
+          <select [(ngModel)]="formulario.idIg" disabled>
+            <option [ngValue]="null">Seleccione</option>
 
-            <option
-              *ngFor="let ig of igs"
-              [ngValue]="ig.idBrigada"
-            >
+            <option *ngFor="let ig of igs" [ngValue]="ig.idBrigada">
               {{ ig.nombre }}
             </option>
           </select>
@@ -256,94 +260,60 @@
             disabled
           />
         </div>
-
       </div>
 
       <div class="campo campo-completo">
         <label>ASUNTO</label>
 
-        <input
-          type="text"
-          [(ngModel)]="formulario.asunto"
-        />
+        <input type="text" [(ngModel)]="formulario.asunto" />
       </div>
 
       <div class="campo campo-completo">
         <label>DESCRIPCIÓN</label>
 
-        <textarea
-          rows="5"
-          [(ngModel)]="formulario.descripcion"
-        ></textarea>
+        <textarea rows="5" [(ngModel)]="formulario.descripcion"></textarea>
       </div>
 
       <section class="documentos-section">
-
         <div class="documentos-header">
           <div>
-            <span class="documentos-label">
-              DOCUMENTOS ADJUNTOS
-            </span>
+            <span class="documentos-label"> DOCUMENTOS ADJUNTOS </span>
 
-            <small>
-              Máximo 5 archivos PDF · 10 MB por archivo
-            </small>
+            <small> Máximo 5 archivos PDF · 10 MB por archivo </small>
           </div>
 
           <span class="contador-pdf">
-            {{
-              archivosActuales.length +
-              archivosNuevos.length
-            }}/5
+            {{ archivosActuales.length + archivosNuevos.length }}/5
           </span>
         </div>
 
-        <div
-          class="estado-archivos"
-          *ngIf="cargandoArchivos"
-        >
+        <div class="estado-archivos" *ngIf="cargandoArchivos">
           Cargando documentos...
         </div>
 
         <div
           class="sin-archivos"
-          *ngIf="
-            !cargandoArchivos &&
-            archivosActuales.length === 0
-          "
+          *ngIf="!cargandoArchivos && archivosActuales.length === 0"
         >
           No hay documentos PDF registrados.
         </div>
 
-        <div
-          class="lista-archivos"
-          *ngIf="archivosActuales.length > 0"
-        >
-          <div
-            class="archivo-item"
-            *ngFor="let archivo of archivosActuales"
-          >
-            <div class="pdf-icono">
-              PDF
-            </div>
+        <div class="lista-archivos" *ngIf="archivosActuales.length > 0">
+          <div class="archivo-item" *ngFor="let archivo of archivosActuales">
+            <div class="pdf-icono">PDF</div>
 
             <div class="archivo-datos">
               <strong>
                 {{ archivo.nombreArchivo }}
               </strong>
 
-              <small>
-                Archivo registrado
-              </small>
+              <small> Archivo registrado </small>
             </div>
 
             <button
               type="button"
               class="btn-eliminar-pdf"
-              [disabled]="
-                guardando ||
-                eliminandoArchivo === archivo.idArchivo
-              "
+              [disabled]="guardando || eliminandoArchivo === archivo.idArchivo"
               (click)="eliminarPdf(archivo)"
             >
               ✕
@@ -352,7 +322,6 @@
         </div>
 
         <div class="agregar-pdf-area">
-
           <input
             #inputPdf
             type="file"
@@ -366,36 +335,23 @@
             type="button"
             class="btn-agregar-pdf"
             [disabled]="
-              guardando ||
-              archivosActuales.length +
-              archivosNuevos.length >= 5
+              guardando || archivosActuales.length + archivosNuevos.length >= 5
             "
             (click)="inputPdf.click()"
           >
             <span class="simbolo-mas">＋</span>
             AGREGAR PDF
           </button>
-
         </div>
 
-        <div
-          class="nuevos-documentos"
-          *ngIf="archivosNuevos.length > 0"
-        >
-          <span class="subtitulo-nuevos">
-            NUEVOS DOCUMENTOS
-          </span>
+        <div class="nuevos-documentos" *ngIf="archivosNuevos.length > 0">
+          <span class="subtitulo-nuevos"> NUEVOS DOCUMENTOS </span>
 
           <div
             class="archivo-item"
-            *ngFor="
-              let archivo of archivosNuevos;
-              let i = index
-            "
+            *ngFor="let archivo of archivosNuevos; let i = index"
           >
-            <div class="pdf-icono">
-              PDF
-            </div>
+            <div class="pdf-icono">PDF</div>
 
             <div class="archivo-datos">
               <strong>
@@ -418,17 +374,12 @@
           </div>
         </div>
 
-        <div
-          class="mensaje-error"
-          *ngIf="error"
-        >
+        <div class="mensaje-error" *ngIf="error">
           {{ error }}
         </div>
-
       </section>
 
       <div class="acciones-editar">
-
         <button
           type="button"
           class="btn-cancelar"
@@ -444,16 +395,9 @@
           [disabled]="guardando"
           (click)="guardarCambios()"
         >
-          {{
-            guardando
-              ? 'GUARDANDO...'
-              : 'GUARDAR CAMBIOS'
-          }}
+          {{ guardando ? "GUARDANDO..." : "GUARDAR CAMBIOS" }}
         </button>
-
       </div>
-
     </main>
-
   </section>
 </div>

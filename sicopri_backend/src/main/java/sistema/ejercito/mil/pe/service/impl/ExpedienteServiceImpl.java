@@ -58,7 +58,9 @@ public class ExpedienteServiceImpl
             Expediente expediente
     ) {
 
-
+        if (expediente.getDatosPersona() != null) {
+            expediente.getDatosPersona().validarYNormalizar();
+        }
 
         if (
                 expediente.getIdNucleo() == null ||
@@ -237,6 +239,13 @@ public class ExpedienteServiceImpl
                 datos.getDescripcion()
         );
 
+
+        // Los formularios antiguos que no envían datosPersona
+        // conservan la información personal ya guardada.
+        if (datos.getDatosPersona() != null) {
+            datos.getDatosPersona().validarYNormalizar();
+            existente.setDatosPersona(datos.getDatosPersona());
+        }
 
         return repo.save(
                 existente

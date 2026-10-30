@@ -1,5 +1,159 @@
 <div class="nuevo-documento-page">
+  <!-- DATOS OPCIONALES DE LA PERSONA -->
+  <section class="persona-seccion">
+    <button
+      type="button"
+      class="persona-toggle"
+      [attr.aria-expanded]="mostrarDatosPersona"
+      aria-controls="qrd2-datos-persona"
+      (click)="mostrarDatosPersona = !mostrarDatosPersona"
+    >
+      <span>
+        <strong>DATOS DE LA PERSONA</strong>
+        <small>Opcional</small>
+      </span>
 
+      <span aria-hidden="true">
+        {{ mostrarDatosPersona ? "−" : "+" }}
+      </span>
+    </button>
+
+    <div
+      id="qrd2-datos-persona"
+      class="persona-contenido"
+      [hidden]="!mostrarDatosPersona"
+    >
+      <fieldset class="persona-grid" [disabled]="guardando">
+        <legend class="persona-sr">Datos opcionales de la persona</legend>
+
+        <div class="campo persona-nombres">
+          <label for="persona-nombres">NOMBRES</label>
+          <input
+            id="persona-nombres"
+            name="persona_nombres"
+            type="text"
+            [(ngModel)]="datosPersona.nombres"
+            maxlength="100"
+            autocomplete="given-name"
+            placeholder="Ingrese los nombres"
+          />
+        </div>
+
+        <div class="campo persona-apellidos">
+          <label for="persona-apellidos">APELLIDOS</label>
+          <input
+            id="persona-apellidos"
+            name="persona_apellidos"
+            type="text"
+            [(ngModel)]="datosPersona.apellidos"
+            maxlength="150"
+            autocomplete="family-name"
+            placeholder="Ingrese los apellidos"
+          />
+        </div>
+
+        <div class="campo persona-ruc">
+          <label for="persona-ruc">RUC</label>
+          <input
+            id="persona-ruc"
+            name="persona_ruc"
+            type="text"
+            [(ngModel)]="datosPersona.ruc"
+            maxlength="11"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="Ingrese 11 dígitos"
+            [attr.aria-invalid]="erroresPersona.ruc ? 'true' : null"
+            [attr.aria-describedby]="
+              erroresPersona.ruc ? 'persona-ruc-error' : null
+            "
+          />
+          <small
+            id="persona-ruc-error"
+            class="persona-error"
+            *ngIf="erroresPersona.ruc"
+          >
+            {{ erroresPersona.ruc }}
+          </small>
+        </div>
+
+        <div class="campo persona-dni">
+          <label for="persona-dni">DNI</label>
+          <input
+            id="persona-dni"
+            name="persona_dni"
+            type="text"
+            [(ngModel)]="datosPersona.dni"
+            maxlength="8"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="Ingrese 8 dígitos"
+            [attr.aria-invalid]="erroresPersona.dni ? 'true' : null"
+            [attr.aria-describedby]="
+              erroresPersona.dni ? 'persona-dni-error' : null
+            "
+          />
+          <small
+            id="persona-dni-error"
+            class="persona-error"
+            *ngIf="erroresPersona.dni"
+          >
+            {{ erroresPersona.dni }}
+          </small>
+        </div>
+
+        <div class="campo persona-telefono">
+          <label for="persona-telefono">TELÉFONO</label>
+          <input
+            id="persona-telefono"
+            name="persona_telefono"
+            type="tel"
+            [(ngModel)]="datosPersona.telefono"
+            maxlength="25"
+            autocomplete="tel"
+            placeholder="Ingrese el teléfono"
+          />
+        </div>
+
+        <div class="campo persona-domicilio">
+          <label for="persona-domicilio">DOMICILIO</label>
+          <input
+            id="persona-domicilio"
+            name="persona_domicilio"
+            type="text"
+            [(ngModel)]="datosPersona.domicilio"
+            maxlength="250"
+            autocomplete="street-address"
+            placeholder="Ingrese la dirección"
+          />
+        </div>
+
+        <div class="campo persona-correo">
+          <label for="persona-correo">CORREO ELECTRÓNICO</label>
+          <input
+            id="persona-correo"
+            name="persona_correo"
+            type="email"
+            [(ngModel)]="datosPersona.correo"
+            maxlength="254"
+            autocomplete="email"
+            placeholder="Ingrese el correo"
+            [attr.aria-invalid]="erroresPersona.correo ? 'true' : null"
+            [attr.aria-describedby]="
+              erroresPersona.correo ? 'persona-correo-error' : null
+            "
+          />
+          <small
+            id="persona-correo-error"
+            class="persona-error"
+            *ngIf="erroresPersona.correo"
+          >
+            {{ erroresPersona.correo }}
+          </small>
+        </div>
+      </fieldset>
+    </div>
+  </section>
 
   <!-- ====================================== -->
   <!-- FILA 1 -->
@@ -7,94 +161,44 @@
   <!-- ====================================== -->
 
   <div class="form-grid grid-3">
-
-
     <!-- CATEGORÍA -->
 
     <div class="campo">
+      <label> CATEGORÍA </label>
 
-      <label>
-        CATEGORÍA
-      </label>
-
-
-      <select
-        [(ngModel)]="idTipoExpediente"
-        (change)="cambiarTipoExpediente()">
-
-
-        <option [ngValue]="null">
-          Seleccione
-        </option>
-
+      <select [(ngModel)]="idTipoExpediente" (change)="cambiarTipoExpediente()">
+        <option [ngValue]="null">Seleccione</option>
 
         <option
-          *ngFor="
-            let tipo
-            of tiposExpediente
-          "
-          [ngValue]="
-            tipo.idTipoExpediente
-          ">
-
+          *ngFor="let tipo of tiposExpediente"
+          [ngValue]="tipo.idTipoExpediente"
+        >
           {{ tipo.nombre }}
-
         </option>
-
       </select>
-
     </div>
-
 
     <!-- TIPO DOCUMENTO -->
 
     <div class="campo">
+      <label> TIPO DE DOC </label>
 
-      <label>
-        TIPO DE DOC
-      </label>
-
-
-      <select
-        [(ngModel)]="idTipoDocumento"
-        (change)="cambiarTipoDocumento()">
-
-
-        <option [ngValue]="null">
-          Seleccione
-        </option>
-
+      <select [(ngModel)]="idTipoDocumento" (change)="cambiarTipoDocumento()">
+        <option [ngValue]="null">Seleccione</option>
 
         <option
-          *ngFor="
-            let tipo
-            of tiposDocumento
-          "
-          [ngValue]="
-            tipo.idTipoDocumento
-          ">
-
+          *ngFor="let tipo of tiposDocumento"
+          [ngValue]="tipo.idTipoDocumento"
+        >
           {{ tipo.nombre }}
-
         </option>
-
       </select>
-
     </div>
-
 
     <!-- OTRO -->
 
-    <div
-      class="campo campo-otro"
-      *ngIf="
-        esTipoDocumentoOtros()
-      ">
-
-      <label>
-        ESPECIFIQUE TIPO DE DOCUMENTO
-      </label>
-
+    <div class="campo campo-otro" *ngIf="esTipoDocumentoOtros()">
+      <label> ESPECIFIQUE TIPO DE DOCUMENTO </label>
 
       <input
         type="text"
@@ -102,11 +206,8 @@
         maxlength="150"
         placeholder="Ej. Memorándum, Parte, Acta..."
       />
-
     </div>
-
   </div>
-
 
   <!-- ====================================== -->
   <!-- FILA 2 -->
@@ -114,74 +215,37 @@
   <!-- ====================================== -->
 
   <div class="form-grid grid-3">
-
-
     <div class="campo">
-
-      <label>
-        N° DOC
-      </label>
-
+      <label> N° DOC </label>
 
       <input
         type="text"
         [(ngModel)]="nroDocumento"
         placeholder="N° documento"
       />
-
     </div>
 
-
     <div class="campo">
+      <label> FECHA </label>
 
-      <label>
-        FECHA
-      </label>
-
-
-      <input
-        type="date"
-        [(ngModel)]="fechaDocumento"
-      />
-
+      <input type="date" [(ngModel)]="fechaDocumento" />
     </div>
 
-
     <div class="campo">
+      <label> TIPIFICACIÓN </label>
 
-      <label>
-        TIPIFICACIÓN
-      </label>
-
-
-      <select
-        [(ngModel)]="idTipificacion">
-
-
-        <option [ngValue]="null">
-          Seleccione
-        </option>
-
+      <select [(ngModel)]="idTipificacion">
+        <option [ngValue]="null">Seleccione</option>
 
         <option
-          *ngFor="
-            let tip
-            of tipificaciones
-          "
-          [ngValue]="
-            tip.idTipificacion
-          ">
-
+          *ngFor="let tip of tipificaciones"
+          [ngValue]="tip.idTipificacion"
+        >
           {{ tip.nombre }}
-
         </option>
-
       </select>
-
     </div>
-
   </div>
-
 
   <!-- ====================================== -->
   <!-- FILA 3 -->
@@ -189,122 +253,56 @@
   <!-- ====================================== -->
 
   <div class="form-grid grid-3">
-
-
     <!-- NÚCLEO -->
 
     <div class="campo">
+      <label> NÚCLEO </label>
 
-      <label>
-        NÚCLEO
-      </label>
+      <select [(ngModel)]="idNucleo" (change)="cambiarNucleo()">
+        <option [ngValue]="null">Seleccione</option>
 
-
-      <select
-        [(ngModel)]="idNucleo"
-        (change)="cambiarNucleo()">
-
-
-        <option [ngValue]="null">
-          Seleccione
-        </option>
-
-
-        <option
-          *ngFor="
-            let nucleo
-            of nucleos
-          "
-          [ngValue]="
-            nucleo.idNucleo
-          ">
-
+        <option *ngFor="let nucleo of nucleos" [ngValue]="nucleo.idNucleo">
           {{ nucleo.nombre }}
-
         </option>
-
       </select>
-
     </div>
-
 
     <!-- GRAN UNIDAD -->
 
     <div class="campo">
-
-      <label>
-        GRAN UNIDAD
-      </label>
-
+      <label> GRAN UNIDAD </label>
 
       <select
         [(ngModel)]="idBrigada"
         (change)="cambiarBrigada()"
-        [disabled]="!idNucleo">
+        [disabled]="!idNucleo"
+      >
+        <option [ngValue]="null">Seleccione</option>
 
-
-        <option [ngValue]="null">
-          Seleccione
-        </option>
-
-
-        <option
-          *ngFor="
-            let brigada
-            of brigadas
-          "
-          [ngValue]="
-            brigada.idBrigada
-          ">
-
+        <option *ngFor="let brigada of brigadas" [ngValue]="brigada.idBrigada">
           {{ brigada.nombre }}
-
         </option>
-
       </select>
-
     </div>
-
 
     <!-- UNIDAD -->
 
     <div class="campo">
-
-      <label>
-        UNIDAD
-      </label>
-
+      <label> UNIDAD </label>
 
       <select
         [(ngModel)]="idUnidad"
         (change)="cambiarUnidad()"
-        [disabled]="!idBrigada">
+        [disabled]="!idBrigada"
+      >
+        <option [ngValue]="null">Seleccione</option>
 
-
-        <option [ngValue]="null">
-          Seleccione
-        </option>
-
-
-        <option
-          *ngFor="
-            let unidad
-            of unidades
-          "
-          [ngValue]="
-            unidad.idUnidad
-          ">
-
+        <option *ngFor="let unidad of unidades" [ngValue]="unidad.idUnidad">
           {{ unidad.nombre }}
-
         </option>
-
       </select>
-
     </div>
-
   </div>
-
 
   <!-- ====================================== -->
   <!-- FILA 4 -->
@@ -312,198 +310,98 @@
   <!-- ====================================== -->
 
   <div class="form-grid grid-3 inspector-grid">
-
-
     <!-- ==================================== -->
     <!-- NÚCLEO IG AUTOMÁTICO -->
     <!-- ==================================== -->
 
     <div class="campo">
+      <label> NÚCLEO IG </label>
 
-      <label>
-        NÚCLEO IG
-      </label>
+      <select [(ngModel)]="idNucleoIg" disabled>
+        <option [ngValue]="null">Seleccione una unidad primero</option>
 
-
-      <select
-        [(ngModel)]="idNucleoIg"
-        disabled>
-
-
-        <option [ngValue]="null">
-          Seleccione una unidad primero
+        <option *ngFor="let nucleo of nucleosIg" [ngValue]="+nucleo.idNucleo">
+          {{ obtenerNombreNucleoIg(nucleo) }}
         </option>
-
-
-        <option
-          *ngFor="
-            let nucleo
-            of nucleosIg
-          "
-          [ngValue]="
-            +nucleo.idNucleo
-          ">
-
-          {{
-            obtenerNombreNucleoIg(
-              nucleo
-            )
-          }}
-
-        </option>
-
       </select>
-
     </div>
-
 
     <!-- ==================================== -->
     <!-- IG AUTOMÁTICO -->
     <!-- ==================================== -->
 
     <div class="campo">
-
-      <label>
-        IG
-      </label>
-
+      <label> IG </label>
 
       <select
         [(ngModel)]="idIg"
-        disabled>
-
-
-        <option [ngValue]="null">
-          Seleccione una unidad primero
-        </option>
-
+        [disabled]="!idUnidad || brigadasIg.length === 0"
+      >
+        <option [ngValue]="null">Seleccione una unidad primero</option>
 
         <option
-          *ngFor="
-            let brigada
-            of brigadasIg
-          "
-          [ngValue]="
-            brigada.idBrigada
-          ">
-
+          *ngFor="let brigada of brigadasIg"
+          [ngValue]="brigada.idBrigada"
+        >
           {{ brigada.nombre }}
-
         </option>
-
       </select>
-
     </div>
-
 
     <!-- ==================================== -->
     <!-- DESTINO -->
     <!-- ==================================== -->
 
     <div class="campo">
+      <label> DESTINO </label>
 
-      <label>
-        DESTINO
-      </label>
-
-
-      <select
-        [(ngModel)]="nivelDestino">
-
-
-        <option [ngValue]="null">
-          Seleccione
-        </option>
-
-
-        <option [ngValue]="3">
-          Inspectoría QRD - Nivel 3
-        </option>
-
-
-        <option [ngValue]="4">
-          Inspectoría QRD - Nivel 4
-        </option>
-
+      <select [(ngModel)]="nivelDestino">
+        <option [ngValue]="null">Seleccione</option>
+        <option [ngValue]="3">Inspectoría QRD - Nivel 3</option>
+        <option [ngValue]="4">Inspectoría QRD - Nivel 4</option>
       </select>
-
     </div>
-
   </div>
-
 
   <!-- ====================================== -->
   <!-- ASUNTO -->
   <!-- ====================================== -->
 
   <div class="campo campo-completo">
+    <label> ASUNTO </label>
 
-    <label>
-      ASUNTO
-    </label>
-
-
-    <input
-      type="text"
-      [(ngModel)]="asunto"
-      placeholder="Ingrese el asunto"
-    />
-
+    <input type="text" [(ngModel)]="asunto" placeholder="Ingrese el asunto" />
   </div>
-
 
   <!-- ====================================== -->
   <!-- DESCRIPCIÓN -->
   <!-- ====================================== -->
 
   <div class="campo campo-completo">
-
-    <label>
-      DESCRIPCIÓN
-    </label>
-
+    <label> DESCRIPCIÓN </label>
 
     <textarea
       rows="4"
       [(ngModel)]="descripcion"
-      placeholder="Ingrese la descripción">
+      placeholder="Ingrese la descripción"
+    >
     </textarea>
-
   </div>
-
 
   <!-- ====================================== -->
   <!-- PDFs -->
   <!-- ====================================== -->
 
   <div class="adjuntos">
-
-
     <div class="adjuntos-top">
-
-
       <div>
+        <strong> DOCUMENTOS ADJUNTOS </strong>
 
-        <strong>
-          DOCUMENTOS ADJUNTOS
-        </strong>
-
-
-        <small>
-          Máximo 5 archivos PDF · 10 MB por archivo
-        </small>
-
+        <small> Máximo 5 archivos PDF · 10 MB por archivo </small>
       </div>
 
-
-      <div class="contador-pdf">
-
-        {{ archivos.length }}/5
-
-      </div>
-
+      <div class="contador-pdf">{{ archivos.length }}/5</div>
     </div>
-
 
     <!-- INPUT OCULTO -->
 
@@ -516,162 +414,90 @@
       (change)="seleccionarArchivos($event)"
     />
 
-
     <button
       type="button"
       class="btn-agregar-pdf"
-      [disabled]="
-        guardando ||
-        archivos.length >= 5
-      "
-      (click)="inputPdf.click()">
-
+      [disabled]="guardando || archivos.length >= 5"
+      (click)="inputPdf.click()"
+    >
       + AGREGAR PDF
-
     </button>
-
 
     <!-- PDFs SELECCIONADOS -->
 
-    <div
-      class="lista-pdfs"
-      *ngIf="
-        archivos.length > 0
-      ">
-
-
-      <div
-        class="pdf-item"
-        *ngFor="
-          let archivo
-          of archivos;
-          let i = index
-        ">
-
-
-        <div class="pdf-icono">
-          PDF
-        </div>
-
+    <div class="lista-pdfs" *ngIf="archivos.length > 0">
+      <div class="pdf-item" *ngFor="let archivo of archivos; let i = index">
+        <div class="pdf-icono">PDF</div>
 
         <div class="pdf-info">
-
           <strong>
             {{ archivo.name }}
           </strong>
 
-
           <small>
             {{ formatearTamano(archivo.size) }}
           </small>
-
         </div>
-
 
         <button
           type="button"
           class="btn-quitar-pdf"
           [disabled]="guardando"
-          (click)="quitarArchivo(i)">
-
+          (click)="quitarArchivo(i)"
+        >
           ✕
-
         </button>
-
       </div>
-
     </div>
-
   </div>
-
 
   <!-- ====================================== -->
   <!-- ACCIONES -->
   <!-- ====================================== -->
 
   <div class="acciones">
-
-
     <button
       type="button"
       class="btn-cancelar"
       [disabled]="guardando"
-      (click)="cancelar()">
-
+      (click)="cancelar()"
+    >
       CANCELAR
-
     </button>
-
 
     <button
       type="button"
       class="btn-guardar"
       [disabled]="guardando"
-      (click)="guardar()">
-
-      {{
-        guardando
-          ? 'GUARDANDO...'
-          : 'GUARDAR'
-      }}
-
+      (click)="guardar()"
+    >
+      {{ guardando ? "GUARDANDO..." : "GUARDAR" }}
     </button>
-
   </div>
-
 </div>
-
 
 <!-- ====================================== -->
 <!-- ÉXITO -->
 <!-- ====================================== -->
 
-<div
-  class="mensaje-overlay"
-  *ngIf="mostrarExito">
-
-
+<div class="mensaje-overlay" *ngIf="mostrarExito">
   <div class="mensaje-exito">
+    <div class="icono-exito">✓</div>
 
+    <h2>Documento registrado correctamente</h2>
 
-    <div class="icono-exito">
-      ✓
-    </div>
-
-
-    <h2>
-      Documento registrado correctamente
-    </h2>
-
-
-    <p>
-      El expediente fue registrado exitosamente.
-    </p>
-
+    <p>El expediente fue registrado exitosamente.</p>
 
     <div class="cinv-generado">
-
-      <span>
-        CINV GENERADO
-      </span>
-
+      <span> CINV GENERADO </span>
 
       <strong>
         {{ cinvGenerado }}
       </strong>
-
     </div>
 
-
-    <button
-      type="button"
-      class="btn-aceptar-exito"
-      (click)="cerrarExito()">
-
+    <button type="button" class="btn-aceptar-exito" (click)="cerrarExito()">
       ACEPTAR
-
     </button>
-
   </div>
-
 </div>

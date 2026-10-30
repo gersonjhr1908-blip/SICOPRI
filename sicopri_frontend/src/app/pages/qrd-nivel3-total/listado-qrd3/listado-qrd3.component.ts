@@ -3,19 +3,30 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ExpedienteService } from '../../../services/expediente.service';
+import { VerCasoListadoQrd3Component } from './ver-caso-listado-qrd3/ver-caso-listado-qrd3.component';
+
 import {
-  VerCasoListadoQrd3Component
-} from './ver-caso-listado-qrd3/ver-caso-listado-qrd3.component';
+  TrazabilidadQrdComponent
+} from '../../trazabilidad-qrd/trazabilidad-qrd.component';
+
+import {
+  TrazabilidadPdfComponent
+} from '../../trazabilidad-qrd/trazabilidad-pdf/trazabilidad-pdf.component';
 
 @Component({
   selector: 'app-listado-qrd3',
   standalone: true,
-  imports: [CommonModule, FormsModule, VerCasoListadoQrd3Component],
+  imports: [
+    CommonModule,
+    FormsModule,
+    VerCasoListadoQrd3Component,
+    TrazabilidadQrdComponent,
+    TrazabilidadPdfComponent,
+  ],
   templateUrl: './listado-qrd3.component.html',
-  styleUrl: './listado-qrd3.component.css'
+  styleUrl: './listado-qrd3.component.css',
 })
 export class ListadoQrd3Component implements OnInit {
-
   search: string = '';
   documentos: any[] = [];
   documentosOriginales: any[] = [];
@@ -26,9 +37,13 @@ export class ListadoQrd3Component implements OnInit {
 
   menuAccionesAbierto: number | null = null;
 
-  constructor(
-    private expedienteService: ExpedienteService
-  ) {}
+  mostrarTrazabilidad = false;
+  expedienteTrazabilidad: any = null;
+
+  mostrarTrazPdf = false;
+  expedienteTrazPdf: any = null;
+
+  constructor(private expedienteService: ExpedienteService) {}
 
   ngOnInit(): void {
     this.cargarCatalogos();
@@ -44,7 +59,7 @@ export class ListadoQrd3Component implements OnInit {
         console.error('ERROR TIPOS DOCUMENTO LISTADO QRD3:', err);
         this.tiposDocumento = [];
         this.cargarDocumentos();
-      }
+      },
     });
   }
 
@@ -56,8 +71,12 @@ export class ListadoQrd3Component implements OnInit {
         const expedientes = data || [];
 
         const qrd3 = expedientes.filter((exp: any) => {
-          const activo = String(exp.activo || '').trim().toUpperCase();
-          const categoriaSistema = String(exp.categoria || '').trim().toUpperCase();
+          const activo = String(exp.activo || '')
+            .trim()
+            .toUpperCase();
+          const categoriaSistema = String(exp.categoria || '')
+            .trim()
+            .toUpperCase();
           const tipo = Number(exp.idTipoExpediente);
           const estado = Number(exp.idEstado);
           const nivelCreacion = Number(exp.nivelCreacion);
@@ -84,7 +103,7 @@ export class ListadoQrd3Component implements OnInit {
           categoriaQrd: this.obtenerCategoriaQrd(exp.idTipoExpediente),
           documento: this.obtenerTipoDocumento(exp),
           estadoVisual: this.obtenerEstadoVisual(exp),
-          ubicacionVisual: this.obtenerUbicacionVisual(exp)
+          ubicacionVisual: this.obtenerUbicacionVisual(exp),
         }));
 
         this.documentos = [...this.documentosOriginales];
@@ -93,22 +112,27 @@ export class ListadoQrd3Component implements OnInit {
         console.error('ERROR LISTADO TOTAL QRD3:', err);
         this.documentos = [];
         this.documentosOriginales = [];
-      }
+      },
     });
   }
 
   obtenerCategoriaQrd(idTipoExpediente: number): string {
     switch (Number(idTipoExpediente)) {
-      case 1: return 'DENUNCIA';
-      case 2: return 'QUEJA';
-      case 3: return 'RECLAMO';
-      default: return '-';
+      case 1:
+        return 'DENUNCIA';
+      case 2:
+        return 'QUEJA';
+      case 3:
+        return 'RECLAMO';
+      default:
+        return '-';
     }
   }
 
   obtenerTipoDocumento(exp: any): string {
     const encontrado = this.tiposDocumento.find(
-      (tipo: any) => Number(tipo.idTipoDocumento) === Number(exp.idTipoDocumento)
+      (tipo: any) =>
+        Number(tipo.idTipoDocumento) === Number(exp.idTipoDocumento),
     );
 
     const nombre = encontrado ? String(encontrado.nombre || '').trim() : '';
@@ -172,15 +196,43 @@ export class ListadoQrd3Component implements OnInit {
 
   alternarMenuAcciones(idExpediente: number): void {
     this.menuAccionesAbierto =
-      this.menuAccionesAbierto === idExpediente
-        ? null
-        : idExpediente;
+      this.menuAccionesAbierto === idExpediente ? null : idExpediente;
   }
 
   cerrarVerCaso(): void {
     this.mostrarVerCaso = false;
     this.documentoSeleccionado = null;
     this.cargarDocumentos();
+  }
+
+  abrirTrazabilidad(documento: any): void {
+    if (!documento?.idExpediente) {
+      return;
+    }
+
+    this.menuAccionesAbierto = null;
+    this.expedienteTrazabilidad = documento;
+    this.mostrarTrazabilidad = true;
+  }
+
+  cerrarTrazabilidad(): void {
+    this.mostrarTrazabilidad = false;
+    this.expedienteTrazabilidad = null;
+  }
+
+  imprimirTrazabilidad(documento: any): void {
+    if (!documento?.idExpediente) {
+      return;
+    }
+
+    this.menuAccionesAbierto = null;
+    this.expedienteTrazPdf = documento;
+    this.mostrarTrazPdf = true;
+  }
+
+  cerrarTrazPdf(): void {
+    this.mostrarTrazPdf = false;
+    this.expedienteTrazPdf = null;
   }
 
   buscarDocumentos(): void {
@@ -199,8 +251,12 @@ export class ListadoQrd3Component implements OnInit {
         doc.nroDocumento,
         doc.asunto,
         doc.estadoVisual,
-        doc.ubicacionVisual
-      ].some((valor: any) => String(valor || '').toLowerCase().includes(texto));
+        doc.ubicacionVisual,
+      ].some((valor: any) =>
+        String(valor || '')
+          .toLowerCase()
+          .includes(texto),
+      );
     });
   }
 

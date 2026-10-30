@@ -297,3 +297,32 @@
         text-align: left;
     }
 }
+/* Permitir que el menú sobresalga hacia abajo. */
+.registrar-card,
+.tabla-wrapper {
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+.acciones {
+  position: relative;
+}
+
+.menu-acciones {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  bottom: auto;
+
+  display: flex;
+  flex-direction: column;
+
+  min-width: 180px;
+  z-index: 100;
+}
+
+.menu-acciones button {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+}

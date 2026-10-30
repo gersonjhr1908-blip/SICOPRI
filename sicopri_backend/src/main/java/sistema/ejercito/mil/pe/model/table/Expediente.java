@@ -355,4 +355,8 @@ public class Expediente {
     )
     private String observacionActual;
 
+    // Una persona opcional asociada al expediente.
+    @Embedded
+    @ToString.Exclude
+    private DatosPersona datosPersona;
 }

@@ -6,7 +6,7 @@
 }
 
 .registrar-card {
-    overflow: hidden;
+    overflow: visible;
     background: #fff;
     border: 1px solid #e6eaf0;
     border-radius: 14px;
@@ -96,8 +96,9 @@
 }
 
 .tabla-wrapper {
+    position: relative;
     width: 100%;
-    overflow-x: auto;
+    overflow: visible;
 }
 
 .documentos-table {
@@ -222,15 +223,18 @@
 
 .menu-acciones {
     position: absolute;
-    z-index: 50;
-    top: 38px;
+    top: 40px;
     right: 0;
+    bottom: auto;
+    z-index: 99999;
+
     min-width: 170px;
     padding: 6px;
+
     border: 1px solid #dfe6e3;
     border-radius: 9px;
-    background: #fff;
-    box-shadow: 0 10px 24px rgba(15, 45, 34, .18);
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(15, 45, 34, .22);
 }
 
 .menu-acciones button {

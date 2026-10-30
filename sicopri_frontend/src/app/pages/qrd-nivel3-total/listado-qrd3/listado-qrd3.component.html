@@ -1,6 +1,5 @@
 <div class="registrar-page">
   <div class="registrar-card">
-
     <div class="titulo-container">
       <div class="titulo-icono">📋</div>
       <div>
@@ -61,14 +60,12 @@
               <span class="ubicacion-badge">{{ doc.ubicacionVisual }}</span>
             </td>
 
-            <td>{{ doc.fechaRegistro | date:'dd/MM/yyyy' }}</td>
+            <td>{{ doc.fechaRegistro | date: "dd/MM/yyyy" }}</td>
 
             <td>
               <span
                 class="estado-badge"
-                [class.estado-pendiente]="
-                  doc.estadoVisual === 'PENDIENTE'
-                "
+                [class.estado-pendiente]="doc.estadoVisual === 'PENDIENTE'"
                 [class.estado-observado]="doc.estadoVisual === 'OBSERVADO'"
                 [class.estado-concluido]="doc.estadoVisual === 'CONCLUIDO'"
                 [class.estado-enviado]="doc.estadoVisual.startsWith('ENVIADO')"
@@ -96,8 +93,12 @@
                     👁 Ver caso
                   </button>
 
-                  <button type="button" disabled title="Se habilita en el siguiente paso">
-                    ⌘ Trazabilidad
+                  <button type="button" (click)="abrirTrazabilidad(doc)">
+                    ↔ Trazabilidad
+                  </button>
+
+                  <button type="button" (click)="imprimirTrazabilidad(doc)">
+                    🖨 TrazPDF
                   </button>
 
                   <button
@@ -143,3 +144,17 @@
   (cerrar)="cerrarVerCaso()"
 >
 </app-ver-caso-listado-qrd3>
+
+<app-trazabilidad-qrd
+  *ngIf="mostrarTrazabilidad && expedienteTrazabilidad"
+  [expediente]="expedienteTrazabilidad"
+  (cerrar)="cerrarTrazabilidad()"
+>
+</app-trazabilidad-qrd>
+
+<app-trazabilidad-pdf
+  *ngIf="mostrarTrazPdf && expedienteTrazPdf"
+  [expediente]="expedienteTrazPdf"
+  (cerrar)="cerrarTrazPdf()"
+>
+</app-trazabilidad-pdf>

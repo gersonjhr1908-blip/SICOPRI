@@ -1,35 +1,21 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
 
-import {
-  ExpedienteService
-} from '../../../../services/expediente.service';
+import { ExpedienteService } from '../../../../services/expediente.service';
 
-import {
-  UsersService
-} from '../../../../services/users.service';
+import { UsersService } from '../../../../services/users.service';
 
 @Component({
   selector: 'app-editar-documento-qrd',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule
-  ],
+  imports: [CommonModule, FormsModule],
   templateUrl: './editar-documento-qrd.component.html',
-  styleUrl: './editar-documento-qrd.component.css'
+  styleUrl: './editar-documento-qrd.component.css',
 })
 export class EditarDocumentoQrdComponent implements OnInit {
-
   @Input()
   expediente: any = null;
 
@@ -54,7 +40,7 @@ export class EditarDocumentoQrdComponent implements OnInit {
     idIg: null,
     nivelDestino: null,
     asunto: '',
-    descripcion: ''
+    descripcion: '',
   };
 
   tiposExpediente: any[] = [];
@@ -84,9 +70,78 @@ export class EditarDocumentoQrdComponent implements OnInit {
   private versionBrigada = 0;
   private versionUnidad = 0;
 
+  mostrarDatosPersona = false;
+
+  datosPersona: Record<string, string> = {
+    nombres: '',
+    apellidos: '',
+    ruc: '',
+    dni: '',
+    telefono: '',
+    domicilio: '',
+    correo: '',
+  };
+
+  readonly camposPersona = [
+    { clave: 'nombres', etiqueta: 'NOMBRES', tipo: 'text', maximo: 100 },
+    { clave: 'apellidos', etiqueta: 'APELLIDOS', tipo: 'text', maximo: 150 },
+    { clave: 'ruc', etiqueta: 'RUC', tipo: 'text', maximo: 11 },
+    { clave: 'dni', etiqueta: 'DNI', tipo: 'text', maximo: 8 },
+    { clave: 'telefono', etiqueta: 'TELÉFONO', tipo: 'tel', maximo: 25 },
+    { clave: 'domicilio', etiqueta: 'DOMICILIO', tipo: 'text', maximo: 250 },
+    {
+      clave: 'correo',
+      etiqueta: 'CORREO ELECTRÓNICO',
+      tipo: 'email',
+      maximo: 254,
+    },
+  ];
+
+  private cargarDatosPersona(): void {
+    const persona = this.expediente?.datosPersona;
+
+    this.datosPersona = {
+      nombres: persona?.nombres ?? '',
+      apellidos: persona?.apellidos ?? '',
+      ruc: persona?.ruc ?? '',
+      dni: persona?.dni ?? '',
+      telefono: persona?.telefono ?? '',
+      domicilio: persona?.domicilio ?? '',
+      correo: persona?.correo ?? '',
+    };
+
+    this.mostrarDatosPersona = Object.values(this.datosPersona).some(
+      (valor) => valor.trim() !== '',
+    );
+  }
+
+  obtenerErrorPersona(clave: string): string {
+    const valor = String(this.datosPersona[clave] ?? '').trim();
+
+    if (!valor) {
+      return '';
+    }
+
+    if (clave === 'ruc' && !/^\d{11}$/.test(valor)) {
+      return 'Ingrese un RUC de 11 dígitos.';
+    }
+
+    if (clave === 'dni' && !/^\d{8}$/.test(valor)) {
+      return 'Ingrese un DNI de 8 dígitos.';
+    }
+
+    if (clave === 'correo' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)) {
+      return 'Ingrese un correo válido.';
+    }
+
+    return '';
+  }
+
+  readonly personaSoloLectura = false;
+
   constructor(
     private expedienteService: ExpedienteService,
-    private usersService: UsersService
+    private usersService: UsersService,
   ) {}
 
   ngOnInit(): void {
@@ -111,14 +166,11 @@ export class EditarDocumentoQrdComponent implements OnInit {
     return String(valor);
   }
 
-  private normalizarIds(
-    datos: any[],
-    claves: string[]
-  ): any[] {
-    return (datos || []).map(item => {
+  private normalizarIds(datos: any[], claves: string[]): any[] {
+    return (datos || []).map((item) => {
       const copia = { ...item };
 
-      claves.forEach(clave => {
+      claves.forEach((clave) => {
         if (copia[clave] !== null && copia[clave] !== undefined) {
           copia[clave] = String(copia[clave]);
         }
@@ -157,6 +209,7 @@ export class EditarDocumentoQrdComponent implements OnInit {
     this.error = '';
 
     const exp = this.expediente;
+    this.cargarDatosPersona();
 
     this.formulario = {
       idExpediente,
@@ -173,21 +226,21 @@ export class EditarDocumentoQrdComponent implements OnInit {
       idIg: this.textoId(exp.idIg),
       nivelDestino: this.numero(exp.nivelDestino),
       asunto: exp.asunto || '',
-      descripcion: exp.descripcion || ''
+      descripcion: exp.descripcion || '',
     };
 
     try {
       await Promise.all([
         this.cargarCatalogos(),
         this.cargarUbicacionesIniciales(),
-        this.cargarArchivosActuales()
+        this.cargarArchivosActuales(),
       ]);
 
       this.cargaCompleta = true;
     } catch (err) {
       this.error = this.mensajeError(
         err,
-        'No se pudieron cargar todos los datos. Cierre y vuelva a abrir el editor.'
+        'No se pudieron cargar todos los datos. Cierre y vuelva a abrir el editor.',
       );
     } finally {
       this.guardando = false;
@@ -198,31 +251,31 @@ export class EditarDocumentoQrdComponent implements OnInit {
   private async cargarCatalogos(): Promise<void> {
     const [tiposExpediente, tiposDocumento] = await Promise.all([
       firstValueFrom(this.expedienteService.getTiposExpediente()),
-      firstValueFrom(this.expedienteService.getTiposDocumento())
+      firstValueFrom(this.expedienteService.getTiposDocumento()),
     ]);
 
     this.tiposExpediente = (tiposExpediente || [])
-      .filter(tipo => [1, 2, 3].includes(Number(tipo.idTipoExpediente)))
-      .map(tipo => ({
+      .filter((tipo) => [1, 2, 3].includes(Number(tipo.idTipoExpediente)))
+      .map((tipo) => ({
         ...tipo,
-        idTipoExpediente: Number(tipo.idTipoExpediente)
+        idTipoExpediente: Number(tipo.idTipoExpediente),
       }));
 
-    this.tiposDocumento = (tiposDocumento || []).map(tipo => ({
+    this.tiposDocumento = (tiposDocumento || []).map((tipo) => ({
       ...tipo,
-      idTipoDocumento: Number(tipo.idTipoDocumento)
+      idTipoDocumento: Number(tipo.idTipoDocumento),
     }));
 
     if (this.formulario.idTipoExpediente !== null) {
       const datos = await firstValueFrom(
         this.expedienteService.getTipificaciones(
-          this.formulario.idTipoExpediente
-        )
+          this.formulario.idTipoExpediente,
+        ),
       );
 
-      this.tipificaciones = (datos || []).map(tip => ({
+      this.tipificaciones = (datos || []).map((tip) => ({
         ...tip,
-        idTipificacion: Number(tip.idTipificacion)
+        idTipificacion: Number(tip.idTipificacion),
       }));
     }
   }
@@ -234,52 +287,44 @@ export class EditarDocumentoQrdComponent implements OnInit {
       firstValueFrom(this.usersService.getNucleos()),
 
       f.idNucleo
-        ? firstValueFrom(
-            this.usersService.getBrigadas(String(f.idNucleo))
-          )
+        ? firstValueFrom(this.usersService.getBrigadas(String(f.idNucleo)))
         : Promise.resolve([]),
 
       f.idNucleo && f.idBrigada
         ? firstValueFrom(
             this.usersService.getUnidades(
               String(f.idNucleo),
-              String(f.idBrigada)
-            )
+              String(f.idBrigada),
+            ),
           )
         : Promise.resolve([]),
 
       f.idNucleoIg
-        ? firstValueFrom(
-            this.usersService.getBrigadas(String(f.idNucleoIg))
-          )
-        : Promise.resolve([])
+        ? firstValueFrom(this.usersService.getBrigadas(String(f.idNucleoIg)))
+        : Promise.resolve([]),
     ]);
 
     this.nucleos = this.normalizarIds(nucleos, ['idNucleo']);
     this.nucleosIg = [...this.nucleos];
 
-    this.brigadas = this.normalizarIds(
-      brigadas,
-      ['idNucleo', 'idBrigada']
-    );
+    this.brigadas = this.normalizarIds(brigadas, ['idNucleo', 'idBrigada']);
 
-    this.unidades = this.normalizarIds(
-      unidades,
-      ['idNucleo', 'idBrigada', 'idUnidad']
-    );
+    this.unidades = this.normalizarIds(unidades, [
+      'idNucleo',
+      'idBrigada',
+      'idUnidad',
+    ]);
 
-    this.igs = this.normalizarIds(
-      igs,
-      ['idNucleo', 'idBrigada']
-    );
+    this.igs = this.normalizarIds(igs, ['idNucleo', 'idBrigada']);
   }
 
   private async cargarArchivosActuales(): Promise<void> {
-    this.archivosActuales = await firstValueFrom(
-      this.expedienteService.listarArchivosExpediente(
-        Number(this.expediente.idExpediente)
-      )
-    ) || [];
+    this.archivosActuales =
+      (await firstValueFrom(
+        this.expedienteService.listarArchivosExpediente(
+          Number(this.expediente.idExpediente),
+        ),
+      )) || [];
   }
 
   async cambiarTipoExpediente(): Promise<void> {
@@ -297,23 +342,23 @@ export class EditarDocumentoQrdComponent implements OnInit {
     try {
       const datos = await firstValueFrom(
         this.expedienteService.getTipificaciones(
-          Number(this.formulario.idTipoExpediente)
-        )
+          Number(this.formulario.idTipoExpediente),
+        ),
       );
 
       if (version !== this.versionTipo) {
         return;
       }
 
-      this.tipificaciones = (datos || []).map(tip => ({
+      this.tipificaciones = (datos || []).map((tip) => ({
         ...tip,
-        idTipificacion: Number(tip.idTipificacion)
+        idTipificacion: Number(tip.idTipificacion),
       }));
     } catch (err) {
       if (version === this.versionTipo) {
         this.error = this.mensajeError(
           err,
-          'No se pudieron cargar las tipificaciones.'
+          'No se pudieron cargar las tipificaciones.',
         );
       }
     } finally {
@@ -323,12 +368,16 @@ export class EditarDocumentoQrdComponent implements OnInit {
 
   esTipoDocumentoOtros(): boolean {
     const tipo = this.tiposDocumento.find(
-      item =>
+      (item) =>
         Number(item.idTipoDocumento) ===
-        Number(this.formulario.idTipoDocumento)
+        Number(this.formulario.idTipoDocumento),
     );
 
-    return String(tipo?.nombre || '').trim().toUpperCase() === 'OTROS';
+    return (
+      String(tipo?.nombre || '')
+        .trim()
+        .toUpperCase() === 'OTROS'
+    );
   }
 
   cambiarTipoDocumento(): void {
@@ -360,22 +409,17 @@ export class EditarDocumentoQrdComponent implements OnInit {
 
     try {
       const datos = await firstValueFrom(
-        this.usersService.getBrigadas(
-          String(this.formulario.idNucleo)
-        )
+        this.usersService.getBrigadas(String(this.formulario.idNucleo)),
       );
 
       if (version === this.versionNucleo) {
-        this.brigadas = this.normalizarIds(
-          datos,
-          ['idNucleo', 'idBrigada']
-        );
+        this.brigadas = this.normalizarIds(datos, ['idNucleo', 'idBrigada']);
       }
     } catch (err) {
       if (version === this.versionNucleo) {
         this.error = this.mensajeError(
           err,
-          'No se pudieron cargar las grandes unidades.'
+          'No se pudieron cargar las grandes unidades.',
         );
       }
     } finally {
@@ -405,21 +449,22 @@ export class EditarDocumentoQrdComponent implements OnInit {
       const datos = await firstValueFrom(
         this.usersService.getUnidades(
           String(this.formulario.idNucleo),
-          String(this.formulario.idBrigada)
-        )
+          String(this.formulario.idBrigada),
+        ),
       );
 
       if (version === this.versionBrigada) {
-        this.unidades = this.normalizarIds(
-          datos,
-          ['idNucleo', 'idBrigada', 'idUnidad']
-        );
+        this.unidades = this.normalizarIds(datos, [
+          'idNucleo',
+          'idBrigada',
+          'idUnidad',
+        ]);
       }
     } catch (err) {
       if (version === this.versionBrigada) {
         this.error = this.mensajeError(
           err,
-          'No se pudieron cargar las unidades.'
+          'No se pudieron cargar las unidades.',
         );
       }
     } finally {
@@ -431,9 +476,7 @@ export class EditarDocumentoQrdComponent implements OnInit {
     const version = ++this.versionUnidad;
 
     const unidad = this.unidades.find(
-      item =>
-        String(item.idUnidad) ===
-        String(this.formulario.idUnidad)
+      (item) => String(item.idUnidad) === String(this.formulario.idUnidad),
     );
 
     this.formulario.idNucleoIg = null;
@@ -457,14 +500,11 @@ export class EditarDocumentoQrdComponent implements OnInit {
 
     try {
       const datos = await firstValueFrom(
-        this.usersService.getBrigadas(idNucleoIg)
+        this.usersService.getBrigadas(idNucleoIg),
       );
 
       if (version === this.versionUnidad) {
-        this.igs = this.normalizarIds(
-          datos,
-          ['idNucleo', 'idBrigada']
-        );
+        this.igs = this.normalizarIds(datos, ['idNucleo', 'idBrigada']);
 
         this.formulario.idIg = idIg;
       }
@@ -472,7 +512,7 @@ export class EditarDocumentoQrdComponent implements OnInit {
       if (version === this.versionUnidad) {
         this.error = this.mensajeError(
           err,
-          'No se pudo cargar la inspectoría.'
+          'No se pudo cargar la inspectoría.',
         );
       }
     } finally {
@@ -484,9 +524,7 @@ export class EditarDocumentoQrdComponent implements OnInit {
     const nombre = String(nucleo?.nombre || '').trim();
 
     const unidad = this.unidades.find(
-      item =>
-        String(item.idUnidad) ===
-        String(this.formulario.idUnidad)
+      (item) => String(item.idUnidad) === String(this.formulario.idUnidad),
     );
 
     if (
@@ -520,16 +558,17 @@ export class EditarDocumentoQrdComponent implements OnInit {
     }
 
     if (
-      seleccionados.some(archivo =>
-        !archivo.name.toLowerCase().endsWith('.pdf') ||
-        (archivo.type !== '' && archivo.type !== 'application/pdf')
+      seleccionados.some(
+        (archivo) =>
+          !archivo.name.toLowerCase().endsWith('.pdf') ||
+          (archivo.type !== '' && archivo.type !== 'application/pdf'),
       )
     ) {
       this.error = 'Solo se permiten archivos PDF.';
       return;
     }
 
-    if (seleccionados.some(archivo => archivo.size > 10 * 1024 * 1024)) {
+    if (seleccionados.some((archivo) => archivo.size > 10 * 1024 * 1024)) {
       this.error = 'Cada PDF debe pesar como máximo 10 MB.';
       return;
     }
@@ -543,9 +582,7 @@ export class EditarDocumentoQrdComponent implements OnInit {
       return;
     }
 
-    this.archivosNuevos = this.archivosNuevos.filter(
-      (_, i) => i !== indice
-    );
+    this.archivosNuevos = this.archivosNuevos.filter((_, i) => i !== indice);
   }
 
   formatearTamano(bytes: number): string {
@@ -578,13 +615,12 @@ export class EditarDocumentoQrdComponent implements OnInit {
       const respuesta = await Swal.fire({
         icon: 'warning',
         title: '¿Eliminar este PDF?',
-        text:
-          'Se quitará inmediatamente del expediente. Cancelar el editor después no deshará esta acción.',
+        text: 'Se quitará inmediatamente del expediente. Cancelar el editor después no deshará esta acción.',
         showCancelButton: true,
         confirmButtonText: 'SÍ, ELIMINAR',
         cancelButtonText: 'CANCELAR',
         confirmButtonColor: '#b42318',
-        didOpen: popup => this.colocarAlertaEncima(popup)
+        didOpen: (popup) => this.colocarAlertaEncima(popup),
       });
 
       if (!respuesta.isConfirmed) {
@@ -592,19 +628,16 @@ export class EditarDocumentoQrdComponent implements OnInit {
       }
 
       await firstValueFrom(
-        this.expedienteService.eliminarArchivoExpediente(idArchivo)
+        this.expedienteService.eliminarArchivoExpediente(idArchivo),
       );
 
       this.archivosActuales = this.archivosActuales.filter(
-        item => Number(item.idArchivo) !== idArchivo
+        (item) => Number(item.idArchivo) !== idArchivo,
       );
 
       this.error = '';
     } catch (err) {
-      this.error = this.mensajeError(
-        err,
-        'No se pudo eliminar el PDF.'
-      );
+      this.error = this.mensajeError(err, 'No se pudo eliminar el PDF.');
     } finally {
       this.eliminandoArchivo = null;
     }
@@ -614,7 +647,8 @@ export class EditarDocumentoQrdComponent implements OnInit {
     const f = this.formulario;
 
     if (!this.cargaCompleta) {
-      this.error = 'La carga inicial no terminó correctamente. Cierre y vuelva a abrir.';
+      this.error =
+        'La carga inicial no terminó correctamente. Cierre y vuelva a abrir.';
       return false;
     }
 
@@ -623,11 +657,23 @@ export class EditarDocumentoQrdComponent implements OnInit {
       return false;
     }
 
+    const errorPersona =
+      this.obtenerErrorPersona('ruc') ||
+      this.obtenerErrorPersona('dni') ||
+      this.obtenerErrorPersona('correo');
+
+    if (errorPersona) {
+      this.mostrarDatosPersona = true;
+      this.error = errorPersona;
+      return false;
+    }
+
     if (
       Number(this.expediente?.idEstado) !== 3 ||
       Number(this.expediente?.nivelActual) !== 2
     ) {
-      this.error = 'Esta edición corresponde a expedientes observados ubicados en QRD2.';
+      this.error =
+        'Esta edición corresponde a expedientes observados ubicados en QRD2.';
       return false;
     }
 
@@ -664,10 +710,7 @@ export class EditarDocumentoQrdComponent implements OnInit {
       return false;
     }
 
-    if (
-      !String(f.asunto || '').trim() ||
-      !String(f.descripcion || '').trim()
-    ) {
+    if (!String(f.asunto || '').trim() || !String(f.descripcion || '').trim()) {
       this.error = 'Complete el asunto y la descripción.';
       return false;
     }
@@ -703,7 +746,7 @@ export class EditarDocumentoQrdComponent implements OnInit {
         confirmButtonText: 'SÍ, GUARDAR',
         cancelButtonText: 'CANCELAR',
         confirmButtonColor: '#176b49',
-        didOpen: popup => this.colocarAlertaEncima(popup)
+        didOpen: (popup) => this.colocarAlertaEncima(popup),
       });
 
       if (!confirmacion.isConfirmed) {
@@ -715,6 +758,15 @@ export class EditarDocumentoQrdComponent implements OnInit {
 
       const datos = {
         ...this.expediente,
+        datosPersona: {
+          nombres: this.datosPersona['nombres'].trim(),
+          apellidos: this.datosPersona['apellidos'].trim(),
+          ruc: this.datosPersona['ruc'].trim(),
+          dni: this.datosPersona['dni'].trim(),
+          telefono: this.datosPersona['telefono'].trim(),
+          domicilio: this.datosPersona['domicilio'].trim(),
+          correo: this.datosPersona['correo'].trim(),
+        },
         idTipoExpediente: Number(f.idTipoExpediente),
         idTipoDocumento: Number(f.idTipoDocumento),
         idTipificacion: Number(f.idTipificacion),
@@ -733,14 +785,11 @@ export class EditarDocumentoQrdComponent implements OnInit {
         nivelDestino: this.expediente.nivelDestino,
         idEstado: this.expediente.idEstado,
         nivelActual: this.expediente.nivelActual,
-        observacion: this.expediente.observacion
+        observacion: this.expediente.observacion,
       };
 
       const resultado = await firstValueFrom(
-        this.expedienteService.actualizarExpediente(
-          idExpediente,
-          datos
-        )
+        this.expedienteService.actualizarExpediente(idExpediente, datos),
       );
 
       datosGuardados = true;
@@ -752,13 +801,13 @@ export class EditarDocumentoQrdComponent implements OnInit {
           this.expedienteService.agregarArchivosExpediente(
             idExpediente,
             resultado?.cinv || this.expediente.cinv,
-            [archivo]
-          )
+            [archivo],
+          ),
         );
 
         this.archivosActuales = [
           ...this.archivosActuales,
-          ...(guardados || [])
+          ...(guardados || []),
         ];
 
         this.archivosNuevos = this.archivosNuevos.slice(1);
@@ -766,10 +815,7 @@ export class EditarDocumentoQrdComponent implements OnInit {
 
       this.actualizado.emit(resultado || datos);
     } catch (err) {
-      const detalle = this.mensajeError(
-        err,
-        'Ocurrió un error al guardar.'
-      );
+      const detalle = this.mensajeError(err, 'Ocurrió un error al guardar.');
 
       this.error = datosGuardados
         ? `Los datos se actualizaron, pero falta completar la carga de PDF. ${detalle}`

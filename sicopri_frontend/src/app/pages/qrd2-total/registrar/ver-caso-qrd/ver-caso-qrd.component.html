@@ -1,18 +1,13 @@
-<div
-  class="ver-caso-qrd-overlay"
-  (click)="cerrarModal()"
->
-
+<div class="ver-caso-qrd-overlay" (click)="cerrarModal()">
   <div
     class="ver-caso-qrd-modal"
     [class.modal-pdf]="pestanaActiva === 2"
     (click)="$event.stopPropagation()"
   >
-
     <div class="qrd-header">
       <div class="titulo-caso">
         <h2>INFORMACIÓN DE CASO APERTURADO</h2>
-        <span>{{ expediente?.cinv || '-' }}</span>
+        <span>{{ expediente?.cinv || "-" }}</span>
       </div>
 
       <button
@@ -26,11 +21,8 @@
     </div>
 
     <div class="estructura-caso">
-
       <main class="zona-principal">
-
         <div class="tabs-qrd">
-
           <button
             type="button"
             [class.activa]="pestanaActiva === 1"
@@ -64,61 +56,133 @@
             <span>3</span>
             SEGUIMIENTO
           </button>
-
         </div>
 
         <!-- ========================================= -->
         <!-- 1. DOCUMENTO REGISTRADO -->
         <!-- ========================================= -->
 
-        <div
-          class="contenido-qrd"
-          *ngIf="pestanaActiva === 1"
-        >
+        <div class="contenido-qrd" *ngIf="pestanaActiva === 1">
+          <section class="persona-seccion">
+            <button
+              type="button"
+              class="persona-toggle"
+              [attr.aria-expanded]="mostrarDatosPersona"
+              aria-controls="ver-qrd2-persona"
+              (click)="mostrarDatosPersona = !mostrarDatosPersona"
+            >
+              <strong>DATOS DE LA PERSONA</strong>
+
+              <span aria-hidden="true">
+                {{ mostrarDatosPersona ? "−" : "+" }}
+              </span>
+            </button>
+
+            <div
+              id="ver-qrd2-persona"
+              class="persona-contenido"
+              [hidden]="!mostrarDatosPersona"
+            >
+              <div class="persona-grid">
+                <div class="persona-campo persona-nombres">
+                  <span class="persona-label">NOMBRES</span>
+                  <p>
+                    {{ expediente?.datosPersona?.nombres || "No registrado" }}
+                  </p>
+                </div>
+
+                <div class="persona-campo persona-apellidos">
+                  <span class="persona-label">APELLIDOS</span>
+                  <p>
+                    {{ expediente?.datosPersona?.apellidos || "No registrado" }}
+                  </p>
+                </div>
+
+                <div class="persona-campo persona-ruc">
+                  <span class="persona-label">RUC</span>
+                  <p>{{ expediente?.datosPersona?.ruc || "No registrado" }}</p>
+                </div>
+
+                <div class="persona-campo persona-dni">
+                  <span class="persona-label">DNI</span>
+                  <p>{{ expediente?.datosPersona?.dni || "No registrado" }}</p>
+                </div>
+
+                <div class="persona-campo persona-telefono">
+                  <span class="persona-label">TELÉFONO</span>
+                  <p>
+                    {{ expediente?.datosPersona?.telefono || "No registrado" }}
+                  </p>
+                </div>
+
+                <div class="persona-campo persona-domicilio">
+                  <span class="persona-label">DOMICILIO</span>
+                  <p>
+                    {{ expediente?.datosPersona?.domicilio || "No registrado" }}
+                  </p>
+                </div>
+
+                <div class="persona-campo persona-correo">
+                  <span class="persona-label">CORREO ELECTRÓNICO</span>
+                  <p>
+                    {{ expediente?.datosPersona?.correo || "No registrado" }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
 
           <div class="grid-qrd grid-4">
             <div class="campo-qrd">
               <label>CATEGORÍA</label>
-              <input type="text" [value]="obtenerCategoriaQrd()" readonly>
+              <input type="text" [value]="obtenerCategoriaQrd()" readonly />
             </div>
 
             <div class="campo-qrd">
               <label>TIPO DE DOC</label>
-              <input type="text" [value]="nombreTipoDocumento || '-'" readonly>
+              <input
+                type="text"
+                [value]="nombreTipoDocumento || '-'"
+                readonly
+              />
             </div>
 
             <div class="campo-qrd">
               <label>N° DOC</label>
-              <input type="text" [value]="expediente?.nroDocumento || '-'" readonly>
+              <input
+                type="text"
+                [value]="expediente?.nroDocumento || '-'"
+                readonly
+              />
             </div>
 
             <div class="campo-qrd">
               <label>FECHA</label>
-              <input type="text" [value]="obtenerFechaDocumento()" readonly>
+              <input type="text" [value]="obtenerFechaDocumento()" readonly />
             </div>
           </div>
 
           <div class="grid-qrd grid-1">
             <div class="campo-qrd">
               <label>TIPIFICACIÓN</label>
-              <input type="text" [value]="nombreTipificacion || '-'" readonly>
+              <input type="text" [value]="nombreTipificacion || '-'" readonly />
             </div>
           </div>
 
           <div class="grid-qrd grid-3">
             <div class="campo-qrd">
               <label>NÚCLEO</label>
-              <input type="text" [value]="nombreNucleo || '-'" readonly>
+              <input type="text" [value]="nombreNucleo || '-'" readonly />
             </div>
 
             <div class="campo-qrd">
               <label>GRAN UNIDAD</label>
-              <input type="text" [value]="nombreBrigada || '-'" readonly>
+              <input type="text" [value]="nombreBrigada || '-'" readonly />
             </div>
 
             <div class="campo-qrd">
               <label>UNIDAD</label>
-              <input type="text" [value]="nombreUnidad || '-'" readonly>
+              <input type="text" [value]="nombreUnidad || '-'" readonly />
             </div>
           </div>
 
@@ -126,12 +190,12 @@
           <div class="grid-qrd grid-3 fila-inspectoria">
             <div class="campo-qrd">
               <label>NÚCLEO IG</label>
-              <input type="text" [value]="nombreNucleoIg || '-'" readonly>
+              <input type="text" [value]="nombreNucleoIg || '-'" readonly />
             </div>
 
             <div class="campo-qrd">
               <label>IG</label>
-              <input type="text" [value]="nombreIg || '-'" readonly>
+              <input type="text" [value]="nombreIg || '-'" readonly />
             </div>
 
             <div class="campo-qrd">
@@ -162,34 +226,36 @@
               </ng-container>
 
               <ng-template #destinoSoloLectura>
-                <input type="text" [value]="obtenerDestino()" readonly>
+                <input type="text" [value]="obtenerDestino()" readonly />
               </ng-template>
             </div>
           </div>
 
           <div class="campo-qrd campo-completo">
             <label>ASUNTO</label>
-            <textarea rows="3" [value]="expediente?.asunto || '-'" readonly></textarea>
+            <textarea
+              rows="3"
+              [value]="expediente?.asunto || '-'"
+              readonly
+            ></textarea>
           </div>
 
           <div class="campo-qrd campo-completo">
             <label>DESCRIPCIÓN</label>
-            <textarea rows="5" [value]="expediente?.descripcion || '-'" readonly></textarea>
+            <textarea
+              rows="5"
+              [value]="expediente?.descripcion || '-'"
+              readonly
+            ></textarea>
           </div>
-
         </div>
 
         <!-- ========================================= -->
         <!-- 2. DOCUMENTOS ADJUNTOS -->
         <!-- ========================================= -->
 
-        <div
-          class="contenido-qrd contenido-pdf"
-          *ngIf="pestanaActiva === 2"
-        >
-
+        <div class="contenido-qrd contenido-pdf" *ngIf="pestanaActiva === 2">
           <div class="pdf-seccion">
-
             <div class="estado-archivos" *ngIf="cargandoArchivos">
               <div class="spinner-archivos"></div>
               <p>Cargando documentos adjuntos...</p>
@@ -219,23 +285,24 @@
             </div>
 
             <ng-container
-              *ngIf="
-                !cargandoArchivos &&
-                !errorArchivos &&
-                archivos.length > 0
-              "
+              *ngIf="!cargandoArchivos && !errorArchivos && archivos.length > 0"
             >
-
               <div class="selector-pdfs">
                 <button
                   type="button"
                   *ngFor="let archivo of archivos; let i = index"
-                  [class.activo]="archivoSeleccionado?.idArchivo === archivo.idArchivo"
+                  [class.activo]="
+                    archivoSeleccionado?.idArchivo === archivo.idArchivo
+                  "
                   (click)="seleccionarArchivo(archivo)"
                 >
                   <span class="selector-numero">{{ i + 1 }}</span>
                   <span class="selector-nombre">
-                    {{ archivo.nombreArchivo || archivo.nombreGuardado || ('Documento ' + (i + 1)) }}
+                    {{
+                      archivo.nombreArchivo ||
+                        archivo.nombreGuardado ||
+                        "Documento " + (i + 1)
+                    }}
                   </span>
                 </button>
               </div>
@@ -258,11 +325,8 @@
                   <p>Seleccione un documento para visualizarlo.</p>
                 </div>
               </div>
-
             </ng-container>
-
           </div>
-
         </div>
 
         <!-- ========================================= -->
@@ -273,7 +337,6 @@
           class="contenido-qrd contenido-seguimiento"
           *ngIf="pestanaActiva === 3"
         >
-
           <div class="seguimiento-cabecera">
             <div>
               <h3>SEGUIMIENTO</h3>
@@ -319,15 +382,10 @@
             </button>
           </div>
 
-          <div
-            class="estado-seguimiento cargando"
-            *ngIf="cargandoSeguimiento"
-          >
+          <div class="estado-seguimiento cargando" *ngIf="cargandoSeguimiento">
             <span class="mini-spinner"></span>
             Cargando seguimiento...
           </div>
-
-
 
           <div
             class="error-seguimiento"
@@ -339,11 +397,9 @@
           <div
             class="form-seguimiento"
             *ngIf="
-              !cargandoSeguimiento &&
-              (seguimientoActivo || seguimientoGuardado)
+              !cargandoSeguimiento && (seguimientoActivo || seguimientoGuardado)
             "
           >
-
             <div class="campo-seguimiento">
               <label>EMPIEZA</label>
               <input
@@ -355,7 +411,7 @@
                   soloLectura ||
                   (seguimientoGuardado && !seguimientoActivo)
                 "
-              >
+              />
             </div>
 
             <div class="campo-seguimiento">
@@ -369,16 +425,12 @@
                   soloLectura ||
                   (seguimientoGuardado && !seguimientoActivo)
                 "
-              >
+              />
             </div>
 
             <div class="campo-seguimiento">
               <label>CANTIDAD DE DÍAS</label>
-              <input
-                type="number"
-                [value]="cantidadDiasSeguimiento"
-                readonly
-              >
+              <input type="number" [value]="cantidadDiasSeguimiento" readonly />
             </div>
 
             <div
@@ -395,7 +447,7 @@
                   !fechaFinSeguimiento
                 "
               >
-                {{ guardandoSeguimiento ? 'GUARDANDO...' : 'GUARDAR' }}
+                {{ guardandoSeguimiento ? "GUARDANDO..." : "GUARDAR" }}
               </button>
 
               <button
@@ -407,12 +459,8 @@
                 CANCELAR
               </button>
             </div>
-
           </div>
-
-
         </div>
-
       </main>
 
       <!-- ========================================= -->
@@ -420,7 +468,6 @@
       <!-- ========================================= -->
 
       <aside class="panel-lateral">
-
         <div class="acciones-titulo">ACCIONES</div>
         <div class="linea-acciones"></div>
 
@@ -429,9 +476,7 @@
           class="btn-enviar-nivel3"
           *ngIf="!soloLectura"
           [disabled]="
-            guardandoObservacion ||
-            guardandoDestino ||
-            guardandoSeguimiento
+            guardandoObservacion || guardandoDestino || guardandoSeguimiento
           "
           (click)="solicitarEnvioNivel3()"
         >
@@ -439,11 +484,7 @@
           ENVIAR A INSPECTORÍA NIVEL 3
         </button>
 
-        <button
-          type="button"
-          class="btn-salir"
-          (click)="cerrarModal()"
-        >
+        <button type="button" class="btn-salir" (click)="cerrarModal()">
           <span class="icono-accion">↩</span>
           SALIR
         </button>
@@ -475,10 +516,7 @@
               ✓ Guardado
             </div>
 
-            <span
-              class="error-observacion"
-              *ngIf="errorObservacion"
-            >
+            <span class="error-observacion" *ngIf="errorObservacion">
               {{ errorObservacion }}
             </span>
 
@@ -487,11 +525,7 @@
             </span>
           </div>
         </div>
-
       </aside>
-      
-
     </div>
-
   </div>
 </div>

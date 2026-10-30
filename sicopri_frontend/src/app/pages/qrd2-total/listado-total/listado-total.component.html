@@ -154,3 +154,10 @@
     expedienteTrazabilidad
   " [expediente]="expedienteTrazabilidad" (cerrar)="cerrarTrazabilidad()">
 </app-trazabilidad-qrd>
+
+<app-trazabilidad-pdf
+  *ngIf="mostrarTrazPdf && expedienteTrazPdf"
+  [expediente]="expedienteTrazPdf"
+  (cerrar)="cerrarTrazPdf()"
+>
+</app-trazabilidad-pdf>

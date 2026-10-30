@@ -1190,3 +1190,132 @@
   }
 
 }
+
+/* DATOS DE LA PERSONA */
+
+.persona-seccion {
+  margin-bottom: 20px;
+  border: 1px solid #cbded4;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.persona-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 0;
+  background: #f0f7f3;
+  color: #0b5d3d;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.persona-toggle strong {
+  font-size: 12px;
+}
+
+.persona-toggle small {
+  margin-left: 10px;
+  font-size: 11px;
+}
+
+.persona-toggle > span:last-child {
+  font-size: 23px;
+}
+
+.persona-toggle:focus-visible {
+  outline: 3px solid #0c6a49;
+  outline-offset: -3px;
+}
+
+.persona-contenido {
+  padding: 16px;
+}
+
+.persona-contenido[hidden] {
+  display: none;
+}
+
+.persona-ayuda {
+  margin: 0 0 15px;
+  color: #536159;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.persona-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.persona-campo {
+  display: block;
+  grid-column: span 2;
+  min-width: 0;
+  margin: 0;
+}
+
+.persona-campo.persona-medio {
+  grid-column: span 3;
+}
+
+.persona-campo.persona-ancho {
+  grid-column: span 4;
+}
+
+.persona-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #344c41;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.persona-campo input,
+.persona-valor {
+  display: block;
+  width: 100%;
+  min-height: 43px;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #c7d5dd;
+  border-radius: 7px;
+  background: #fff;
+  color: #435249;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.persona-campo input:focus {
+  outline: 2px solid #0c6a49;
+  outline-offset: 1px;
+}
+
+.persona-valor {
+  background: #f4f7f5;
+  overflow-wrap: anywhere;
+}
+
+.persona-error {
+  display: block;
+  margin-top: 5px;
+  color: #b42318;
+  font-size: 11px;
+}
+
+@media (max-width: 650px) {
+  .persona-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .persona-grid .persona-campo {
+    grid-column: auto;
+  }
+}

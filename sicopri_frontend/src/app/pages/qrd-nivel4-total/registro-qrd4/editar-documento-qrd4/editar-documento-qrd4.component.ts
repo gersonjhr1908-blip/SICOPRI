@@ -6,258 +6,287 @@ import {
   Input,
   OnChanges,
   Output,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 
-import {
-  FormsModule
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 
 import Swal from 'sweetalert2';
 
-import {
-  ExpedienteService
-} from '../../../../services/expediente.service';
+import { ExpedienteService } from '../../../../services/expediente.service';
 
 import {
   UsersService,
   Nucleo,
   Brigada,
-  Unidad
+  Unidad,
 } from '../../../../services/users.service';
-
 
 @Component({
   selector: 'app-editar-documento-qrd4',
 
   standalone: true,
 
-  imports: [
-    CommonModule,
-    FormsModule
-  ],
+  imports: [CommonModule, FormsModule],
 
-  templateUrl:
-    './editar-documento-qrd4.component.html',
+  templateUrl: './editar-documento-qrd4.component.html',
 
-  styleUrl:
-    './editar-documento-qrd4.component.css'
+  styleUrl: './editar-documento-qrd4.component.css',
 })
-export class EditarDocumentoQrd4Component
-  implements OnChanges {
-
-
+export class EditarDocumentoQrd4Component implements OnChanges {
   // =========================================
   // EXPEDIENTE
   // =========================================
 
   @Input()
-  expediente: any =
-    null;
-
+  expediente: any = null;
 
   // =========================================
   // OUTPUTS
   // =========================================
 
   @Output()
-  cerrar =
-    new EventEmitter<void>();
-
+  cerrar = new EventEmitter<void>();
 
   @Output()
-  actualizado =
-    new EventEmitter<any>();
-
+  actualizado = new EventEmitter<any>();
 
   // =========================================
   // FORMULARIO
   // =========================================
 
   formulario: any = {
+    idExpediente: null,
 
-    idExpediente:
-      null,
+    idTipoExpediente: null,
 
-    idTipoExpediente:
-      null,
+    idTipoDocumento: null,
 
-    idTipoDocumento:
-      null,
+    otroTipoDocumento: '',
 
-    otroTipoDocumento:
-      '',
+    nroDocumento: '',
 
-    nroDocumento:
-      '',
+    fechaDocumento: '',
 
-    fechaDocumento:
-      '',
+    idTipificacion: null,
 
-    idTipificacion:
-      null,
+    idNucleo: null,
 
-    idNucleo:
-      null,
+    idBrigada: null,
 
-    idBrigada:
-      null,
+    idUnidad: null,
 
-    idUnidad:
-      null,
+    idNucleoIg: null,
 
-    idNucleoIg:
-      null,
+    idIg: null,
 
-    idIg:
-      null,
+    asunto: '',
 
-    asunto:
-      '',
-
-    descripcion:
-      ''
-
+    descripcion: '',
   };
-
 
   // =========================================
   // CATÁLOGOS
   // =========================================
 
-  tiposExpediente: any[] =
-    [];
+  tiposExpediente: any[] = [];
 
-  tiposDocumento: any[] =
-    [];
+  tiposDocumento: any[] = [];
 
-  tipificaciones: any[] =
-    [];
-
+  tipificaciones: any[] = [];
 
   // =========================================
   // UBICACIÓN ORIGINAL
   // =========================================
 
-  nucleos: Nucleo[] =
-    [];
+  nucleos: Nucleo[] = [];
 
-  brigadas: Brigada[] =
-    [];
+  brigadas: Brigada[] = [];
 
-  unidades: Unidad[] =
-    [];
-
+  unidades: Unidad[] = [];
 
   // =========================================
   // UBICACIÓN IG
   // =========================================
 
-  nucleosIg: Nucleo[] =
-    [];
+  nucleosIg: Nucleo[] = [];
 
-  igs: Brigada[] =
-    [];
-
+  igs: Brigada[] = [];
 
   // =========================================
   // PDFs EXISTENTES
   // =========================================
 
-  archivosActuales: any[] =
-    [];
-
+  archivosActuales: any[] = [];
 
   // =========================================
   // PDFs NUEVOS
   // =========================================
 
-  archivosNuevos: File[] =
-    [];
-
+  archivosNuevos: File[] = [];
 
   // =========================================
   // ESTADOS
   // =========================================
 
-  guardando =
-    false;
+  guardando = false;
 
-  cargandoArchivos =
-    false;
+  cargandoArchivos = false;
 
-  eliminandoArchivo:
-    number | null =
-    null;
+  eliminandoArchivo: number | null = null;
 
-  error =
-    '';
+  error = '';
 
+  mostrarDatosPersona = false;
 
+  datosPersona: Record<string, string> = {
+    nombres: '',
+    apellidos: '',
+    ruc: '',
+    dni: '',
+    telefono: '',
+    domicilio: '',
+    correo: '',
+  };
+
+  readonly camposPersona = [
+    {
+      clave: 'nombres',
+      etiqueta: 'NOMBRES',
+      tipo: 'text',
+      maximo: 100,
+      placeholder: 'Ingrese los nombres',
+    },
+    {
+      clave: 'apellidos',
+      etiqueta: 'APELLIDOS',
+      tipo: 'text',
+      maximo: 150,
+      placeholder: 'Ingrese los apellidos',
+    },
+    {
+      clave: 'ruc',
+      etiqueta: 'RUC',
+      tipo: 'text',
+      maximo: 11,
+      placeholder: 'Ingrese 11 dígitos',
+    },
+    {
+      clave: 'dni',
+      etiqueta: 'DNI',
+      tipo: 'text',
+      maximo: 8,
+      placeholder: 'Ingrese 8 dígitos',
+    },
+    {
+      clave: 'telefono',
+      etiqueta: 'TELÉFONO',
+      tipo: 'tel',
+      maximo: 25,
+      placeholder: 'Ingrese el teléfono',
+    },
+    {
+      clave: 'domicilio',
+      etiqueta: 'DOMICILIO',
+      tipo: 'text',
+      maximo: 250,
+      placeholder: 'Ingrese la dirección',
+    },
+    {
+      clave: 'correo',
+      etiqueta: 'CORREO ELECTRÓNICO',
+      tipo: 'email',
+      maximo: 254,
+      placeholder: 'Ingrese el correo',
+    },
+  ];
+
+  private cargarDatosPersona(persona: any = null): void {
+    this.datosPersona = {
+      nombres: persona?.nombres ?? '',
+      apellidos: persona?.apellidos ?? '',
+      ruc: persona?.ruc ?? '',
+      dni: persona?.dni ?? '',
+      telefono: persona?.telefono ?? '',
+      domicilio: persona?.domicilio ?? '',
+      correo: persona?.correo ?? '',
+    };
+
+    this.mostrarDatosPersona = Object.values(this.datosPersona).some(
+      (valor) => valor.trim() !== '',
+    );
+  }
+
+  obtenerErrorPersona(clave: string): string {
+    const valor = String(this.datosPersona[clave] ?? '').trim();
+
+    if (!valor) {
+      return '';
+    }
+
+    if (clave === 'ruc' && !/^\d{11}$/.test(valor)) {
+      return 'Ingrese un RUC de 11 dígitos.';
+    }
+
+    if (clave === 'dni' && !/^\d{8}$/.test(valor)) {
+      return 'Ingrese un DNI de 8 dígitos.';
+    }
+
+    if (clave === 'correo' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)) {
+      return 'Ingrese un correo válido.';
+    }
+
+    return '';
+  }
+
+  private obtenerDatosPersonaParaGuardar() {
+    return {
+      nombres: this.datosPersona['nombres'].trim(),
+      apellidos: this.datosPersona['apellidos'].trim(),
+      ruc: this.datosPersona['ruc'].trim(),
+      dni: this.datosPersona['dni'].trim(),
+      telefono: this.datosPersona['telefono'].trim(),
+      domicilio: this.datosPersona['domicilio'].trim(),
+      correo: this.datosPersona['correo'].trim(),
+    };
+  }
+  readonly personaSoloLectura = false;
   // =========================================
   // CONSTRUCTOR
   // =========================================
 
   constructor(
+    private expedienteService: ExpedienteService,
 
-    private expedienteService:
-      ExpedienteService,
-
-    private usersService:
-      UsersService
-
+    private usersService: UsersService,
   ) {}
-
 
   // =========================================
   // CAMBIO DE EXPEDIENTE
   // =========================================
 
-  ngOnChanges(
-    changes: SimpleChanges
-  ): void {
-
-    if (
-      changes['expediente'] &&
-      this.expediente
-    ) {
-
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['expediente'] && this.expediente) {
       this.inicializarEdicion();
-
     }
-
   }
-
 
   // =========================================
   // INICIALIZAR
   // =========================================
 
   inicializarEdicion(): void {
+    this.error = '';
 
-    this.error =
-      '';
+    this.archivosNuevos = [];
 
+    this.brigadas = [];
 
-    this.archivosNuevos =
-      [];
+    this.unidades = [];
 
+    this.igs = [];
 
-    this.brigadas =
-      [];
-
-
-    this.unidades =
-      [];
-
-
-    this.igs =
-      [];
-
-
-    this.tipificaciones =
-      [];
-
+    this.tipificaciones = [];
 
     this.cargarFormulario();
 
@@ -266,633 +295,298 @@ export class EditarDocumentoQrd4Component
     this.cargarNucleos();
 
     this.cargarArchivosActuales();
-
   }
-
 
   // =========================================
   // CARGAR FORMULARIO
   // =========================================
 
   cargarFormulario(): void {
-
+    this.cargarDatosPersona(this.expediente?.datosPersona);
     this.formulario = {
+      idExpediente: this.expediente?.idExpediente ?? null,
 
-      idExpediente:
-        this.expediente?.idExpediente ?? null,
+      idTipoExpediente: this.expediente?.idTipoExpediente ?? null,
 
+      idTipoDocumento: this.expediente?.idTipoDocumento ?? null,
 
-      idTipoExpediente:
-        this.expediente?.idTipoExpediente ?? null,
+      otroTipoDocumento: this.expediente?.otroTipoDocumento || '',
 
+      nroDocumento: this.expediente?.nroDocumento || '',
 
-      idTipoDocumento:
-        this.expediente?.idTipoDocumento ?? null,
+      fechaDocumento: this.expediente?.fechaDocumento || '',
 
+      idTipificacion: this.expediente?.idTipificacion ?? null,
 
-      otroTipoDocumento:
-        this.expediente?.otroTipoDocumento || '',
+      idNucleo: this.expediente?.idNucleo
+        ? String(this.expediente.idNucleo)
+        : null,
 
+      idBrigada: this.expediente?.idBrigada
+        ? String(this.expediente.idBrigada)
+        : null,
 
-      nroDocumento:
-        this.expediente?.nroDocumento || '',
-
-
-      fechaDocumento:
-        this.expediente?.fechaDocumento || '',
-
-
-      idTipificacion:
-        this.expediente?.idTipificacion ?? null,
-
-
-      idNucleo:
-        this.expediente?.idNucleo
-          ? String(
-              this.expediente.idNucleo
-            )
-          : null,
-
-
-      idBrigada:
-        this.expediente?.idBrigada
-          ? String(
-              this.expediente.idBrigada
-            )
-          : null,
-
-
-      idUnidad:
-        this.expediente?.idUnidad
-          ? String(
-              this.expediente.idUnidad
-            )
-          : null,
-
+      idUnidad: this.expediente?.idUnidad
+        ? String(this.expediente.idUnidad)
+        : null,
 
       idNucleoIg:
         this.expediente?.idNucleoIg !== null &&
         this.expediente?.idNucleoIg !== undefined
-          ? String(
-              this.expediente.idNucleoIg
-            )
+          ? String(this.expediente.idNucleoIg)
           : null,
 
+      idIg: this.expediente?.idIg ? String(this.expediente.idIg) : null,
 
-      idIg:
-        this.expediente?.idIg
-          ? String(
-              this.expediente.idIg
-            )
-          : null,
+      asunto: this.expediente?.asunto || '',
 
-
-      asunto:
-        this.expediente?.asunto || '',
-
-
-      descripcion:
-        this.expediente?.descripcion || ''
-
+      descripcion: this.expediente?.descripcion || '',
     };
-
   }
-
 
   // =========================================
   // CATÁLOGOS
   // =========================================
 
   cargarCatalogos(): void {
+    this.expedienteService.getTiposExpediente().subscribe({
+      next: (data) => {
+        this.tiposExpediente = (data || []).filter(
+          (tipo: any) => Number(tipo.idTipoExpediente) !== 5,
+        );
 
-
-    this.expedienteService
-      .getTiposExpediente()
-      .subscribe({
-
-        next: (
-          data
-        ) => {
-
-          this.tiposExpediente =
-            (data || [])
-              .filter(
-                (
-                  tipo: any
-                ) =>
-                  Number(
-                    tipo.idTipoExpediente
-                  ) !== 5
-              );
-
-
-          if (
-            this.formulario.idTipoExpediente
-          ) {
-
-            this.cargarTipificaciones();
-
-          }
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR TIPOS EXPEDIENTE QR4:',
-            err
-          );
-
+        if (this.formulario.idTipoExpediente) {
+          this.cargarTipificaciones();
         }
+      },
 
-      });
+      error: (err) => {
+        console.error('ERROR TIPOS EXPEDIENTE QR4:', err);
+      },
+    });
 
+    this.expedienteService.getTiposDocumento().subscribe({
+      next: (data) => {
+        this.tiposDocumento = data || [];
+      },
 
-    this.expedienteService
-      .getTiposDocumento()
-      .subscribe({
-
-        next: (
-          data
-        ) => {
-
-          this.tiposDocumento =
-            data || [];
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR TIPOS DOCUMENTO QR4:',
-            err
-          );
-
-        }
-
-      });
-
+      error: (err) => {
+        console.error('ERROR TIPOS DOCUMENTO QR4:', err);
+      },
+    });
   }
-
 
   // =========================================
   // TIPIFICACIONES
   // =========================================
 
   cargarTipificaciones(): void {
-
-    if (
-      !this.formulario.idTipoExpediente
-    ) {
-
-      this.tipificaciones =
-        [];
+    if (!this.formulario.idTipoExpediente) {
+      this.tipificaciones = [];
 
       return;
-
     }
 
-
     this.expedienteService
-      .getTipificaciones(
-        Number(
-          this.formulario.idTipoExpediente
-        )
-      )
+      .getTipificaciones(Number(this.formulario.idTipoExpediente))
       .subscribe({
-
-        next: (
-          data
-        ) => {
-
-          this.tipificaciones =
-            data || [];
-
+        next: (data) => {
+          this.tipificaciones = data || [];
         },
 
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR TIPIFICACIONES QR4:',
-            err
-          );
-
-        }
-
+        error: (err) => {
+          console.error('ERROR TIPIFICACIONES QR4:', err);
+        },
       });
-
   }
-
 
   // =========================================
   // CAMBIAR CATEGORÍA
   // =========================================
 
   cambiarTipoExpediente(): void {
+    this.formulario.idTipificacion = null;
 
-    this.formulario.idTipificacion =
-      null;
-
-
-    this.tipificaciones =
-      [];
-
+    this.tipificaciones = [];
 
     this.cargarTipificaciones();
-
   }
-
 
   // =========================================
   // TIPO DOCUMENTO OTROS
   // =========================================
 
   esTipoDocumentoOtros(): boolean {
-
-    if (
-      !this.formulario.idTipoDocumento
-    ) {
-
+    if (!this.formulario.idTipoDocumento) {
       return false;
-
     }
 
+    const tipo = this.tiposDocumento.find(
+      (item: any) =>
+        Number(item.idTipoDocumento) ===
+        Number(this.formulario.idTipoDocumento),
+    );
 
-    const tipo =
-      this.tiposDocumento.find(
-        (
-          item: any
-        ) =>
-          Number(
-            item.idTipoDocumento
-          ) ===
-          Number(
-            this.formulario.idTipoDocumento
-          )
-      );
+    const nombre = String(tipo?.nombre || '')
+      .trim()
+      .toUpperCase();
 
-
-    const nombre =
-      String(
-        tipo?.nombre || ''
-      )
-        .trim()
-        .toUpperCase();
-
-
-    return nombre ===
-      'OTROS';
-
+    return nombre === 'OTROS';
   }
-
 
   // =========================================
   // CAMBIO TIPO DOCUMENTO
   // =========================================
 
   cambiarTipoDocumento(): void {
-
-    if (
-      !this.esTipoDocumentoOtros()
-    ) {
-
-      this.formulario.otroTipoDocumento =
-        '';
-
+    if (!this.esTipoDocumentoOtros()) {
+      this.formulario.otroTipoDocumento = '';
     }
-
   }
-
 
   // =========================================
   // CARGAR NÚCLEOS
   // =========================================
 
   cargarNucleos(): void {
+    this.usersService.getNucleos().subscribe({
+      next: (data) => {
+        this.nucleos = data || [];
 
-    this.usersService
-      .getNucleos()
-      .subscribe({
+        this.nucleosIg = data || [];
 
-        next: (
-          data
-        ) => {
-
-          this.nucleos =
-            data || [];
-
-
-          this.nucleosIg =
-            data || [];
-
-
-          if (
-            this.formulario.idNucleo
-          ) {
-
-            this.cargarBrigadasIniciales();
-
-          }
-
-
-          if (
-            this.formulario.idNucleoIg
-          ) {
-
-            this.cargarIgsIniciales();
-
-          }
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR NÚCLEOS QR4:',
-            err
-          );
-
+        if (this.formulario.idNucleo) {
+          this.cargarBrigadasIniciales();
         }
 
-      });
+        if (this.formulario.idNucleoIg) {
+          this.cargarIgsIniciales();
+        }
+      },
 
+      error: (err) => {
+        console.error('ERROR NÚCLEOS QR4:', err);
+      },
+    });
   }
-
 
   // =========================================
   // PRECARGAR BRIGADAS
   // =========================================
 
   cargarBrigadasIniciales(): void {
+    const idNucleoActual = this.formulario.idNucleo;
 
-    const idNucleoActual =
-      this.formulario.idNucleo;
+    const idBrigadaActual = this.formulario.idBrigada;
 
-
-    const idBrigadaActual =
-      this.formulario.idBrigada;
-
-
-    if (
-      !idNucleoActual
-    ) {
-
+    if (!idNucleoActual) {
       return;
-
     }
 
+    this.usersService.getBrigadas(String(idNucleoActual)).subscribe({
+      next: (data) => {
+        this.brigadas = data || [];
 
-    this.usersService
-      .getBrigadas(
-        String(
-          idNucleoActual
-        )
-      )
-      .subscribe({
+        this.formulario.idBrigada = idBrigadaActual;
 
-        next: (
-          data
-        ) => {
-
-          this.brigadas =
-            data || [];
-
-
-          this.formulario.idBrigada =
-            idBrigadaActual;
-
-
-          if (
-            this.formulario.idBrigada
-          ) {
-
-            this.cargarUnidadesIniciales();
-
-          }
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR BRIGADAS INICIALES QR4:',
-            err
-          );
-
+        if (this.formulario.idBrigada) {
+          this.cargarUnidadesIniciales();
         }
+      },
 
-      });
-
+      error: (err) => {
+        console.error('ERROR BRIGADAS INICIALES QR4:', err);
+      },
+    });
   }
-
 
   // =========================================
   // PRECARGAR UNIDADES
   // =========================================
 
   cargarUnidadesIniciales(): void {
+    const idUnidadActual = this.formulario.idUnidad;
 
-    const idUnidadActual =
-      this.formulario.idUnidad;
-
-
-    if (
-      !this.formulario.idNucleo ||
-      !this.formulario.idBrigada
-    ) {
-
+    if (!this.formulario.idNucleo || !this.formulario.idBrigada) {
       return;
-
     }
-
 
     this.usersService
       .getUnidades(
+        String(this.formulario.idNucleo),
 
-        String(
-          this.formulario.idNucleo
-        ),
-
-        String(
-          this.formulario.idBrigada
-        )
-
+        String(this.formulario.idBrigada),
       )
       .subscribe({
+        next: (data) => {
+          this.unidades = data || [];
 
-        next: (
-          data
-        ) => {
-
-          this.unidades =
-            data || [];
-
-
-          this.formulario.idUnidad =
-            idUnidadActual;
-
+          this.formulario.idUnidad = idUnidadActual;
         },
 
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR UNIDADES INICIALES QR4:',
-            err
-          );
-
-        }
-
+        error: (err) => {
+          console.error('ERROR UNIDADES INICIALES QR4:', err);
+        },
       });
-
   }
-
 
   // =========================================
   // CAMBIAR NÚCLEO
   // =========================================
 
   cambiarNucleo(): void {
+    this.formulario.idBrigada = null;
 
-    this.formulario.idBrigada =
-      null;
+    this.formulario.idUnidad = null;
 
+    this.brigadas = [];
 
-    this.formulario.idUnidad =
-      null;
+    this.unidades = [];
 
-
-    this.brigadas =
-      [];
-
-
-    this.unidades =
-      [];
-
-
-    if (
-      !this.formulario.idNucleo
-    ) {
-
+    if (!this.formulario.idNucleo) {
       return;
-
     }
 
+    this.usersService.getBrigadas(String(this.formulario.idNucleo)).subscribe({
+      next: (data) => {
+        this.brigadas = data || [];
+      },
 
-    this.usersService
-      .getBrigadas(
-        String(
-          this.formulario.idNucleo
-        )
-      )
-      .subscribe({
-
-        next: (
-          data
-        ) => {
-
-          this.brigadas =
-            data || [];
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR GRANDES UNIDADES QR4:',
-            err
-          );
-
-        }
-
-      });
-
+      error: (err) => {
+        console.error('ERROR GRANDES UNIDADES QR4:', err);
+      },
+    });
   }
-
 
   // =========================================
   // CAMBIAR BRIGADA
   // =========================================
 
   cambiarBrigada(): void {
+    this.formulario.idUnidad = null;
 
-    this.formulario.idUnidad =
-      null;
+    this.unidades = [];
 
-
-    this.unidades =
-      [];
-
-
-    if (
-      !this.formulario.idNucleo ||
-      !this.formulario.idBrigada
-    ) {
-
+    if (!this.formulario.idNucleo || !this.formulario.idBrigada) {
       return;
-
     }
-
 
     this.usersService
       .getUnidades(
+        String(this.formulario.idNucleo),
 
-        String(
-          this.formulario.idNucleo
-        ),
-
-        String(
-          this.formulario.idBrigada
-        )
-
+        String(this.formulario.idBrigada),
       )
       .subscribe({
-
-        next: (
-          data
-        ) => {
-
-          this.unidades =
-            data || [];
-
+        next: (data) => {
+          this.unidades = data || [];
         },
 
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR UNIDADES QR4:',
-            err
-          );
-
-        }
-
+        error: (err) => {
+          console.error('ERROR UNIDADES QR4:', err);
+        },
       });
-
   }
-
 
   // =========================================
   // CAMBIAR UNIDAD
@@ -900,445 +594,207 @@ export class EditarDocumentoQrd4Component
   // =========================================
 
   cambiarUnidad(): void {
+    const unidadSeleccionada = this.obtenerUnidadSeleccionada();
 
-    const unidadSeleccionada =
-      this.obtenerUnidadSeleccionada();
-
-
-    if (
-      !unidadSeleccionada
-    ) {
-
+    if (!unidadSeleccionada) {
       return;
-
     }
 
+    this.formulario.idNucleoIg = unidadSeleccionada.idNucleo
+      ? String(unidadSeleccionada.idNucleo)
+      : null;
 
-    this.formulario.idNucleoIg =
-      unidadSeleccionada.idNucleo
-        ? String(
-            unidadSeleccionada.idNucleo
-          )
-        : null;
+    const idIgAutomatico = unidadSeleccionada.idBrigada
+      ? String(unidadSeleccionada.idBrigada)
+      : null;
 
+    this.formulario.idIg = null;
 
-    const idIgAutomatico =
-      unidadSeleccionada.idBrigada
-        ? String(
-            unidadSeleccionada.idBrigada
-          )
-        : null;
+    this.igs = [];
 
-
-    this.formulario.idIg =
-      null;
-
-
-    this.igs =
-      [];
-
-
-    if (
-      !this.formulario.idNucleoIg
-    ) {
-
+    if (!this.formulario.idNucleoIg) {
       return;
-
     }
-
 
     this.usersService
-      .getBrigadas(
-        String(
-          this.formulario.idNucleoIg
-        )
-      )
+      .getBrigadas(String(this.formulario.idNucleoIg))
       .subscribe({
+        next: (data) => {
+          this.igs = data || [];
 
-        next: (
-          data
-        ) => {
-
-          this.igs =
-            data || [];
-
-
-          this.formulario.idIg =
-            idIgAutomatico;
-
+          this.formulario.idIg = idIgAutomatico;
         },
 
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR AUTOCOMPLETANDO IG QR4:',
-            err
-          );
-
-        }
-
+        error: (err) => {
+          console.error('ERROR AUTOCOMPLETANDO IG QR4:', err);
+        },
       });
-
   }
-
 
   // =========================================
   // UNIDAD SELECCIONADA
   // =========================================
 
-  obtenerUnidadSeleccionada():
-    Unidad | undefined {
-
+  obtenerUnidadSeleccionada(): Unidad | undefined {
     return this.unidades.find(
-      (
-        unidad: Unidad
-      ) =>
-        String(
-          unidad.idUnidad
-        ) ===
-        String(
-          this.formulario.idUnidad
-        )
+      (unidad: Unidad) =>
+        String(unidad.idUnidad) === String(this.formulario.idUnidad),
     );
-
   }
-
 
   // =========================================
   // NOMBRE NÚCLEO IG
   // =========================================
 
-  obtenerNombreNucleoIg(
-    nucleo: Nucleo
-  ): string {
+  obtenerNombreNucleoIg(nucleo: Nucleo): string {
+    const nombre = nucleo?.nombre || '-';
 
-    const nombre =
-      nucleo?.nombre || '-';
-
-
-    const unidad =
-      this.obtenerUnidadSeleccionada();
-
+    const unidad = this.obtenerUnidadSeleccionada();
 
     if (
       unidad &&
-      String(
-        unidad.idNucleo
-      ) ===
-      String(
-        nucleo.idNucleo
-      ) &&
+      String(unidad.idNucleo) === String(nucleo.idNucleo) &&
       unidad.guarnicion
     ) {
-
-      return (
-        nombre
-        +
-        ' - '
-        +
-        String(
-          unidad.guarnicion
-        ).trim()
-      );
-
+      return nombre + ' - ' + String(unidad.guarnicion).trim();
     }
 
-
     return nombre;
-
   }
-
 
   // =========================================
   // PRECARGAR IG
   // =========================================
 
   cargarIgsIniciales(): void {
+    const idIgActual = this.formulario.idIg;
 
-    const idIgActual =
-      this.formulario.idIg;
-
-
-    if (
-      !this.formulario.idNucleoIg
-    ) {
-
-      this.igs =
-        [];
+    if (!this.formulario.idNucleoIg) {
+      this.igs = [];
 
       return;
-
     }
 
-
     this.usersService
-      .getBrigadas(
-        String(
-          this.formulario.idNucleoIg
-        )
-      )
+      .getBrigadas(String(this.formulario.idNucleoIg))
       .subscribe({
+        next: (data) => {
+          this.igs = data || [];
 
-        next: (
-          data
-        ) => {
-
-          this.igs =
-            data || [];
-
-
-          this.formulario.idIg =
-            idIgActual;
-
+          this.formulario.idIg = idIgActual;
         },
 
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR CARGANDO IG QR4:',
-            err
-          );
-
-        }
-
+        error: (err) => {
+          console.error('ERROR CARGANDO IG QR4:', err);
+        },
       });
-
   }
-
 
   // =========================================
   // CAMBIAR NÚCLEO IG
   // =========================================
 
   cambiarNucleoIg(): void {
+    this.formulario.idIg = null;
 
-    this.formulario.idIg =
-      null;
+    this.igs = [];
 
-
-    this.igs =
-      [];
-
-
-    if (
-      !this.formulario.idNucleoIg
-    ) {
-
+    if (!this.formulario.idNucleoIg) {
       return;
-
     }
 
-
     this.usersService
-      .getBrigadas(
-        String(
-          this.formulario.idNucleoIg
-        )
-      )
+      .getBrigadas(String(this.formulario.idNucleoIg))
       .subscribe({
-
-        next: (
-          data
-        ) => {
-
-          this.igs =
-            data || [];
-
+        next: (data) => {
+          this.igs = data || [];
         },
 
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR FILTRANDO IG QR4:',
-            err
-          );
-
-        }
-
+        error: (err) => {
+          console.error('ERROR FILTRANDO IG QR4:', err);
+        },
       });
-
   }
-
 
   // =========================================
   // CARGAR PDFs
   // =========================================
 
   cargarArchivosActuales(): void {
-
-    if (
-      !this.expediente?.idExpediente
-    ) {
-
-      this.archivosActuales =
-        [];
+    if (!this.expediente?.idExpediente) {
+      this.archivosActuales = [];
 
       return;
-
     }
 
-
-    this.cargandoArchivos =
-      true;
-
+    this.cargandoArchivos = true;
 
     this.expedienteService
-      .listarArchivosExpediente(
-        this.expediente.idExpediente
-      )
+      .listarArchivosExpediente(this.expediente.idExpediente)
       .subscribe({
+        next: (data) => {
+          this.archivosActuales = data || [];
 
-        next: (
-          data
-        ) => {
-
-          this.archivosActuales =
-            data || [];
-
-
-          this.cargandoArchivos =
-            false;
-
+          this.cargandoArchivos = false;
         },
 
+        error: (err) => {
+          console.error('ERROR AL CARGAR PDFs QR4:', err);
 
-        error: (
-          err
-        ) => {
+          this.archivosActuales = [];
 
-          console.error(
-            'ERROR AL CARGAR PDFs QR4:',
-            err
-          );
+          this.cargandoArchivos = false;
 
-
-          this.archivosActuales =
-            [];
-
-
-          this.cargandoArchivos =
-            false;
-
-
-          this.error =
-            'No se pudieron cargar los documentos adjuntos.';
-
-        }
-
+          this.error = 'No se pudieron cargar los documentos adjuntos.';
+        },
       });
-
   }
-
 
   // =========================================
   // VER PDF
   // =========================================
 
-  verPdf(
-    archivo: any
-  ): void {
-
-    if (
-      !archivo?.idArchivo
-    ) {
-
+  verPdf(archivo: any): void {
+    if (!archivo?.idArchivo) {
       return;
-
     }
 
+    this.expedienteService.verArchivo(archivo.idArchivo).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
 
-    this.expedienteService
-      .verArchivo(
-        archivo.idArchivo
-      )
-      .subscribe({
+        window.open(url, '_blank');
 
-        next: (
-          blob
-        ) => {
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 60000);
+      },
 
-          const url =
-            URL.createObjectURL(
-              blob
-            );
+      error: (err) => {
+        console.error('ERROR AL ABRIR PDF QR4:', err);
 
-
-          window.open(
-            url,
-            '_blank'
-          );
-
-
-          setTimeout(
-            () => {
-
-              URL.revokeObjectURL(
-                url
-              );
-
-            },
-            60000
-          );
-
-        },
-
-
-        error: (
-          err
-        ) => {
-
-          console.error(
-            'ERROR AL ABRIR PDF QR4:',
-            err
-          );
-
-
-          this.error =
-            'No se pudo abrir el PDF.';
-
-        }
-
-      });
-
+        this.error = 'No se pudo abrir el PDF.';
+      },
+    });
   }
-
 
   // =========================================
   // ELIMINAR PDF
   // =========================================
 
-  eliminarPdf(
-    archivo: any
-  ): void {
-
+  eliminarPdf(archivo: any): void {
     if (
       !archivo?.idArchivo ||
       this.guardando ||
       this.eliminandoArchivo !== null
     ) {
-
       return;
-
     }
 
-
     Swal.fire({
+      title: '¿Eliminar documento?',
 
-      title:
-        '¿Eliminar documento?',
-
-
-      html:
-        `
+      html: `
         Se eliminará el archivo
         <br><br>
         <strong>
@@ -1346,631 +802,307 @@ export class EditarDocumentoQrd4Component
         </strong>
         `,
 
+      icon: 'warning',
 
-      icon:
-        'warning',
+      showCancelButton: true,
 
+      confirmButtonText: 'SÍ, ELIMINAR',
 
-      showCancelButton:
-        true,
+      cancelButtonText: 'CANCELAR',
 
+      confirmButtonColor: '#176b49',
 
-      confirmButtonText:
-        'SÍ, ELIMINAR',
+      cancelButtonColor: '#8f9893',
 
+      reverseButtons: true,
 
-      cancelButtonText:
-        'CANCELAR',
+      allowOutsideClick: false,
+    }).then((resultado) => {
+      if (!resultado.isConfirmed) {
+        return;
+      }
 
+      this.error = '';
 
-      confirmButtonColor:
-        '#176b49',
+      this.eliminandoArchivo = archivo.idArchivo;
 
+      this.expedienteService
+        .eliminarArchivoExpediente(archivo.idArchivo)
+        .subscribe({
+          next: () => {
+            this.eliminandoArchivo = null;
 
-      cancelButtonColor:
-        '#8f9893',
+            this.cargarArchivosActuales();
 
+            Swal.fire({
+              title: 'Documento eliminado',
 
-      reverseButtons:
-        true,
+              text: 'El archivo PDF fue eliminado correctamente.',
 
+              icon: 'success',
 
-      allowOutsideClick:
-        false
+              confirmButtonText: 'OK',
 
-    })
-      .then(
-        resultado => {
-
-          if (
-            !resultado.isConfirmed
-          ) {
-
-            return;
-
-          }
-
-
-          this.error =
-            '';
-
-
-          this.eliminandoArchivo =
-            archivo.idArchivo;
-
-
-          this.expedienteService
-            .eliminarArchivoExpediente(
-              archivo.idArchivo
-            )
-            .subscribe({
-
-              next: () => {
-
-                this.eliminandoArchivo =
-                  null;
-
-
-                this.cargarArchivosActuales();
-
-
-                Swal.fire({
-
-                  title:
-                    'Documento eliminado',
-
-
-                  text:
-                    'El archivo PDF fue eliminado correctamente.',
-
-
-                  icon:
-                    'success',
-
-
-                  confirmButtonText:
-                    'OK',
-
-
-                  confirmButtonColor:
-                    '#176b49'
-
-                });
-
-              },
-
-
-              error: (
-                err
-              ) => {
-
-                console.error(
-                  'ERROR AL ELIMINAR PDF QR4:',
-                  err
-                );
-
-
-                this.eliminandoArchivo =
-                  null;
-
-
-                Swal.fire({
-
-                  title:
-                    'No se pudo eliminar',
-
-
-                  text:
-                    'Ocurrió un error al eliminar el documento PDF.',
-
-
-                  icon:
-                    'error',
-
-
-                  confirmButtonText:
-                    'OK',
-
-
-                  confirmButtonColor:
-                    '#176b49'
-
-                });
-
-              }
-
+              confirmButtonColor: '#176b49',
             });
+          },
 
-        }
-      );
+          error: (err) => {
+            console.error('ERROR AL ELIMINAR PDF QR4:', err);
 
+            this.eliminandoArchivo = null;
+
+            Swal.fire({
+              title: 'No se pudo eliminar',
+
+              text: 'Ocurrió un error al eliminar el documento PDF.',
+
+              icon: 'error',
+
+              confirmButtonText: 'OK',
+
+              confirmButtonColor: '#176b49',
+            });
+          },
+        });
+    });
   }
-
 
   // =========================================
   // SELECCIONAR NUEVOS PDFs
   // =========================================
 
-  seleccionarArchivos(
-    event: Event
-  ): void {
+  seleccionarArchivos(event: Event): void {
+    const input = event.target as HTMLInputElement;
 
-    const input =
-      event.target as HTMLInputElement;
-
-
-    if (
-      !input.files
-    ) {
-
+    if (!input.files) {
       return;
-
     }
 
-
-    const seleccionados =
-      Array.from(
-        input.files
-      );
-
+    const seleccionados = Array.from(input.files);
 
     const totalFinal =
-
-      this.archivosActuales.length
-      +
-      this.archivosNuevos.length
-      +
+      this.archivosActuales.length +
+      this.archivosNuevos.length +
       seleccionados.length;
 
+    if (totalFinal > 5) {
+      this.error = `Solo puede tener 5 PDFs en total. Actualmente tiene ${this.archivosActuales.length + this.archivosNuevos.length}.`;
 
-    if (
-      totalFinal > 5
-    ) {
-
-      this.error =
-        `Solo puede tener 5 PDFs en total. Actualmente tiene ${this.archivosActuales.length + this.archivosNuevos.length}.`;
-
-
-      input.value =
-        '';
-
+      input.value = '';
 
       return;
-
     }
 
+    const invalido = seleccionados.some(
+      (archivo: File) =>
+        archivo.type !== 'application/pdf' ||
+        !archivo.name.toLowerCase().endsWith('.pdf'),
+    );
 
-    const invalido =
-      seleccionados.some(
-        (
-          archivo: File
-        ) =>
+    if (invalido) {
+      this.error = 'Solo se permiten archivos PDF.';
 
-          archivo.type !==
-            'application/pdf'
-
-          ||
-
-          !archivo.name
-            .toLowerCase()
-            .endsWith(
-              '.pdf'
-            )
-      );
-
-
-    if (
-      invalido
-    ) {
-
-      this.error =
-        'Solo se permiten archivos PDF.';
-
-
-      input.value =
-        '';
-
+      input.value = '';
 
       return;
-
     }
 
+    const maxTamano = 10 * 1024 * 1024;
 
-    const maxTamano =
-      10 *
-      1024 *
-      1024;
+    const demasiadoGrande = seleccionados.some(
+      (archivo: File) => archivo.size > maxTamano,
+    );
 
+    if (demasiadoGrande) {
+      this.error = 'Cada archivo PDF debe pesar como máximo 10 MB.';
 
-    const demasiadoGrande =
-      seleccionados.some(
-        (
-          archivo: File
-        ) =>
-          archivo.size >
-          maxTamano
-      );
-
-
-    if (
-      demasiadoGrande
-    ) {
-
-      this.error =
-        'Cada archivo PDF debe pesar como máximo 10 MB.';
-
-
-      input.value =
-        '';
-
+      input.value = '';
 
       return;
-
     }
 
+    this.error = '';
 
-    this.error =
-      '';
+    this.archivosNuevos = [...this.archivosNuevos, ...seleccionados];
 
-
-    this.archivosNuevos = [
-
-      ...this.archivosNuevos,
-
-      ...seleccionados
-
-    ];
-
-
-    input.value =
-      '';
-
+    input.value = '';
   }
-
 
   // =========================================
   // QUITAR PDF NUEVO
   // =========================================
 
-  quitarArchivoNuevo(
-    index: number
-  ): void {
-
-    this.archivosNuevos =
-      this.archivosNuevos.filter(
-        (
-          _archivo,
-          i
-        ) =>
-          i !== index
-      );
-
+  quitarArchivoNuevo(index: number): void {
+    this.archivosNuevos = this.archivosNuevos.filter(
+      (_archivo, i) => i !== index,
+    );
   }
-
 
   // =========================================
   // VALIDAR
   // =========================================
 
   validarFormulario(): boolean {
+    const errorPersona =
+      this.obtenerErrorPersona('ruc') ||
+      this.obtenerErrorPersona('dni') ||
+      this.obtenerErrorPersona('correo');
 
-
-    if (
-      !this.formulario.idTipoExpediente
-    ) {
-
-      this.error =
-        'Seleccione una categoría.';
-
+    if (errorPersona) {
+      this.mostrarDatosPersona = true;
+      this.error = errorPersona;
       return false;
-
     }
 
-
-    if (
-      !this.formulario.idTipoDocumento
-    ) {
-
-      this.error =
-        'Seleccione el tipo de documento.';
+    if (!this.formulario.idTipoExpediente) {
+      this.error = 'Seleccione una categoría.';
 
       return false;
-
     }
 
+    if (!this.formulario.idTipoDocumento) {
+      this.error = 'Seleccione el tipo de documento.';
+
+      return false;
+    }
 
     if (
       this.esTipoDocumentoOtros() &&
-      !String(
-        this.formulario.otroTipoDocumento || ''
-      ).trim()
+      !String(this.formulario.otroTipoDocumento || '').trim()
     ) {
-
-      this.error =
-        'Especifique el tipo de documento.';
+      this.error = 'Especifique el tipo de documento.';
 
       return false;
-
     }
 
-
-    if (
-      !String(
-        this.formulario.nroDocumento || ''
-      ).trim()
-    ) {
-
-      this.error =
-        'Ingrese el número de documento.';
+    if (!String(this.formulario.nroDocumento || '').trim()) {
+      this.error = 'Ingrese el número de documento.';
 
       return false;
-
     }
 
-
-    if (
-      !this.formulario.fechaDocumento
-    ) {
-
-      this.error =
-        'Seleccione la fecha.';
+    if (!this.formulario.fechaDocumento) {
+      this.error = 'Seleccione la fecha.';
 
       return false;
-
     }
 
-
-    if (
-      !this.formulario.idTipificacion
-    ) {
-
-      this.error =
-        'Seleccione una tipificación.';
+    if (!this.formulario.idTipificacion) {
+      this.error = 'Seleccione una tipificación.';
 
       return false;
-
     }
 
-
-    if (
-      !this.formulario.idNucleo
-    ) {
-
-      this.error =
-        'Seleccione un núcleo.';
+    if (!this.formulario.idNucleo) {
+      this.error = 'Seleccione un núcleo.';
 
       return false;
-
     }
 
-
-    if (
-      !this.formulario.idBrigada
-    ) {
-
-      this.error =
-        'Seleccione una gran unidad.';
+    if (!this.formulario.idBrigada) {
+      this.error = 'Seleccione una gran unidad.';
 
       return false;
-
     }
 
-
-    if (
-      !this.formulario.idUnidad
-    ) {
-
-      this.error =
-        'Seleccione una unidad.';
+    if (!this.formulario.idUnidad) {
+      this.error = 'Seleccione una unidad.';
 
       return false;
-
     }
 
-
-    if (
-      !this.formulario.idNucleoIg
-    ) {
-
-      this.error =
-        'Seleccione un Núcleo IG.';
+    if (!this.formulario.idNucleoIg) {
+      this.error = 'Seleccione un Núcleo IG.';
 
       return false;
-
     }
 
-
-    if (
-      !this.formulario.idIg
-    ) {
-
-      this.error =
-        'Seleccione una IG.';
+    if (!this.formulario.idIg) {
+      this.error = 'Seleccione una IG.';
 
       return false;
-
     }
 
-
-    if (
-      !String(
-        this.formulario.asunto || ''
-      ).trim()
-    ) {
-
-      this.error =
-        'Ingrese el asunto.';
+    if (!String(this.formulario.asunto || '').trim()) {
+      this.error = 'Ingrese el asunto.';
 
       return false;
-
     }
 
-
-    if (
-      !String(
-        this.formulario.descripcion || ''
-      ).trim()
-    ) {
-
-      this.error =
-        'Ingrese la descripción.';
+    if (!String(this.formulario.descripcion || '').trim()) {
+      this.error = 'Ingrese la descripción.';
 
       return false;
-
     }
 
-
-    if (
-      this.archivosActuales.length +
-      this.archivosNuevos.length >
-      5
-    ) {
-
-      this.error =
-        'El expediente solo puede tener máximo 5 archivos PDF.';
+    if (this.archivosActuales.length + this.archivosNuevos.length > 5) {
+      this.error = 'El expediente solo puede tener máximo 5 archivos PDF.';
 
       return false;
-
     }
 
-
-    this.error =
-      '';
-
+    this.error = '';
 
     return true;
-
   }
-
 
   // =========================================
   // GUARDAR CAMBIOS
   // =========================================
 
   guardarCambios(): void {
-
-    if (
-      !this.expediente?.idExpediente
-    ) {
-
+    if (!this.expediente?.idExpediente) {
       return;
-
     }
 
-
-    if (
-      this.guardando
-    ) {
-
+    if (this.guardando) {
       return;
-
     }
 
-
-    if (
-      !this.validarFormulario()
-    ) {
-
+    if (!this.validarFormulario()) {
       return;
-
     }
-
 
     const datosActualizar = {
+      
+      datosPersona: this.obtenerDatosPersonaParaGuardar(),
 
+      idTipoExpediente: Number(this.formulario.idTipoExpediente),
 
-      idTipoExpediente:
-        Number(
-          this.formulario.idTipoExpediente
-        ),
+      idTipoDocumento: Number(this.formulario.idTipoDocumento),
 
+      otroTipoDocumento: this.esTipoDocumentoOtros()
+        ? String(this.formulario.otroTipoDocumento).trim()
+        : null,
 
-      idTipoDocumento:
-        Number(
-          this.formulario.idTipoDocumento
-        ),
+      nroDocumento: String(this.formulario.nroDocumento).trim(),
 
+      fechaDocumento: this.formulario.fechaDocumento,
 
-      otroTipoDocumento:
-        this.esTipoDocumentoOtros()
-          ? String(
-              this.formulario.otroTipoDocumento
-            ).trim()
-          : null,
+      idTipificacion: Number(this.formulario.idTipificacion),
 
+      idNucleo: String(this.formulario.idNucleo),
 
-      nroDocumento:
-        String(
-          this.formulario.nroDocumento
-        ).trim(),
+      idBrigada: String(this.formulario.idBrigada),
 
+      idUnidad: String(this.formulario.idUnidad),
 
-      fechaDocumento:
-        this.formulario.fechaDocumento,
+      idNucleoIg: Number(this.formulario.idNucleoIg),
 
+      idIg: String(this.formulario.idIg),
 
-      idTipificacion:
-        Number(
-          this.formulario.idTipificacion
-        ),
+      asunto: String(this.formulario.asunto).trim(),
 
-
-      idNucleo:
-        String(
-          this.formulario.idNucleo
-        ),
-
-
-      idBrigada:
-        String(
-          this.formulario.idBrigada
-        ),
-
-
-      idUnidad:
-        String(
-          this.formulario.idUnidad
-        ),
-
-
-      idNucleoIg:
-        Number(
-          this.formulario.idNucleoIg
-        ),
-
-
-      idIg:
-        String(
-          this.formulario.idIg
-        ),
-
-
-      asunto:
-        String(
-          this.formulario.asunto
-        ).trim(),
-
-
-      descripcion:
-        String(
-          this.formulario.descripcion
-        ).trim()
-
+      descripcion: String(this.formulario.descripcion).trim(),
     };
 
-
     Swal.fire({
+      icon: 'question',
 
-      icon:
-        'question',
+      title: '¿Guardar cambios?',
 
-
-      title:
-        '¿Guardar cambios?',
-
-
-      html:
-        `
+      html: `
         Se actualizará el expediente
         <br><br>
         <strong>
@@ -1978,230 +1110,116 @@ export class EditarDocumentoQrd4Component
         </strong>
         `,
 
+      showCancelButton: true,
 
-      showCancelButton:
-        true,
+      confirmButtonText: 'SÍ, GUARDAR',
 
+      cancelButtonText: 'CANCELAR',
 
-      confirmButtonText:
-        'SÍ, GUARDAR',
+      confirmButtonColor: '#176b49',
 
+      cancelButtonColor: '#8f9893',
 
-      cancelButtonText:
-        'CANCELAR',
+      reverseButtons: true,
+    }).then((resultado) => {
+      if (!resultado.isConfirmed) {
+        return;
+      }
 
-
-      confirmButtonColor:
-        '#176b49',
-
-
-      cancelButtonColor:
-        '#8f9893',
-
-
-      reverseButtons:
-        true
-
-    })
-      .then(
-        resultado => {
-
-          if (
-            !resultado.isConfirmed
-          ) {
-
-            return;
-
-          }
-
-
-          this.actualizarExpediente(
-            datosActualizar
-          );
-
-        }
-      );
-
+      this.actualizarExpediente(datosActualizar);
+    });
   }
-
 
   // =========================================
   // ACTUALIZAR
   // =========================================
 
-  private actualizarExpediente(
-    datosActualizar: any
-  ): void {
+  private actualizarExpediente(datosActualizar: any): void {
+    this.guardando = true;
 
-    this.guardando =
-      true;
-
-
-    this.error =
-      '';
-
+    this.error = '';
 
     this.expedienteService
       .actualizarExpediente(
-
         this.expediente.idExpediente,
 
-        datosActualizar
-
+        datosActualizar,
       )
       .subscribe({
-
-        next: (
-          respuesta
-        ) => {
-
-          if (
-            this.archivosNuevos.length === 0
-          ) {
-
-            this.finalizarActualizacion(
-              respuesta
-            );
+        next: (respuesta) => {
+          if (this.archivosNuevos.length === 0) {
+            this.finalizarActualizacion(respuesta);
 
             return;
-
           }
-
 
           this.expedienteService
             .agregarArchivosExpediente(
-
               this.expediente.idExpediente,
 
               this.expediente.cinv,
 
-              this.archivosNuevos
-
+              this.archivosNuevos,
             )
             .subscribe({
-
               next: () => {
+                this.archivosNuevos = [];
 
-                this.archivosNuevos =
-                  [];
-
-
-                this.finalizarActualizacion(
-                  respuesta
-                );
-
+                this.finalizarActualizacion(respuesta);
               },
 
+              error: (err) => {
+                console.error('ERROR AL AGREGAR PDFs QR4:', err);
 
-              error: (
-                err
-              ) => {
-
-                console.error(
-                  'ERROR AL AGREGAR PDFs QR4:',
-                  err
-                );
-
-
-                this.guardando =
-                  false;
-
+                this.guardando = false;
 
                 this.error =
                   'Los datos fueron actualizados, pero no se pudieron guardar los nuevos PDFs.';
-
-              }
-
+              },
             });
-
         },
 
+        error: (err) => {
+          console.error('ERROR AL ACTUALIZAR QR4:', err);
 
-        error: (
-          err
-        ) => {
+          this.guardando = false;
 
-          console.error(
-            'ERROR AL ACTUALIZAR QR4:',
-            err
-          );
-
-
-          this.guardando =
-            false;
-
-
-          this.error =
-            'No se pudo actualizar el documento.';
-
-        }
-
+          this.error = 'No se pudo actualizar el documento.';
+        },
       });
-
   }
-
 
   // =========================================
   // FINALIZAR
   // =========================================
 
-  private finalizarActualizacion(
-    respuesta: any
-  ): void {
-
-    this.guardando =
-      false;
-
+  private finalizarActualizacion(respuesta: any): void {
+    this.guardando = false;
 
     Swal.fire({
+      icon: 'success',
 
-      icon:
-        'success',
+      title: 'Documento actualizado',
 
+      text: 'Los cambios fueron guardados correctamente.',
 
-      title:
-        'Documento actualizado',
+      confirmButtonText: 'ACEPTAR',
 
-
-      text:
-        'Los cambios fueron guardados correctamente.',
-
-
-      confirmButtonText:
-        'ACEPTAR',
-
-
-      confirmButtonColor:
-        '#176b49'
-
+      confirmButtonColor: '#176b49',
     });
 
-
-    this.actualizado.emit(
-      respuesta
-    );
-
+    this.actualizado.emit(respuesta);
   }
-
 
   // =========================================
   // CERRAR
   // =========================================
 
   cerrarModal(): void {
-
-    if (
-      this.guardando ||
-      this.eliminandoArchivo !== null
-    ) {
-
+    if (this.guardando || this.eliminandoArchivo !== null) {
       return;
-
     }
 
-
     this.cerrar.emit();
-
   }
-
 }

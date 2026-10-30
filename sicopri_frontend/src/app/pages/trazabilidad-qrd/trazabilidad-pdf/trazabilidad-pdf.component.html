@@ -1,0 +1,263 @@
+<div class="trazpdf-overlay" (click)="cerrar.emit()">
+  <section
+    class="trazpdf-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Vista previa de trazabilidad"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="trazpdf-toolbar">
+      <div>
+        <h2>VISTA PREVIA DEL REPORTE</h2>
+        <p>
+          Recorrido completo del expediente en orden cronológico.
+        </p>
+      </div>
+
+      <div class="trazpdf-botones">
+        <button
+          type="button"
+          class="trazpdf-btn-imprimir"
+          (click)="imprimir()"
+          [disabled]="cargando || !!error"
+        >
+          Imprimir / Guardar PDF
+        </button>
+
+        <button
+          type="button"
+          class="trazpdf-btn-cerrar"
+          (click)="cerrar.emit()"
+        >
+          Cerrar
+        </button>
+      </div>
+    </header>
+
+    <div class="trazpdf-body">
+      <div
+        *ngIf="cargando"
+        class="trazpdf-estado"
+        role="status"
+      >
+        Cargando todos los movimientos del expediente…
+      </div>
+
+      <div
+        *ngIf="error"
+        class="trazpdf-error"
+        role="alert"
+      >
+        <p>{{ error }}</p>
+
+        <button type="button" (click)="cargarMovimientos()">
+          Reintentar
+        </button>
+      </div>
+
+      <p
+        *ngIf="errorImpresion"
+        class="trazpdf-error"
+        role="alert"
+      >
+        {{ errorImpresion }}
+      </p>
+
+      <article
+        #reporte
+        class="trazpdf-reporte"
+        *ngIf="!cargando && !error"
+      >
+        <!-- ENCABEZADO -->
+        <header class="reporte-institucion">
+          <div>
+            <strong>EJÉRCITO DEL PERÚ</strong>
+            <span>SISTEMA DE SEGUIMIENTO QRD</span>
+          </div>
+
+          <div class="reporte-identificador">
+            REPORTE DE TRAZABILIDAD
+          </div>
+        </header>
+
+        <!-- TÍTULO -->
+        <section class="reporte-presentacion">
+          <h1>TRAZABILIDAD DEL EXPEDIENTE</h1>
+
+          <div class="reporte-cinv">
+            {{ expediente?.cinv || 'SIN CINV' }}
+          </div>
+
+          <div class="reporte-meta">
+            <span>
+              Fecha de consulta:
+              <strong>{{ fechaConsulta }}</strong>
+            </span>
+
+            <span
+              class="reporte-estado"
+              [class.reporte-estado-observado]="
+                estadoExpediente() === 'OBSERVADO'
+              "
+              [class.reporte-estado-concluido]="
+                estadoExpediente() === 'CONCLUIDO' ||
+                estadoExpediente() === 'ARCHIVADO'
+              "
+            >
+              <span aria-hidden="true">●</span>
+              {{ estadoExpediente() }}
+            </span>
+          </div>
+        </section>
+
+        <!-- DATOS DEL CASO -->
+        <section class="reporte-datos">
+          <h2 class="reporte-titulo-seccion">
+            DATOS DEL CASO
+          </h2>
+
+          <dl class="reporte-resumen">
+            <div>
+              <dt>Categoría</dt>
+              <dd>{{ categoriaExpediente() }}</dd>
+            </div>
+
+            <div>
+              <dt>Asunto</dt>
+              <dd>{{ expediente?.asunto || '—' }}</dd>
+            </div>
+
+            <div>
+              <dt>Documento</dt>
+              <dd>{{ expediente?.documento || '—' }}</dd>
+            </div>
+
+            <div>
+              <dt>N.º documento</dt>
+              <dd>{{ expediente?.nroDocumento || '—' }}</dd>
+            </div>
+
+            <div>
+              <dt>Ubicación actual</dt>
+              <dd>{{ nivel(expediente?.nivelActual) }}</dd>
+            </div>
+
+            <div>
+              <dt>Destino final</dt>
+              <dd>{{ nivel(expediente?.nivelDestino) }}</dd>
+            </div>
+
+            <div>
+              <dt>Nivel de creación</dt>
+              <dd>{{ nivel(expediente?.nivelCreacion) }}</dd>
+            </div>
+
+            <div>
+              <dt>Movimientos</dt>
+              <dd>{{ movimientos.length }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- RECORRIDO -->
+        <section class="reporte-recorrido">
+          <h2 class="reporte-titulo-seccion">
+            RECORRIDO DEL EXPEDIENTE
+          </h2>
+
+          <p
+            class="reporte-vacio"
+            *ngIf="movimientos.length === 0"
+          >
+            No hay movimientos registrados para este expediente.
+          </p>
+
+          <ol class="reporte-linea">
+            <li
+              class="reporte-paso"
+              *ngFor="let mov of movimientos; let i = index"
+            >
+              <span class="reporte-numero" aria-hidden="true">
+                {{ i + 1 }}
+              </span>
+
+              <article
+                class="movimiento-tarjeta"
+                [class.movimiento-envio]="
+                  tipoMovimiento(mov.accion) === 'envio'
+                "
+                [class.movimiento-observado]="
+                  tipoMovimiento(mov.accion) === 'observado'
+                "
+                [class.movimiento-respuesta]="
+                  tipoMovimiento(mov.accion) === 'respuesta'
+                "
+                [class.movimiento-archivo]="
+                  tipoMovimiento(mov.accion) === 'archivo'
+                "
+              >
+                <header class="movimiento-cabecera">
+                  <div class="movimiento-titulo">
+                    <span
+                      class="movimiento-icono"
+                      aria-hidden="true"
+                    >
+                      {{ iconoMovimiento(mov.accion) }}
+                    </span>
+
+                    <div>
+                      <h3>{{ mov.accion || 'MOVIMIENTO' }}</h3>
+
+                      <p class="movimiento-ruta">
+                        {{ nivel(mov.nivelOrigen) }}
+                        <span aria-hidden="true"> → </span>
+                        {{ nivel(mov.nivelDestino) }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="movimiento-fecha">
+                    <span>Fecha y hora</span>
+                    <strong>
+                      {{ fecha(mov.fechaMovimiento) }}
+                    </strong>
+                  </div>
+                </header>
+
+                <dl class="movimiento-detalle">
+                  <div class="movimiento-responsable">
+                    <dt>Responsable</dt>
+                    <dd>{{ mov.usuario || 'No registrado' }}</dd>
+                  </div>
+
+                  <div class="movimiento-observacion">
+                    <dt>Observación</dt>
+                    <dd>
+                      {{ mov.observacion || 'Sin observaciones' }}
+                    </dd>
+                  </div>
+                </dl>
+              </article>
+            </li>
+          </ol>
+        </section>
+
+        <!-- OBSERVACIÓN ACTUAL -->
+        <section
+          class="reporte-observacion-final"
+          *ngIf="expediente?.observacionActual"
+        >
+          <strong>Observación actual del expediente</strong>
+          <p>{{ expediente.observacionActual }}</p>
+        </section>
+
+        <footer class="reporte-pie">
+          <span>Sistema de seguimiento QRD</span>
+          <span>
+            {{ movimientos.length }} movimientos registrados
+          </span>
+        </footer>
+      </article>
+    </div>
+  </section>
+</div>

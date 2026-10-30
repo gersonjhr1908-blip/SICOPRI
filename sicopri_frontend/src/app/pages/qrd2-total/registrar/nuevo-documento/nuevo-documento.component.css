@@ -782,3 +782,127 @@ button:disabled {
   }
 
 }
+
+/* DATOS OPCIONALES DE LA PERSONA */
+
+.persona-seccion {
+  margin: 0 0 18px;
+  border: 1px solid #cbded4;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.persona-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 16px;
+
+  border: 0;
+  background: #f0f7f3;
+  color: #0b5d3d;
+
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.persona-toggle strong {
+  font-size: 12px;
+}
+
+.persona-toggle small {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.persona-toggle > span:last-child {
+  font-size: 23px;
+}
+
+.persona-toggle:focus-visible {
+  outline: 3px solid #0c6a49;
+  outline-offset: -3px;
+}
+
+.persona-contenido {
+  padding: 16px;
+}
+
+.persona-contenido[hidden] {
+  display: none;
+}
+
+.persona-ayuda {
+  margin: 0 0 8px;
+  color: #536159;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.persona-aviso {
+  margin: 0 0 16px;
+  color: #805c16;
+  font-size: 12px;
+}
+
+.persona-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px 16px;
+
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.persona-nombres,
+.persona-apellidos {
+  grid-column: span 3;
+}
+
+.persona-ruc,
+.persona-dni,
+.persona-telefono,
+.persona-correo {
+  grid-column: span 2;
+}
+
+.persona-domicilio {
+  grid-column: span 4;
+}
+
+.persona-error {
+  display: block;
+  margin-top: 5px;
+  color: #b42318;
+  font-size: 11px;
+}
+
+.persona-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 650px) {
+  .persona-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .persona-grid .campo {
+    grid-column: auto;
+  }
+
+  .persona-toggle small {
+    display: block;
+    margin: 4px 0 0;
+  }
+}

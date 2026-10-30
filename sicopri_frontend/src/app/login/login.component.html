@@ -1,6 +1,6 @@
 <style>
   body {
-    background-image: url('assets/fondorqd.png');
+    background-image: url("assets/fondorqd.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -19,10 +19,8 @@
 </style>
 
 <body>
-
   <!-- SISTEMA DE DENUNCIAS,QUEJAS O RECLAMOS -->
   <header class="top-header">
-
     <div class="header-left">
       <mat-icon>shield</mat-icon>
 
@@ -30,13 +28,10 @@
         © {{ year }} Departamento de Sistemas de Información - SDI - DITELE
       </span>
 
-      <span class="rights-text">
-        Todos los Derechos Reservados
-      </span>
+      <span class="rights-text"> Todos los Derechos Reservados </span>
     </div>
 
     <div class="header-right">
-
       <div class="security-badge">
         <mat-icon>verified</mat-icon>
         <span>SISTEMA SEGURO</span>
@@ -46,113 +41,73 @@
         <mat-icon>lock</mat-icon>
         <span>ACCESO AUTORIZADO</span>
       </div>
-
     </div>
-
   </header>
-
 
   <!-- Contenedor Principal -->
   <div class="main-container">
-
     <div class="two-column-layout">
-
       <!-- Columna Izquierda -->
-      <div class="left-column">
-
-      </div>
-
+      <div class="left-column"></div>
 
       <!-- Columna Derecha: Formulario de Login -->
       <div class="right-column">
-
         <div class="login-wrapper">
-
           <mat-card class="box">
-
             <!-- Logo superior -->
             <div class="login-logo-container">
-
               <div class="login-logo-circle">
                 <mat-icon>security</mat-icon>
               </div>
 
-              <h1 class="sicopri-title">
-                SIQRED
-              </h1>
-
+              <h1 class="sicopri-title">SIQRED</h1>
             </div>
-
 
             <form
               class="form-group"
               [formGroup]="_formulario"
               (ngSubmit)="login()"
-              #loginForm="ngForm"
             >
-
               <mat-card-content>
-
                 <!-- Usuario -->
                 <div class="form-field-wrapper">
-
                   <mat-form-field
                     class="example-full-width"
                     appearance="outline"
                   >
-
-                    <mat-icon matPrefix>
-                      person
-                    </mat-icon>
+                    <mat-icon matPrefix> person </mat-icon>
 
                     <input
                       matInput
                       type="text"
-                      name="username"
                       formControlName="username"
-                      placeholder="Ingrese su usuario"
-                      [(ngModel)]="username"
+                      placeholder="Ingrese su usuario local"
                       class="username"
                       (input)="convertirAMayusculas()"
                       maxlength="60"
                       autocomplete="username"
                     />
-
                   </mat-form-field>
-
                 </div>
-
 
                 <!-- Contraseña -->
                 <div class="form-field-wrapper">
-
                   <mat-form-field
                     class="example-full-width"
                     appearance="outline"
                   >
-
-                    <mat-icon matPrefix>
-                      lock
-                    </mat-icon>
+                    <mat-icon matPrefix> lock </mat-icon>
 
                     <input
                       matInput
                       type="password"
                       formControlName="password"
-                      name="password"
-                      placeholder="Ingrese su contraseña"
-                      [(ngModel)]="password"
+                      placeholder="Ingrese su contraseña local"
                       class="password"
-                      required
-                      minlength="8"
-                      maxlength="30"
                       autocomplete="current-password"
                     />
-
                   </mat-form-field>
-
                 </div>
-
 
                 <!-- Botón iniciar sesión -->
                 <button
@@ -161,113 +116,48 @@
                   class="custom-button"
                   [disabled]="_formulario.invalid || loading"
                 >
+                  <span *ngIf="!loading"> INICIAR SESIÓN </span>
 
-                  <span *ngIf="!loading">
-                    INICIAR SESIÓN
-                  </span>
+                  <span *ngIf="loading"> VERIFICANDO... </span>
 
-                  <span *ngIf="loading">
-                    VERIFICANDO...
-                  </span>
-
-                  <mat-icon>
-                    login
-                  </mat-icon>
-
+                  <mat-icon> login </mat-icon>
                 </button>
-
               </mat-card-content>
-
             </form>
 
-
-            <!-- Recuperar contraseña -->
             <div class="forgot-password-link">
-
-              <a
-                mat-button
-                id="Chasqui"
-                href="https://ws.ejercito.mil.pe/app-chasqui/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-
-                <mat-icon>
-                  help_outline
-                </mat-icon>
-
-                ¿Has olvidado la contraseña?
-
-              </a>
-
+              <p>Entorno local de desarrollo y pruebas</p>
             </div>
-
 
             <!-- Separador -->
             <div class="card-divider"></div>
 
-
             <!-- Información inferior -->
             <div class="login-footer">
-
-              <p>
-                Desarrollado por DESI-SDI - DITELE - SICOPRI © {{ year }}
-              </p>
+              <p>Desarrollado por DESI-SDI - DITELE - SICOPRI © {{ year }}</p>
 
               <div class="version-badge">
+                <mat-icon> stars </mat-icon>
 
-                <mat-icon>
-                  stars
-                </mat-icon>
-
-                <span>
-                  VERSIÓN 3.0
-                </span>
-
+                <span> VERSIÓN 3.0 </span>
               </div>
-
             </div>
-
           </mat-card>
-
         </div>
-
       </div>
-
     </div>
-
   </div>
 
-
- 
-
-
   <!-- Mensajes -->
-  <mat-card
-    *ngIf="message"
-    class="message-card"
-  >
-
-    <mat-icon>
-      check_circle
-    </mat-icon>
+  <mat-card *ngIf="message" class="message-card">
+    <mat-icon> check_circle </mat-icon>
 
     {{ message }}
-
   </mat-card>
 
-
-  <mat-card
-    *ngIf="error"
-    class="error-card"
-  >
-
-    <mat-icon>
-      error
-    </mat-icon>
+  <mat-card *ngIf="error" class="error-card">
+    <mat-icon> error </mat-icon>
 
     {{ error }}
-
   </mat-card>
-
 </body>
