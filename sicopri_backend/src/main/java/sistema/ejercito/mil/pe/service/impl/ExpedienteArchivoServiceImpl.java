@@ -7,9 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import sistema.ejercito.mil.pe.model.table.ExpedienteArchivo;
 import sistema.ejercito.mil.pe.repository.IExpedienteArchivoRepo;
+import sistema.ejercito.mil.pe.repository.IExpedienteRepo;
 import sistema.ejercito.mil.pe.service.IExpedienteArchivoService;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,32 +22,22 @@ import java.time.LocalDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
-
 
 @Service
 @RequiredArgsConstructor
 public class ExpedienteArchivoServiceImpl
         implements IExpedienteArchivoService {
 
-
-    // =========================================
-    // REPOSITORY
-    // =========================================
-
     private final IExpedienteArchivoRepo repo;
 
-
-    // =========================================
-    // REGLAS DE ARCHIVOS
-    // =========================================
+    private final IExpedienteRepo expedienteRepo;
 
     private static final int MAX_ARCHIVOS = 5;
 
-
     private static final long MAX_TAMANIO =
             10L * 1024L * 1024L;
-
 
     // =========================================
     // GUARDAR ARCHIVOS
@@ -53,510 +45,387 @@ public class ExpedienteArchivoServiceImpl
 
     @Override
     public List<ExpedienteArchivo> guardarArchivos(
-
             Long idExpediente,
-
             String cinv,
-
             List<MultipartFile> archivos
-
     ) {
-
-
-        // =====================================
-        // SIN ARCHIVOS
-        // =====================================
-
-        if (
-                archivos == null ||
-                        archivos.isEmpty()
-        ) {
-
+        if (archivos == null || archivos.isEmpty()) {
             return List.of();
-
         }
 
-
-        // =====================================
-        // VALIDAR CINV
-        // =====================================
-
-        if (
-                cinv == null ||
-                        cinv.isBlank()
-        ) {
-
+        if (cinv == null || cinv.isBlank()) {
             throw new IllegalArgumentException(
                     "El CINV del expediente es obligatorio."
             );
-
         }
 
-
-        // =====================================
-        // CUÁNTOS ARCHIVOS ACTIVOS YA TIENE
-        // =====================================
+        // La categoría se consulta en la base.
+        // Solo Integridad puede adjuntar ZIP.
+        boolean esIntegridad = expedienteRepo
+                .findById(idExpediente)
+                .map(expediente ->
+                        "INTEGRIDAD".equalsIgnoreCase(
+                                expediente.getCategoria()
+                        )
+                )
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "No se encontró el expediente."
+                        )
+                );
 
         Long cantidadActual =
-                repo.contarPorExpediente(
-                        idExpediente
-                );
+                repo.contarPorExpediente(idExpediente);
 
-
-        if (
-                cantidadActual == null
-        ) {
-
+        if (cantidadActual == null) {
             cantidadActual = 0L;
-
         }
 
-
-        // =====================================
-        // MÁXIMO 5 PDFs EN TOTAL
-        //
-        // Ejemplo:
-        //
-        // 3 actuales + 2 nuevos = 5 OK
-        // 4 actuales + 2 nuevos = 6 ERROR
-        // =====================================
-
-        if (
-                cantidadActual +
-                        archivos.size()
-                        > MAX_ARCHIVOS
-        ) {
-
+        if (cantidadActual + archivos.size() > MAX_ARCHIVOS) {
             throw new IllegalArgumentException(
-                    "El expediente solo puede tener máximo 5 archivos PDF."
+                    esIntegridad
+                            ? "El expediente solo puede tener máximo 5 archivos, entre PDF y ZIP."
+                            : "El expediente solo puede tener máximo 5 archivos PDF."
             );
-
         }
 
+        // Validación previa de los adjuntos de Integridad.
+        // Evita copiar el primero si otro archivo del lote
+        // tiene una extensión o contenido no permitido.
+        List<String> extensionesIntegridad =
+                new ArrayList<>();
 
-        // =====================================
-        // CARPETA DEL EXPEDIENTE
-        //
-        // uploads/
-        //   expedientes/
-        //     CINV-XXXX/
-        // =====================================
-
-        Path carpeta =
-                Paths.get(
-                        "uploads",
-                        "expedientes",
-                        cinv
+        if (esIntegridad) {
+            for (MultipartFile archivo : archivos) {
+                extensionesIntegridad.add(
+                        validarArchivoIntegridad(archivo)
                 );
+            }
+        }
 
-
-        // =====================================
-        // CREAR CARPETA
-        // =====================================
+        Path carpeta = Paths.get(
+                "uploads",
+                "expedientes",
+                cinv
+        );
 
         try {
-
-            Files.createDirectories(
-                    carpeta
-            );
-
+            Files.createDirectories(carpeta);
         } catch (IOException e) {
-
             throw new RuntimeException(
                     "No se pudo crear la carpeta del expediente.",
                     e
             );
-
         }
-
-
-        // =====================================
-        // LISTA DE ARCHIVOS GUARDADOS
-        // =====================================
 
         List<ExpedienteArchivo> guardados =
                 new ArrayList<>();
 
+        for (int i = 0; i < archivos.size(); i++) {
+            MultipartFile archivo = archivos.get(i);
 
-        // =====================================
-        // GUARDAR CADA PDF
-        // =====================================
+            String extension;
 
-        for (
-                MultipartFile archivo :
-                archivos
-        ) {
-
-
-            // =================================
-            // VALIDAR ARCHIVO
-            // =================================
-
-            validarArchivo(
-                    archivo
-            );
-
-
-            // =================================
-            // NOMBRE ORIGINAL
-            // =================================
+            if (esIntegridad) {
+                extension = extensionesIntegridad.get(i);
+            } else {
+                // Conserva la validación existente de QRD.
+                validarArchivo(archivo);
+                extension = ".pdf";
+            }
 
             String nombreOriginal =
                     archivo.getOriginalFilename();
 
-
-            // =================================
-            // NOMBRE INTERNO ÚNICO
-            // =================================
-
             String nombreGuardado =
-                    UUID.randomUUID()
-                            + ".pdf";
-
-
-            // =================================
-            // RUTA FINAL
-            // =================================
+                    UUID.randomUUID() + extension;
 
             Path destino =
-                    carpeta.resolve(
-                            nombreGuardado
-                    );
+                    carpeta.resolve(nombreGuardado);
 
-
-            // =================================
-            // COPIAR PDF AL SERVIDOR
-            // =================================
-
-            try {
+            try (InputStream entrada =
+                         archivo.getInputStream()) {
 
                 Files.copy(
-
-                        archivo.getInputStream(),
-
+                        entrada,
                         destino,
-
-                        StandardCopyOption
-                                .REPLACE_EXISTING
-
+                        StandardCopyOption.REPLACE_EXISTING
                 );
 
             } catch (IOException e) {
-
                 throw new RuntimeException(
-
                         "Error al guardar el archivo: "
                                 + nombreOriginal,
-
                         e
-
                 );
-
             }
-
-
-            // =================================
-            // REGISTRAR ARCHIVO EN ORACLE
-            // =================================
 
             ExpedienteArchivo registro =
                     new ExpedienteArchivo();
 
+            registro.setIdExpediente(idExpediente);
 
-            registro.setIdExpediente(
-                    idExpediente
-            );
+            registro.setNombreArchivo(nombreOriginal);
 
+            registro.setNombreGuardado(nombreGuardado);
 
-            registro.setNombreArchivo(
-                    nombreOriginal
-            );
-
-
-            registro.setNombreGuardado(
-                    nombreGuardado
-            );
-
-
-            registro.setTipoArchivo(
-                    archivo.getContentType()
-            );
-
+            if (esIntegridad) {
+                registro.setTipoArchivo(
+                        ".zip".equals(extension)
+                                ? "application/zip"
+                                : "application/pdf"
+                );
+            } else {
+                // Conserva el valor utilizado por QRD.
+                registro.setTipoArchivo(
+                        archivo.getContentType()
+                );
+            }
 
             registro.setTamano(
                     archivo.getSize()
             );
 
-
             registro.setRutaArchivo(
-                    destino
-                            .toAbsolutePath()
-                            .toString()
+                    destino.toAbsolutePath().toString()
             );
-
 
             registro.setFechaRegistro(
                     LocalDateTime.now()
             );
 
-
-            registro.setActivo(
-                    "S"
-            );
-
-
-            // =================================
-            // GUARDAR EN BD
-            // =================================
+            registro.setActivo("S");
 
             ExpedienteArchivo guardado =
-                    repo.save(
-                            registro
-                    );
+                    repo.save(registro);
 
-
-            guardados.add(
-                    guardado
-            );
-
+            guardados.add(guardado);
         }
 
-
-        // =====================================
-        // DEVOLVER ARCHIVOS GUARDADOS
-        // =====================================
-
         return guardados;
-
     }
-
 
     // =========================================
     // LISTAR ARCHIVOS ACTIVOS
-    // DE UN EXPEDIENTE
     // =========================================
 
     @Override
     public List<ExpedienteArchivo> listarArchivos(
-
             Long idExpediente
-
     ) {
-
         return repo.listarPorExpediente(
                 idExpediente
         );
-
     }
 
-
     // =========================================
-    // BUSCAR ARCHIVO POR ID
-    //
-    // Se utiliza para visualizar el PDF.
+    // BUSCAR ARCHIVO ACTIVO
     // =========================================
 
     @Override
     public ExpedienteArchivo buscarArchivoPorId(
-
             Long idArchivo
-
     ) {
-
-
-        ExpedienteArchivo archivo =
-                repo.findById(
-                                idArchivo
+        ExpedienteArchivo archivo = repo
+                .findById(idArchivo)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Archivo no encontrado."
                         )
-                        .orElseThrow(
-                                () ->
-                                        new RuntimeException(
-                                                "Archivo no encontrado."
-                                        )
-                        );
-
-
-        // =====================================
-        // SOLO ARCHIVOS ACTIVOS
-        // =====================================
+                );
 
         if (
-                archivo.getActivo() == null ||
-                        !"S".equalsIgnoreCase(
-                                archivo.getActivo()
-                        )
+                archivo.getActivo() == null
+                        || !"S".equalsIgnoreCase(
+                        archivo.getActivo()
+                )
         ) {
-
             throw new RuntimeException(
                     "El archivo no está disponible."
             );
-
         }
 
-
         return archivo;
-
     }
 
-
     // =========================================
-    // ELIMINAR ARCHIVO
-    //
-    // ELIMINACIÓN LÓGICA:
-    //
-    // ACTIVO = S
-    //       ↓
-    // ACTIVO = N
-    //
-    // No borramos físicamente el PDF.
+    // ELIMINACIÓN LÓGICA
     // =========================================
 
     @Override
     public void eliminarArchivo(
-
             Long idArchivo
-
     ) {
-
-
-        // =====================================
-        // BUSCAR ARCHIVO
-        // =====================================
-
-        ExpedienteArchivo archivo =
-                repo.findById(
-                                idArchivo
+        ExpedienteArchivo archivo = repo
+                .findById(idArchivo)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Archivo no encontrado."
                         )
-                        .orElseThrow(
-                                () ->
-                                        new IllegalArgumentException(
-                                                "Archivo no encontrado."
-                                        )
-                        );
-
-
-        // =====================================
-        // VALIDAR QUE SIGA ACTIVO
-        // =====================================
+                );
 
         if (
-                archivo.getActivo() == null ||
-                        !"S".equalsIgnoreCase(
-                                archivo.getActivo()
-                        )
+                archivo.getActivo() == null
+                        || !"S".equalsIgnoreCase(
+                        archivo.getActivo()
+                )
         ) {
-
             throw new IllegalArgumentException(
                     "El archivo ya no se encuentra activo."
             );
-
         }
 
+        archivo.setActivo("N");
 
-        // =====================================
-        // MARCAR COMO ELIMINADO
-        // =====================================
-
-        archivo.setActivo(
-                "N"
-        );
-
-
-        repo.save(
-                archivo
-        );
-
+        repo.save(archivo);
     }
 
-
     // =========================================
-    // VALIDAR PDF
+    // VALIDACIÓN ORIGINAL: SOLO PDF
+    // Se conserva para QRD.
     // =========================================
 
     private void validarArchivo(
-
             MultipartFile archivo
-
     ) {
-
-
-        // =====================================
-        // ARCHIVO VACÍO
-        // =====================================
-
-        if (
-                archivo == null ||
-                        archivo.isEmpty()
-        ) {
-
+        if (archivo == null || archivo.isEmpty()) {
             throw new IllegalArgumentException(
                     "No se permiten archivos vacíos."
             );
-
         }
 
-
-        // =====================================
-        // TAMAÑO MÁXIMO 10 MB
-        // =====================================
-
-        if (
-                archivo.getSize()
-                        > MAX_TAMANIO
-        ) {
-
+        if (archivo.getSize() > MAX_TAMANIO) {
             throw new IllegalArgumentException(
                     "Cada archivo PDF debe pesar como máximo 10 MB."
             );
-
         }
-
-
-        // =====================================
-        // VALIDAR MIME
-        // =====================================
 
         String tipo =
                 archivo.getContentType();
 
-
         if (
-                tipo == null ||
-                        !tipo.equalsIgnoreCase(
-                                "application/pdf"
-                        )
+                tipo == null
+                        || !tipo.equalsIgnoreCase(
+                        "application/pdf"
+                )
         ) {
-
             throw new IllegalArgumentException(
                     "Solo se permiten archivos PDF."
             );
-
         }
-
-
-        // =====================================
-        // VALIDAR EXTENSIÓN
-        // =====================================
 
         String nombre =
                 archivo.getOriginalFilename();
 
-
         if (
-                nombre == null ||
-                        !nombre
-                                .toLowerCase()
-                                .endsWith(".pdf")
-
-
+                nombre == null
+                        || !nombre
+                        .toLowerCase()
+                        .endsWith(".pdf")
         ) {
-
             throw new IllegalArgumentException(
                     "El archivo debe tener extensión .pdf."
             );
-
         }
-
     }
 
+    // =========================================
+    // NUEVO: PDF O ZIP SOLO PARA INTEGRIDAD
+    // =========================================
+
+    private String validarArchivoIntegridad(
+            MultipartFile archivo
+    ) {
+        if (archivo == null || archivo.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "No se permiten archivos vacíos."
+            );
+        }
+
+        if (archivo.getSize() > MAX_TAMANIO) {
+            throw new IllegalArgumentException(
+                    "Cada archivo debe pesar como máximo 10 MB."
+            );
+        }
+
+        String nombre =
+                archivo.getOriginalFilename();
+
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException(
+                    "El archivo debe tener un nombre."
+            );
+        }
+
+        String nombreNormalizado =
+                nombre.toLowerCase(Locale.ROOT);
+
+        boolean esPdf =
+                nombreNormalizado.endsWith(".pdf");
+
+        boolean esZip =
+                nombreNormalizado.endsWith(".zip");
+
+        if (!esPdf && !esZip) {
+            throw new IllegalArgumentException(
+                    "Integridad solo permite archivos PDF o ZIP."
+            );
+        }
+
+        // Comprueba la cabecera del formato.
+        // Los ZIP se guardan sin descomprimir.
+        try (InputStream entrada =
+                     archivo.getInputStream()) {
+
+            byte[] cabecera =
+                    entrada.readNBytes(5);
+
+            boolean cabeceraPdf =
+                    cabecera.length >= 5
+                            && cabecera[0] == '%'
+                            && cabecera[1] == 'P'
+                            && cabecera[2] == 'D'
+                            && cabecera[3] == 'F'
+                            && cabecera[4] == '-';
+
+            boolean cabeceraZip =
+                    cabecera.length >= 4
+                            && cabecera[0] == 'P'
+                            && cabecera[1] == 'K'
+                            && (
+                            (
+                                    cabecera[2] == 3
+                                            && cabecera[3] == 4
+                            )
+                                    || (
+                                    cabecera[2] == 5
+                                            && cabecera[3] == 6
+                            )
+                                    || (
+                                    cabecera[2] == 7
+                                            && cabecera[3] == 8
+                            )
+                    );
+
+            if (esPdf && !cabeceraPdf) {
+                throw new IllegalArgumentException(
+                        "El contenido del archivo no corresponde a un PDF."
+                );
+            }
+
+            if (esZip && !cabeceraZip) {
+                throw new IllegalArgumentException(
+                        "El contenido del archivo no corresponde a un ZIP."
+                );
+            }
+
+        } catch (IOException e) {
+            throw new IllegalArgumentException(
+                    "No se pudo leer el archivo adjunto.",
+                    e
+            );
+        }
+
+        return esZip ? ".zip" : ".pdf";
+    }
 }

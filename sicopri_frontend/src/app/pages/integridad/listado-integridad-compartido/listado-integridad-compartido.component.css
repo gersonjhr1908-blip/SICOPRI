@@ -1,0 +1,461 @@
+@import "../pendientes-integridad/pendientes-integridad.component.css";
+
+:host {
+  display: block;
+}
+
+.pendientes-integridad-card,
+.tabla-wrapper {
+  overflow: visible;
+  max-height: none;
+}
+
+.tabla-wrapper {
+  padding-bottom: 0;
+}
+
+.acciones {
+  position: relative;
+}
+
+.acciones-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  bottom: auto;
+  z-index: 100;
+  min-width: 175px;
+}
+
+.estado-enviado {
+  color: #1768a5;
+  background: #edf5ff;
+  border: 1px solid #c4dcfa;
+}
+
+.estado-archivado {
+  color: #b42318;
+  background: #fff0f0;
+  border: 1px solid #f6c7c7;
+}
+
+.opcion-eliminar {
+  color: #b42318 !important;
+}
+
+.error-detalle {
+  display: block;
+  margin-top: 5px;
+  color: #b42318;
+}
+
+.traz-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(8 25 20 / 60%);
+  box-sizing: border-box;
+}
+
+.traz-modal {
+  width: min(1250px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 25%);
+}
+
+.traz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px;
+  color: white;
+  background: #176b36;
+}
+
+.traz-header h2 {
+  margin: 0;
+  font-size: 21px;
+}
+
+.traz-header p {
+  margin: 8px 0 0;
+}
+
+.traz-header button {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  color: white;
+  background: rgb(255 255 255 / 18%);
+  cursor: pointer;
+}
+
+.traz-body {
+  padding: 24px;
+}
+
+.traz-tabla {
+  overflow-x: auto;
+}
+
+.traz-tabla table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+}
+
+.traz-tabla th {
+  padding: 13px;
+  color: white;
+  background: #145c43;
+  text-align: left;
+  font-size: 12px;
+}
+
+.traz-tabla td {
+  padding: 13px;
+  border-bottom: 1px solid #e1e9e4;
+  color: #354c41;
+  font-size: 13px;
+  vertical-align: top;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .tabla-wrapper {
+    overflow-x: auto;
+    padding-bottom: 170px;
+  }
+
+  .traz-overlay {
+    padding: 12px;
+  }
+}
+
+.traz-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background: rgb(8 25 20 / 65%);
+}
+
+.traz-modal,
+.traz-modal * {
+  box-sizing: border-box;
+}
+
+.traz-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(1180px, 100%);
+  max-height: 92vh;
+  overflow: hidden;
+  border: 1px solid #4a7940;
+  border-radius: 16px;
+  background: #fcfdf9;
+  box-shadow: 0 22px 65px rgb(0 0 0 / 30%);
+}
+
+.traz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 20px;
+  padding: 24px;
+  background: linear-gradient(110deg, #154e16, #0a2f0c);
+  color: #fff;
+}
+
+.traz-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.traz-header p {
+  margin: 10px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.traz-header > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 18%);
+  color: #fff;
+  font-size: 21px;
+  cursor: pointer;
+}
+
+.traz-header > button:hover {
+  background: rgb(255 255 255 / 28%);
+}
+
+.traz-header > button:focus-visible {
+  outline: 3px solid #d8eac7;
+  outline-offset: 3px;
+}
+
+.traz-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 28px 30px 36px;
+  background: #fcfdf9;
+}
+
+.traz-mensaje {
+  padding: 40px 20px;
+  color: #657263;
+  text-align: center;
+  font-size: 14px;
+}
+
+.traz-error {
+  border: 1px solid #f0c6c0;
+  border-radius: 8px;
+  background: #fff1ef;
+  color: #a13226;
+}
+
+.traz-linea {
+  position: relative;
+  margin: 0;
+  padding: 20px 0;
+  list-style: none;
+}
+
+.traz-linea::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 3px;
+  transform: translateX(-50%);
+  background: #39743a;
+}
+
+.traz-evento {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 80px minmax(0, 1fr);
+  align-items: start;
+  padding-bottom: 32px;
+}
+
+.traz-evento:last-child {
+  padding-bottom: 0;
+}
+
+.traz-numero {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  transform: translateX(-50%);
+  border: 4px solid #fff;
+  border-radius: 50%;
+  background: #18551e;
+  color: #fff;
+  box-shadow: 0 3px 9px rgb(20 65 20 / 25%);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.traz-tarjeta {
+  position: relative;
+  grid-column: 1;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #d1dfc8;
+  border-radius: 12px;
+  background: #f8fbf4;
+  box-shadow: 0 6px 16px rgb(48 82 34 / 13%);
+}
+
+.traz-derecha .traz-tarjeta {
+  grid-column: 3;
+}
+
+.traz-tarjeta-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 94px;
+  padding: 18px;
+  background: linear-gradient(110deg, #164f13, #092f09);
+  color: #fff;
+}
+
+.traz-tarjeta-header h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.traz-fecha {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 76px;
+  min-height: 62px;
+  padding: 7px;
+  border-radius: 7px;
+  background: #fff;
+  color: #174d1b;
+}
+
+.traz-fecha strong {
+  font-size: 27px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.traz-fecha span {
+  margin-top: 5px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.traz-datos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 14px;
+}
+
+.traz-dato {
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-height: 50px;
+  padding: 13px 11px;
+  border-left: 2px solid #39743a;
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgb(55 80 40 / 4%);
+}
+
+.traz-dato dt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #285b2b;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.traz-dato dt span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.traz-dato dd {
+  min-width: 0;
+  margin: 0;
+  color: #40564a;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.traz-observacion {
+  white-space: pre-wrap;
+}
+
+@media (max-width: 800px) {
+  .traz-overlay {
+    padding: 10px;
+  }
+
+  .traz-header {
+    padding: 18px;
+  }
+
+  .traz-header h2 {
+    font-size: 17px;
+  }
+
+  .traz-body {
+    padding: 20px 14px;
+  }
+
+  .traz-linea::before {
+    left: 20px;
+  }
+
+  .traz-evento {
+    display: block;
+    padding-left: 53px;
+    padding-bottom: 24px;
+  }
+
+  .traz-numero {
+    left: 20px;
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+
+  .traz-tarjeta-header {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .traz-dato {
+    grid-template-columns: 100px minmax(0, 1fr);
+    gap: 7px;
+  }
+}
+
+@media (max-width: 440px) {
+  .traz-tarjeta-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .traz-dato {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+  }
+}

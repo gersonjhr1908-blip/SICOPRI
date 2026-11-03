@@ -1,0 +1,404 @@
+<div class="informe-overlay" (click)="cerrarModal()">
+  <section
+    class="informe-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="respuesta3-titulo"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="informe-header">
+      <div>
+        <h2 id="respuesta3-titulo">DAR RESPUESTA</h2>
+        <p>{{ denuncia?.cinv }}</p>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar"
+        aria-label="Cerrar"
+        [disabled]="
+          guardando ||
+          cargando ||
+          eliminandoRespuesta !== null
+        "
+        (click)="cerrarModal()"
+      >
+        ×
+      </button>
+    </header>
+
+    <nav class="informe-tabs">
+      <button
+        type="button"
+        [class.activo]="pestanaActiva === 1"
+        (click)="cambiarPestana(1)"
+      >
+        <span>1</span>
+        REGISTRAR RESPUESTA
+      </button>
+
+      <button
+        type="button"
+        [class.activo]="pestanaActiva === 2"
+        (click)="cambiarPestana(2)"
+      >
+        <span>2</span>
+        DOC ADJUNTO
+        <small>{{ respuestas.length }}</small>
+      </button>
+    </nav>
+
+    <div class="informe-body">
+      <div class="mensaje-error" *ngIf="error" role="alert">
+        {{ error }}
+
+        <button
+          type="button"
+          [disabled]="
+            cargando ||
+            guardando ||
+            eliminandoRespuesta !== null
+          "
+          (click)="cargarRespuestas()"
+        >
+          Volver a consultar
+        </button>
+      </div>
+
+      <p class="estado" *ngIf="cargando">
+        Consultando respuestas...
+      </p>
+
+      <div *ngIf="pestanaActiva === 1">
+        <fieldset
+          [disabled]="
+            guardando ||
+            cargando ||
+            !!error ||
+            eliminandoRespuesta !== null
+          "
+        >
+          <div class="form-grid">
+            <div class="campo campo-completo">
+              <label for="respuesta3-nombre">
+                NOMBRE DEL DOCUMENTO *
+              </label>
+
+              <input
+                id="respuesta3-nombre"
+                type="text"
+                [(ngModel)]="nombreDocumento"
+                maxlength="150"
+                placeholder="Ingrese el nombre del documento"
+              />
+            </div>
+
+            <div class="campo">
+              <label for="respuesta3-tipo">
+                TIPO DE DOCUMENTO *
+              </label>
+
+              <select
+                id="respuesta3-tipo"
+                [(ngModel)]="tipoDocumento"
+              >
+                <option value="">Seleccione</option>
+                <option value="SOLICITUD">Solicitud</option>
+                <option value="OFICIO">Oficio</option>
+                <option value="INFORME">Informe</option>
+                <option value="CARTA_NOTARIAL">
+                  Carta notarial
+                </option>
+                <option value="FAX">Fax</option>
+                <option value="MEMORANDUM">Memorándum</option>
+                <option value="OTROS">Otros</option>
+              </select>
+            </div>
+
+            <div
+              class="campo"
+              *ngIf="tipoDocumento === 'OTROS'"
+            >
+              <label for="respuesta3-otro-tipo">
+                ESPECIFIQUE EL TIPO DE DOCUMENTO *
+              </label>
+
+              <input
+                id="respuesta3-otro-tipo"
+                type="text"
+                [(ngModel)]="otroTipoDocumento"
+                maxlength="100"
+                placeholder="Ej. Acta, resolución, parte..."
+              />
+            </div>
+
+            <div class="campo">
+              <label for="respuesta3-origen">ORIGEN</label>
+
+              <input
+                id="respuesta3-origen"
+                type="text"
+                [value]="origen"
+                readonly
+              />
+            </div>
+
+            <div class="campo">
+              <label for="respuesta3-destino">DESTINO</label>
+
+              <input
+                id="respuesta3-destino"
+                type="text"
+                [value]="destino"
+                readonly
+              />
+            </div>
+
+            <div class="campo">
+              <label for="respuesta3-fecha">
+                FECHA DEL DOCUMENTO *
+              </label>
+
+              <input
+                id="respuesta3-fecha"
+                type="date"
+                [(ngModel)]="fechaDocumento"
+              />
+            </div>
+
+            <div class="campo campo-completo">
+              <label for="respuesta3-descripcion">
+                DESCRIPCIÓN / RESPUESTA *
+              </label>
+
+              <textarea
+                id="respuesta3-descripcion"
+                [(ngModel)]="descripcion"
+                rows="5"
+                maxlength="2000"
+                placeholder="Ingrese la respuesta del caso"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="adjunto-panel">
+            <div>
+              <strong>DOCUMENTO ADJUNTO</strong>
+              <p>Un archivo PDF de máximo 10 MB por respuesta.</p>
+            </div>
+
+            <input
+              #inputPdf
+              type="file"
+              accept=".pdf,application/pdf"
+              hidden
+              (change)="seleccionarArchivo($event)"
+            />
+
+            <button
+              type="button"
+              class="btn-principal"
+              (click)="inputPdf.click()"
+            >
+              ＋ ADJUNTAR PDF
+            </button>
+
+            <div
+              class="pdf-seleccionado"
+              *ngIf="archivoSeleccionado"
+            >
+              <div class="pdf-logo">PDF</div>
+
+              <div class="pdf-info">
+                <strong>{{ archivoSeleccionado.name }}</strong>
+
+                <small>
+                  {{ obtenerTamano(archivoSeleccionado.size) }}
+                </small>
+              </div>
+
+              <button
+                type="button"
+                (click)="quitarArchivo()"
+              >
+                Quitar
+              </button>
+            </div>
+          </div>
+
+          <div class="acciones-formulario">
+            <button
+              type="button"
+              class="btn-principal"
+              (click)="guardarRespuesta()"
+            >
+              {{
+                guardando
+                  ? 'GUARDANDO...'
+                  : 'GUARDAR RESPUESTA'
+              }}
+            </button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div *ngIf="pestanaActiva === 2">
+        <div class="respuestas-cabecera">
+          <div>
+            <h3>RESPUESTAS REGISTRADAS</h3>
+            <p>Los documentos guardados aparecen en esta lista.</p>
+          </div>
+
+          <button
+            type="button"
+            class="btn-principal"
+            [disabled]="
+              guardando ||
+              eliminandoRespuesta !== null
+            "
+            (click)="cambiarPestana(1)"
+          >
+            ＋ NUEVA RESPUESTA
+          </button>
+        </div>
+
+        <div class="respuestas-tabla-wrapper">
+          <table class="respuestas-tabla">
+            <thead>
+              <tr>
+                <th>N°</th>
+                <th>DOCUMENTO</th>
+                <th>TIPO</th>
+                <th>FECHA</th>
+                <th>PDF</th>
+                <th>ACCIONES</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr
+                *ngFor="let respuesta of respuestas; let i = index"
+              >
+                <td>{{ respuesta.numeroInforme || i + 1 }}</td>
+
+                <td>
+                  <strong>{{ respuesta.nombreDocumento }}</strong>
+                  <small>{{ respuesta.descripcion }}</small>
+                </td>
+
+                <td>{{ respuesta.tipoDocumento }}</td>
+
+                <td>
+                  {{ respuesta.fechaDocumento | date:'dd/MM/yyyy' }}
+                </td>
+
+                <td>{{ respuesta.nombreArchivo }}</td>
+
+                <td>
+                  <div class="respuesta-acciones">
+                    <button
+                      type="button"
+                      title="Ver PDF"
+                      aria-label="Ver PDF de respuesta"
+                      [disabled]="
+                        guardando ||
+                        eliminandoRespuesta !== null
+                      "
+                      (click)="abrirPdfRespuesta(respuesta)"
+                    >
+                      👁
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn-eliminar-respuesta"
+                      title="Eliminar respuesta"
+                      aria-label="Eliminar respuesta"
+                      [disabled]="
+                        guardando ||
+                        cargando ||
+                        eliminandoRespuesta !== null
+                      "
+                      (click)="eliminarRespuesta(respuesta)"
+                    >
+                      🗑
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr
+                *ngIf="
+                  !cargando &&
+                  !error &&
+                  respuestas.length === 0
+                "
+              >
+                <td colspan="6" class="respuesta-vacia">
+                  No hay respuestas registradas.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <footer class="informe-footer">
+      <button
+        type="button"
+        class="btn-secundario"
+        [disabled]="
+          guardando ||
+          cargando ||
+          eliminandoRespuesta !== null
+        "
+        (click)="cerrarModal()"
+      >
+        VOLVER AL CASO
+      </button>
+    </footer>
+  </section>
+</div>
+
+<div
+  class="respuesta-pdf-overlay"
+  *ngIf="mostrarVisorRespuesta"
+  (click)="cerrarVisorRespuesta()"
+>
+  <section
+    class="respuesta-pdf-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Visualizar respuesta"
+    (click)="$event.stopPropagation()"
+  >
+    <header>
+      <strong>
+        {{ respuestaSeleccionada?.nombreDocumento }}
+      </strong>
+
+      <button
+        type="button"
+        aria-label="Cerrar PDF"
+        (click)="cerrarVisorRespuesta()"
+      >
+        ✕
+      </button>
+    </header>
+
+    <p *ngIf="cargandoPdf" class="estado">
+      Cargando PDF...
+    </p>
+
+    <div class="mensaje-error" *ngIf="errorPdf">
+      {{ errorPdf }}
+    </div>
+
+    <iframe
+      *ngIf="pdfUrl && !cargandoPdf"
+      [src]="pdfUrl"
+      title="PDF de respuesta"
+    ></iframe>
+  </section>
+</div>

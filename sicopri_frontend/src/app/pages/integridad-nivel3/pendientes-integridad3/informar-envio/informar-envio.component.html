@@ -1,0 +1,319 @@
+<div class="informe-overlay" (click)="cerrarModal()">
+  <section
+    class="informe-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="informe-titulo"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="informe-header">
+      <div>
+        <h2 id="informe-titulo">INFORMAR ENVÍO</h2>
+        <p>{{ denuncia?.cinv }}</p>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar"
+        aria-label="Cerrar"
+        [disabled]="guardando"
+        (click)="cerrarModal()"
+      >
+        ×
+      </button>
+    </header>
+
+    <nav class="informe-tabs">
+      <button
+        type="button"
+        [class.activo]="pestanaActiva === 1"
+        (click)="cambiarPestana(1)"
+      >
+        <span>1</span> REGISTRAR INFORME
+      </button>
+
+      <button
+        type="button"
+        [class.activo]="pestanaActiva === 2"
+        (click)="cambiarPestana(2)"
+      >
+        <span>2</span> DOC ADJUNTO
+        <small>{{ informes.length }}</small>
+      </button>
+    </nav>
+
+    <div class="informe-body">
+      <div class="mensaje-error" *ngIf="error" role="alert">
+        {{ error }}
+
+        <button
+          type="button"
+          [disabled]="cargando || guardando"
+          (click)="cargarInformes()"
+        >
+          Volver a consultar
+        </button>
+      </div>
+
+      <p class="estado" *ngIf="cargando">Consultando informes...</p>
+
+      <div *ngIf="pestanaActiva === 1">
+        <fieldset [disabled]="guardando || cargando || !!error">
+          <div class="form-grid">
+            <div class="campo campo-completo">
+              <label for="informe-nombre">NOMBRE DEL DOCUMENTO *</label>
+              <input
+                id="informe-nombre"
+                type="text"
+                [(ngModel)]="nombreDocumento"
+                maxlength="150"
+                placeholder="Ingrese el nombre del documento"
+              />
+            </div>
+
+            <div class="campo">
+              <label for="informe-tipo">TIPO DE DOCUMENTO *</label>
+
+              <select id="informe-tipo" [(ngModel)]="tipoDocumento">
+                <option value="">Seleccione</option>
+                <option value="SOLICITUD">Solicitud</option>
+                <option value="OFICIO">Oficio</option>
+                <option value="INFORME">Informe</option>
+                <option value="CARTA_NOTARIAL">Carta notarial</option>
+                <option value="FAX">Fax</option>
+                <option value="MEMORANDUM">Memorándum</option>
+                <option value="OTROS">Otros</option>
+              </select>
+            </div>
+
+            <div class="campo" *ngIf="tipoDocumento === 'OTROS'">
+              <label for="informe-otro-tipo">
+                ESPECIFIQUE EL TIPO DE DOCUMENTO *
+              </label>
+
+              <input
+                id="informe-otro-tipo"
+                type="text"
+                [(ngModel)]="otroTipoDocumento"
+                maxlength="100"
+                placeholder="Escriba el tipo de documento"
+              />
+            </div>
+
+            <div class="campo">
+              <label for="informe-origen">ORIGEN</label>
+              <input
+                id="informe-origen"
+                type="text"
+                [value]="origen"
+                readonly
+              />
+            </div>
+
+            <div class="campo">
+              <label for="informe-fecha">FECHA DE REGISTRO *</label>
+              <input
+                id="informe-fecha"
+                type="date"
+                [(ngModel)]="fechaRegistro"
+              />
+            </div>
+          </div>
+
+          <div class="adjunto-panel">
+            <div>
+              <strong>DOCUMENTO ADJUNTO</strong>
+              <p>Un archivo PDF de máximo 10 MB por informe.</p>
+            </div>
+
+            <input
+              #inputPdf
+              type="file"
+              accept=".pdf,application/pdf"
+              hidden
+              (change)="seleccionarArchivo($event)"
+            />
+
+            <button
+              type="button"
+              class="btn-principal"
+              (click)="inputPdf.click()"
+            >
+              ＋ ADJUNTAR PDF
+            </button>
+
+            <div class="pdf-seleccionado" *ngIf="archivoSeleccionado">
+              <div class="pdf-logo">PDF</div>
+
+              <div class="pdf-info">
+                <strong>{{ archivoSeleccionado.name }}</strong>
+                <small>
+                  {{ obtenerTamano(archivoSeleccionado.size) }}
+                </small>
+              </div>
+
+              <button type="button" (click)="quitarArchivo()">Quitar</button>
+            </div>
+          </div>
+
+          <div class="acciones-formulario">
+            <button
+              type="button"
+              class="btn-principal"
+              (click)="guardarInforme()"
+            >
+              {{ guardando ? "GUARDANDO..." : "GUARDAR INFORME" }}
+            </button>
+          </div>
+        </fieldset>
+      </div>
+
+      <div *ngIf="pestanaActiva === 2">
+        <div class="informes-cabecera">
+          <div>
+            <h3>INFORMES DE ENVÍO REGISTRADOS</h3>
+            <p>Los informes guardados aparecen en esta tabla.</p>
+          </div>
+
+          <button
+            type="button"
+            class="btn-principal"
+            [disabled]="guardando || cargando"
+            (click)="cambiarPestana(1)"
+          >
+            ＋ NUEVO INFORME
+          </button>
+        </div>
+
+        <div class="informes-tabla-wrapper">
+          <table class="informes-tabla">
+            <thead>
+              <tr>
+                <th>N°</th>
+                <th>DOCUMENTO</th>
+                <th>TIPO</th>
+                <th>ORIGEN</th>
+                <th>FECHA</th>
+                <th>PDF</th>
+                <th>ACCIONES</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let informe of informes; let i = index">
+                <td>{{ i + 1 }}</td>
+
+                <td>
+                  <strong>{{ informe.nombreDocumento }}</strong>
+                </td>
+
+                <td>{{ informe.tipoDocumento }}</td>
+
+                <td>{{ origen }}</td>
+
+                <td>
+                  {{ informe.fechaRegistro | date: "dd/MM/yyyy" }}
+                </td>
+
+                <td class="nombre-pdf">
+                  {{ informe.nombreArchivo }}
+                </td>
+
+                <td>
+                  <div class="acciones-informe">
+                    <button
+                      type="button"
+                      class="btn-ver-informe"
+                      title="Ver PDF del informe"
+                      aria-label="Ver PDF del informe"
+                      [disabled]="guardando || eliminandoInforme"
+                      (click)="abrirVisorInforme(informe)"
+                    >
+                      👁
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn-eliminar-informe"
+                      title="Eliminar informe"
+                      aria-label="Eliminar informe"
+                      [disabled]="guardando || cargando || eliminandoInforme"
+                      (click)="eliminarInforme(informe)"
+                    >
+                      🗑
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr *ngIf="!cargando && !error && informes.length === 0">
+                <td colspan="7" class="sin-informes">
+                  No hay informes de envío registrados.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <footer class="informe-footer">
+      <button
+        type="button"
+        class="btn-secundario"
+        [disabled]="guardando"
+        (click)="cerrarModal()"
+      >
+        VOLVER AL CASO
+      </button>
+    </footer>
+  </section>
+</div>
+
+<div
+  class="visor-informe-overlay"
+  *ngIf="mostrarVisorInforme"
+  (click)="cerrarVisorInforme()"
+>
+  <section
+    class="visor-informe-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="PDF del informe de envío"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="visor-informe-cabecera">
+      <div>
+        <h3>
+          {{ informeSeleccionado?.nombreDocumento || "INFORME DE ENVÍO" }}
+        </h3>
+
+        <small>
+          {{ informeSeleccionado?.nombreArchivo }}
+        </small>
+      </div>
+
+      <button
+        type="button"
+        aria-label="Cerrar visor"
+        (click)="cerrarVisorInforme()"
+      >
+        ✕
+      </button>
+    </header>
+
+    <div class="visor-informe-contenido">
+      <p class="estado" *ngIf="cargandoPdf">Cargando PDF...</p>
+
+      <div class="mensaje-error" *ngIf="errorPdf" role="alert">
+        {{ errorPdf }}
+      </div>
+
+      <iframe
+        *ngIf="pdfUrl && !cargandoPdf && !errorPdf"
+        [src]="pdfUrl"
+        title="PDF del informe de envío"
+      ></iframe>
+    </div>
+  </section>
+</div>

@@ -93,4 +93,15 @@ public interface IIntegridadService {
             Long idExpediente
     );
 
+    Expediente enviarANivel3(
+            Long idExpediente,
+            String usuario
+    );
+
+    Expediente devolverDesdeNivel3(
+            Long idExpediente,
+            String observacion,
+            String usuario
+    );
+
 }

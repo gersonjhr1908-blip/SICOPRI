@@ -1,10 +1,13 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+
+import {
+  ManualCompartidoComponent
+} from '../../manual-compartido/manual-compartido.component';
 
 @Component({
   selector: 'app-manual-integridad3',
   standalone: true,
-  imports: [CommonModule],
+  imports: [ManualCompartidoComponent],
   templateUrl: './manual-integridad3.component.html',
   styleUrl: './manual-integridad3.component.css'
 })

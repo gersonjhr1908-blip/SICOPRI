@@ -29,6 +29,7 @@ import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -304,10 +305,9 @@ public class ExpedienteController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping(
-            value = "/archivos/{idArchivo}/ver",
-            produces = MediaType.APPLICATION_PDF_VALUE
-    )
+    // PDF: visualización habitual.
+    // ZIP: descarga como archivo adjunto.
+    @GetMapping("/archivos/{idArchivo}/ver")
     public ResponseEntity<Resource> verArchivo(
             @PathVariable Long idArchivo
     ) {
@@ -325,12 +325,26 @@ public class ExpedienteController {
         Resource recurso =
                 new FileSystemResource(ruta);
 
+        boolean esZip =
+                archivo.getNombreGuardado() != null &&
+                        archivo.getNombreGuardado()
+                                .toLowerCase(Locale.ROOT)
+                                .endsWith(".zip");
+
+        MediaType tipo = esZip
+                ? MediaType.parseMediaType("application/zip")
+                : MediaType.APPLICATION_PDF;
+
+        String disposicion = esZip
+                ? "attachment"
+                : "inline";
+
         return ResponseEntity
                 .ok()
-                .contentType(MediaType.APPLICATION_PDF)
+                .contentType(tipo)
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" +
+                        disposicion + "; filename=\"" +
                                 nombreSeguro(
                                         archivo.getNombreArchivo()
                                 ) +
@@ -472,9 +486,6 @@ public class ExpedienteController {
                 .replaceAll("\\p{M}", "")
                 .replaceAll("[^\\x20-\\x7E]", "_");
     }
-
-
-
 
     @PutMapping("/{idExpediente}/archivar")
     @Transactional

@@ -1,0 +1,345 @@
+<section class="estadistica-page">
+  <header class="estadistica-cabecera">
+    <div class="titulo-icono" aria-hidden="true">
+      ▥
+    </div>
+
+    <div>
+      <h1>ESTADÍSTICAS</h1>
+
+      <p>
+        {{ nombreModulo }} Nivel {{ nivel }} ·
+        Resumen y seguimiento de expedientes
+      </p>
+    </div>
+  </header>
+
+  <form
+    class="filtros"
+    (ngSubmit)="aplicarFiltros()"
+  >
+    <div class="campo">
+      <label for="estadistica-nivel">
+        NIVEL A CONSULTAR
+      </label>
+
+      <select
+        id="estadistica-nivel"
+        name="nivel"
+        [(ngModel)]="nivelSeleccionado"
+        [disabled]="cargando"
+      >
+        <option
+          *ngFor="let opcion of nivelesPermitidos"
+          [ngValue]="opcion"
+        >
+          {{ nombreModulo }} Nivel {{ opcion }}
+        </option>
+      </select>
+    </div>
+
+    <div class="campo">
+      <label for="estadistica-desde">
+        FECHA DE REGISTRO · DESDE
+      </label>
+
+      <input
+        id="estadistica-desde"
+        name="desde"
+        type="date"
+        [(ngModel)]="desde"
+        [disabled]="cargando"
+      />
+    </div>
+
+    <div class="campo">
+      <label for="estadistica-hasta">
+        FECHA DE REGISTRO · HASTA
+      </label>
+
+      <input
+        id="estadistica-hasta"
+        name="hasta"
+        type="date"
+        [(ngModel)]="hasta"
+        [disabled]="cargando"
+      />
+    </div>
+
+    <div class="filtros-acciones">
+      <button
+        type="submit"
+        class="btn-principal"
+        [disabled]="cargando || !datosCargados"
+      >
+        Aplicar
+      </button>
+
+      <button
+        type="button"
+        class="btn-secundario"
+        [disabled]="cargando"
+        (click)="limpiarFiltros()"
+      >
+        Limpiar
+      </button>
+    </div>
+  </form>
+
+  <p
+    class="mensaje-error"
+    *ngIf="errorFiltros"
+    role="alert"
+  >
+    {{ errorFiltros }}
+  </p>
+
+  <div class="consulta-cabecera">
+    <div>
+      <h2>
+        {{ nombreModulo }} · Nivel {{ nivelSeleccionado }}
+      </h2>
+
+      <p>
+        Expedientes registrados en el nivel o que pasaron por él.
+        Se muestra el estado actual de cada caso.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="btn-secundario"
+      [disabled]="cargando"
+      (click)="cargarDatos()"
+    >
+      {{ cargando ? 'Actualizando...' : 'Actualizar datos' }}
+    </button>
+  </div>
+
+  <div
+    class="estado-carga"
+    *ngIf="cargando"
+    role="status"
+  >
+    Consultando expedientes, movimientos y seguimientos...
+  </div>
+
+  <div
+    class="mensaje-error"
+    *ngIf="error"
+    role="alert"
+  >
+    {{ error }}
+
+    <button
+      type="button"
+      class="btn-secundario"
+      (click)="cargarDatos()"
+    >
+      Volver a intentar
+    </button>
+  </div>
+
+  <ng-container
+    *ngIf="datosCargados && !cargando && !error"
+  >
+    <div class="resumen-grid">
+      <article class="resumen-card resumen-total">
+        <span>Total de expedientes</span>
+
+        <strong>{{ total | number:'1.0-0' }}</strong>
+
+        <small>Según los filtros aplicados</small>
+      </article>
+
+      <article
+        class="resumen-card"
+        *ngFor="let barra of barrasEstados"
+        [style.border-top-color]="barra.color"
+      >
+        <span>{{ barra.nombre }}</span>
+
+        <strong [style.color]="barra.color">
+          {{ barra.cantidad | number:'1.0-0' }}
+        </strong>
+
+        <small>
+          {{ barra.porcentaje | number:'1.1-1' }}%
+          del total
+        </small>
+      </article>
+    </div>
+
+    <div class="sin-datos" *ngIf="total === 0">
+      No hay expedientes para el nivel y las fechas seleccionadas.
+    </div>
+
+    <div class="graficos-grid">
+      <article class="grafico-card">
+        <header>
+          <div>
+            <h3>DISTRIBUCIÓN POR ESTADO</h3>
+
+            <p>
+              Base:
+              {{ total | number:'1.0-0' }}
+              expedientes
+            </p>
+          </div>
+
+          <span class="grafico-etiqueta">
+            Estado actual
+          </span>
+        </header>
+
+        <div class="grafico-barras">
+          <div
+            class="fila-barra"
+            *ngFor="let barra of barrasEstados"
+          >
+            <div class="barra-cabecera">
+              <span class="barra-nombre">
+                <i
+                  aria-hidden="true"
+                  [style.background]="barra.color"
+                ></i>
+
+                {{ barra.nombre }}
+              </span>
+
+              <strong>
+                {{ barra.cantidad | number:'1.0-0' }}
+                /
+                {{ barra.porcentaje | number:'1.1-1' }}%
+              </strong>
+            </div>
+
+            <div
+              class="barra-pista"
+              role="meter"
+              [attr.aria-label]="barra.nombre"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              [attr.aria-valuenow]="barra.porcentaje"
+              [attr.aria-valuetext]="
+                barra.cantidad + ' expedientes, ' +
+                (barra.porcentaje | number:'1.1-1') +
+                ' por ciento'
+              "
+            >
+              <div
+                class="barra-relleno"
+                [style.width.%]="barra.porcentaje"
+                [style.background]="barra.color"
+              ></div>
+            </div>
+          </div>
+
+          <div class="eje-porcentajes" aria-hidden="true">
+            <span>0%</span>
+            <span>25%</span>
+            <span>50%</span>
+            <span>75%</span>
+            <span>100%</span>
+          </div>
+        </div>
+
+        <footer>
+          Cada expediente pertenece a un solo estado.
+        </footer>
+      </article>
+
+      <article class="grafico-card">
+        <header>
+          <div>
+            <h3>CONTROL DE PLAZOS</h3>
+
+            <p>
+              Base:
+              {{ enAtencion | number:'1.0-0' }}
+              expedientes en atención
+            </p>
+          </div>
+
+          <span class="grafico-etiqueta">
+            Seguimiento
+          </span>
+        </header>
+
+        <div class="grafico-barras">
+          <div
+            class="fila-barra"
+            *ngFor="let barra of barrasPlazos"
+          >
+            <div class="barra-cabecera">
+              <span class="barra-nombre">
+                <i
+                  aria-hidden="true"
+                  [style.background]="barra.color"
+                ></i>
+
+                {{ barra.nombre }}
+              </span>
+
+              <strong>
+                {{ barra.cantidad | number:'1.0-0' }}
+                /
+                {{ barra.porcentaje | number:'1.1-1' }}%
+              </strong>
+            </div>
+
+            <div
+              class="barra-pista"
+              role="meter"
+              [attr.aria-label]="barra.nombre"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              [attr.aria-valuenow]="barra.porcentaje"
+              [attr.aria-valuetext]="
+                barra.cantidad + ' expedientes, ' +
+                (barra.porcentaje | number:'1.1-1') +
+                ' por ciento'
+              "
+            >
+              <div
+                class="barra-relleno"
+                [style.width.%]="barra.porcentaje"
+                [style.background]="barra.color"
+              ></div>
+            </div>
+          </div>
+
+          <div class="eje-porcentajes" aria-hidden="true">
+            <span>0%</span>
+            <span>25%</span>
+            <span>50%</span>
+            <span>75%</span>
+            <span>100%</span>
+          </div>
+
+          <p class="nota-plazos">
+            No incluye Concluidos ni Archivados.
+            La fecha de fin es válida durante todo ese día.
+          </p>
+
+          <p class="nota-plazos">
+            “Sin seguimiento válido” incluye casos sin fechas
+            completas o con fechas inconsistentes.
+          </p>
+        </div>
+
+        <footer>
+          Evaluado con la fecha actual de Perú.
+        </footer>
+      </article>
+    </div>
+
+    <p class="nota-general">
+      Los filtros usan la fecha de registro del expediente.
+      Última consulta:
+      {{ fechaConsulta | date:'dd/MM/yyyy' }}.
+      Los totales de distintos niveles pueden compartir casos;
+      no deben sumarse entre sí.
+    </p>
+  </ng-container>
+</section>

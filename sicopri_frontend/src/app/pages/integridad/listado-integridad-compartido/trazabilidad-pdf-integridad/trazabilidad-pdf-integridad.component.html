@@ -1,0 +1,74 @@
+<div class="pdf-overlay" (click)="cerrarModal()">
+  <section
+    class="pdf-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="pdf-integridad-titulo"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="pdf-header">
+      <div class="pdf-identidad">
+        <div class="pdf-icono" aria-hidden="true">PDF</div>
+
+        <div>
+          <h2 id="pdf-integridad-titulo">
+            TRAZABILIDAD DEL EXPEDIENTE
+          </h2>
+
+          <p>{{ expediente?.cinv }}</p>
+        </div>
+      </div>
+
+      <div class="pdf-acciones">
+        <button
+          type="button"
+          class="btn-descargar"
+          [disabled]="cargando || !pdfUrl"
+          (click)="descargar()"
+        >
+          ↓ Descargar PDF
+        </button>
+
+        <button
+          type="button"
+          class="btn-cerrar"
+          aria-label="Cerrar PDF"
+          (click)="cerrarModal()"
+        >
+          ✕
+        </button>
+      </div>
+    </header>
+
+    <div class="pdf-barra">
+      <span>Reporte de Integridad</span>
+
+      <span *ngIf="!cargando && !error">
+        {{ cantidadMovimientos }} movimientos registrados
+      </span>
+    </div>
+
+    <div class="pdf-contenido">
+      <div class="pdf-estado" *ngIf="cargando" role="status">
+        <div class="pdf-spinner"></div>
+        <strong>Preparando trazabilidad…</strong>
+        <p>Generando el documento con todos los movimientos.</p>
+      </div>
+
+      <div class="pdf-estado pdf-error" *ngIf="error" role="alert">
+        <strong>No se pudo generar el PDF</strong>
+        <p>{{ error }}</p>
+
+        <button type="button" (click)="generar()">
+          Volver a intentar
+        </button>
+      </div>
+
+      <iframe
+        *ngIf="pdfUrl && !cargando && !error"
+        [src]="pdfUrl"
+        title="PDF de trazabilidad del expediente"
+      ></iframe>
+    </div>
+  </section>
+</div>

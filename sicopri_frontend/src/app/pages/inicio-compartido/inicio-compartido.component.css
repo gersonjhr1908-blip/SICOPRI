@@ -1,0 +1,514 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  color: #123a25;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.inicio-page,
+.inicio-page * {
+  box-sizing: border-box;
+}
+
+.inicio-page {
+  width: 100%;
+  padding: 24px 28px;
+  background: #faf9f7;
+}
+
+.bienvenida {
+  position: relative;
+  margin-bottom: 20px;
+  padding-left: 21px;
+}
+
+.bienvenida::before {
+  content: "";
+  position: absolute;
+  inset: 2px auto 1px 0;
+  width: 6px;
+  border-radius: 8px;
+  background: linear-gradient(#244e13, #466b24);
+}
+
+.bienvenida h1 {
+  margin: 0;
+  color: #10331f;
+  font-size: clamp(24px, 2vw, 31px);
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: -0.6px;
+  overflow-wrap: anywhere;
+}
+
+.bienvenida p {
+  margin: 6px 0 0;
+  color: #505760;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.inicio-banner {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: 235px;
+  overflow: hidden;
+  padding: 28px 34px;
+  border: 1px solid #194e32;
+  border-radius: 16px;
+  background:
+    #123a25
+    url("../../../assets/banner-ejercito-inicio.png")
+    center right / cover
+    no-repeat;
+  box-shadow: 0 2px 5px rgb(14 43 27 / 8%);
+}
+
+.inicio-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    rgb(8 42 25 / 48%) 0%,
+    rgb(8 42 25 / 28%) 48%,
+    transparent 78%
+  );
+}
+
+.banner-contenido {
+  position: relative;
+  z-index: 1;
+  width: 67%;
+  max-width: 760px;
+}
+
+.banner-contenido h2 {
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: clamp(25px, 2.4vw, 36px);
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-wrap: balance;
+  text-shadow: 0 2px 12px rgb(0 0 0 / 20%);
+}
+
+.nivel-etiqueta {
+  display: inline-flex;
+  max-width: 100%;
+  padding: 6px 18px 8px;
+  border: 2px solid #e7c34f;
+  border-radius: 999px;
+  color: #f4d575;
+  background: rgb(24 70 37 / 82%);
+  font-size: 20px;
+  font-weight: 750;
+  line-height: 1.1;
+  letter-spacing: 0.3px;
+}
+
+.banner-separador {
+  display: block;
+  width: 44px;
+  height: 3px;
+  margin: 12px 0 9px;
+  border-radius: 2px;
+  background: #e7c34f;
+}
+
+.banner-contenido p {
+  margin: 0;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1.4;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 40%);
+}
+
+.accesos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin: 18px 0;
+}
+
+.acceso-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  min-height: 104px;
+  padding: 18px;
+  border: 1px solid #dcddd8;
+  border-radius: 14px;
+  background: linear-gradient(125deg, #fff, #faf9f7);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 3px 5px rgb(22 35 28 / 10%);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease;
+}
+
+.acceso-card:hover {
+  transform: translateY(-2px);
+  border-color: #a2b49c;
+  box-shadow: 0 6px 15px rgb(22 35 28 / 12%);
+}
+
+.acceso-card:focus-visible {
+  outline: 3px solid #1b6a43;
+  outline-offset: 4px;
+}
+
+.acceso-icono,
+.gestion-nota > svg {
+  flex-shrink: 0;
+  width: 36px;
+  height: 41px;
+  fill: none;
+  stroke: #123e26;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.acceso-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding-left: 15px;
+  border-left: 3px solid #d5aa32;
+}
+
+.acceso-texto strong {
+  color: #12351f;
+  font-size: clamp(17px, 1.4vw, 22px);
+  line-height: 1.2;
+  font-weight: 750;
+}
+
+.acceso-texto > span {
+  color: #50565c;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.gestion-nota {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 15px 22px;
+  border: 1px solid #c7d9c8;
+  border-radius: 14px;
+  background: linear-gradient(
+    100deg,
+    #e7eee5,
+    #edf2e9,
+    #e2ebe2
+  );
+}
+
+.gestion-nota > div {
+  min-width: 0;
+  padding-left: 18px;
+  border-left: 3px solid #cfa630;
+}
+
+.gestion-nota h2 {
+  margin: 0 0 3px;
+  font-size: 21px;
+  line-height: 1.2;
+  font-weight: 750;
+}
+
+.gestion-nota p {
+  margin: 0;
+  color: #505a54;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+@media (min-width: 901px) and (max-height: 800px) {
+  .inicio-page {
+    padding: 18px 24px;
+  }
+
+  .bienvenida {
+    margin-bottom: 16px;
+  }
+
+  .bienvenida h1 {
+    font-size: 26px;
+  }
+
+  .bienvenida p {
+    font-size: 14px;
+  }
+
+  .inicio-banner {
+    min-height: 205px;
+    padding: 22px 28px;
+  }
+
+  .banner-contenido h2 {
+    font-size: 29px;
+    margin-bottom: 12px;
+  }
+
+  .nivel-etiqueta {
+    font-size: 18px;
+  }
+
+  .banner-contenido p {
+    font-size: 14px;
+  }
+
+  .accesos-grid {
+    gap: 14px;
+    margin: 15px 0;
+  }
+
+  .acceso-card {
+    min-height: 92px;
+    padding: 14px;
+    gap: 13px;
+  }
+
+  .acceso-texto strong {
+    font-size: 19px;
+  }
+
+  .acceso-texto > span {
+    font-size: 12px;
+  }
+
+  .gestion-nota {
+    padding: 12px 20px;
+  }
+
+  .gestion-nota h2 {
+    font-size: 19px;
+  }
+
+  .gestion-nota p {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .banner-contenido {
+    width: 76%;
+  }
+
+  .acceso-card {
+    gap: 12px;
+    padding: 15px;
+  }
+
+  .acceso-icono {
+    width: 30px;
+    height: 35px;
+  }
+
+  .acceso-texto {
+    padding-left: 12px;
+  }
+}
+
+@media (max-width: 760px) {
+  .inicio-page {
+    padding: 22px 16px;
+  }
+
+  .bienvenida {
+    padding-left: 17px;
+  }
+
+  .bienvenida h1 {
+    font-size: 25px;
+  }
+
+  .bienvenida p {
+    font-size: 14px;
+  }
+
+  .inicio-banner {
+    min-height: 235px;
+    padding: 26px 22px;
+    background-position: 65% center;
+  }
+
+  .banner-contenido {
+    width: 85%;
+  }
+
+  .banner-contenido h2 {
+    font-size: 28px;
+  }
+
+  .nivel-etiqueta {
+    font-size: 17px;
+  }
+
+  .banner-contenido p {
+    font-size: 14px;
+  }
+
+  .accesos-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .acceso-card {
+    min-height: 90px;
+    padding: 17px;
+    gap: 18px;
+  }
+
+  .acceso-icono {
+    width: 36px;
+    height: 41px;
+  }
+
+  .acceso-texto strong {
+    font-size: 20px;
+  }
+
+  .gestion-nota {
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .gestion-nota > div {
+    padding-left: 14px;
+  }
+
+  .gestion-nota h2 {
+    font-size: 19px;
+  }
+}
+
+@media (max-width: 440px) {
+  .inicio-page {
+    padding: 18px 12px;
+  }
+
+  .banner-contenido {
+    width: 100%;
+  }
+
+  .banner-contenido h2 {
+    font-size: 25px;
+  }
+
+  .inicio-banner::before {
+    background: linear-gradient(
+      90deg,
+      rgb(7 40 24 / 78%),
+      rgb(7 40 24 / 45%)
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .acceso-card {
+    transition: none;
+  }
+}
+.inicio-page {
+  padding: 32px 36px;
+}
+
+.bienvenida {
+  margin-bottom: 28px;
+}
+
+.bienvenida h1 {
+  font-size: clamp(26px, 2.4vw, 38px);
+}
+
+.bienvenida p {
+  font-size: 20px;
+}
+
+.inicio-banner {
+  display: flex;
+  align-items: center;
+  min-height: 390px;
+  padding: 40px;
+  background-image: url('../../../assets/banner-ejercito-inicio.png');
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+}
+
+.banner-contenido {
+  width: 67%;
+  max-width: 760px;
+  margin: 0;
+}
+
+.banner-contenido h2 {
+  font-size: clamp(28px, 2.8vw, 46px);
+}
+
+.nivel-etiqueta {
+  font-size: 26px;
+}
+
+.banner-contenido p {
+  font-size: 20px;
+}
+
+.accesos-grid {
+  gap: 24px;
+  margin: 28px 0;
+}
+
+.acceso-card {
+  min-height: 128px;
+  padding: 24px;
+}
+
+@media (max-width: 760px) {
+  .inicio-page {
+    padding: 22px 16px;
+  }
+
+  .bienvenida p {
+    font-size: 15px;
+  }
+
+  .inicio-banner {
+    min-height: 290px;
+    padding: 26px 22px;
+  }
+
+  .banner-contenido {
+    width: 100%;
+  }
+
+  .banner-contenido h2 {
+    font-size: 28px;
+  }
+
+  .nivel-etiqueta {
+    font-size: 18px;
+  }
+
+  .banner-contenido p {
+    font-size: 15px;
+  }
+
+  .acceso-card {
+    min-height: 95px;
+    padding: 18px;
+  }
+}

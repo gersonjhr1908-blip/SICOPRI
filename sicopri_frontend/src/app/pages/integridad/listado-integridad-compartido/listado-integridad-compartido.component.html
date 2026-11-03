@@ -1,0 +1,362 @@
+<div class="pendientes-integridad-page">
+  <div class="pendientes-integridad-card">
+    <div class="titulo-container">
+      <div class="titulo-icono">📋</div>
+
+      <div>
+        <h2>LISTADO TOTAL</h2>
+        <p>
+          Integridad Nivel {{ nivel }} · Seguimiento general de expedientes gestionados
+        </p>
+      </div>
+    </div>
+
+    <div class="toolbar-integridad">
+      <div class="buscador">
+        <input
+          type="text"
+          [(ngModel)]="search"
+          (input)="buscarDocumentos()"
+          placeholder="BUSCADOR CÓDIGO DENUNCIA (PUD):"
+          aria-label="Buscar denuncia"
+        />
+
+        <button
+          *ngIf="search"
+          type="button"
+          class="btn-limpiar"
+          title="Limpiar búsqueda"
+          (click)="limpiarBusqueda()"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <div class="mensaje-error" *ngIf="error" role="alert">
+      {{ error }}
+
+      <button type="button" (click)="cargarDocumentos()">
+        Reintentar
+      </button>
+    </div>
+
+    <div class="tabla-wrapper">
+      <table class="pendientes-integridad-table">
+        <thead>
+          <tr>
+            <th>CÓDIGO</th>
+            <th>FECHA DE REGISTRO</th>
+            <th>FECHA DEL ACTO DE CORRUPCIÓN</th>
+            <th>MOTIVO DE LA DENUNCIA</th>
+            <th>DETALLE</th>
+            <th>DETALLE (OTROS)</th>
+            <th>ESTADO</th>
+            <th aria-label="Acciones"></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngIf="cargando">
+            <td colspan="8" class="estado-carga">
+              Cargando listado...
+            </td>
+          </tr>
+
+          <ng-container *ngIf="!cargando">
+            <tr *ngFor="let documento of documentos">
+              <td>
+                {{ documento.cinv }}
+
+                <small
+                  class="error-detalle"
+                  *ngIf="documento.errorDetalle"
+                >
+                  No se pudo consultar el detalle.
+                </small>
+              </td>
+
+              <td>
+                {{ documento.fechaRegistro | date:'dd/MM/yyyy' }}
+              </td>
+
+              <td>
+                {{
+                  documento.fechaActoCorrupcion
+                    ? (documento.fechaActoCorrupcion | date:'dd/MM/yyyy')
+                    : '-'
+                }}
+              </td>
+
+              <td class="texto-tabla">
+                {{ obtenerMotivo(documento.motivoDenuncia) }}
+              </td>
+
+              <td class="texto-tabla">
+                {{ documento.detalle || documento.descripcion || '-' }}
+              </td>
+
+              <td class="texto-tabla">
+                {{ documento.detalleOtros || '-' }}
+              </td>
+
+              <td>
+                <span
+                  class="estado-badge"
+                  [class.estado-enviado]="documento.estadoVisual === 'ENVIADO'"
+                  [class.estado-observado]="documento.estadoVisual === 'OBSERVADO'"
+                  [class.estado-concluido]="documento.estadoVisual === 'CONCLUIDO'"
+                  [class.estado-archivado]="documento.estadoVisual === 'ARCHIVADO'"
+                >
+                  {{ documento.estadoVisual }}
+                </span>
+              </td>
+
+              <td>
+                <div class="acciones">
+                  <button
+                    type="button"
+                    class="btn-menu"
+                    title="Acciones del expediente"
+                    [disabled]="eliminando"
+                    [attr.aria-expanded]="menuAbiertoId === documento.idExpediente"
+                    (click)="toggleMenu(documento, $event)"
+                  >
+                    ⋮
+                  </button>
+
+                  <div
+                    class="acciones-menu"
+                    *ngIf="menuAbiertoId === documento.idExpediente"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <button type="button" (click)="verCaso(documento)">
+                      👁 Ver caso
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="abrirTrazabilidad(documento)"
+                    >
+                      ↔ Trazabilidad
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="imprimirTrazabilidad(documento)"
+                    >
+                      🖨 TrazPDF
+                    </button>
+
+                    <button
+                      type="button"
+                      class="opcion-eliminar"
+                      *ngIf="puedeEliminar(documento)"
+                      (click)="eliminar(documento)"
+                    >
+                      🗑 Eliminar
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+            <tr *ngIf="!error && documentos.length === 0">
+              <td colspan="8" class="sin-registros">
+                <div class="sin-icono">📁</div>
+                <h3>No hay expedientes en el listado total</h3>
+                <p>
+                  Los casos gestionados aparecerán aquí.
+                </p>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-ver-caso-integridad
+  *ngIf="documentoSeleccionado"
+  [denuncia]="documentoSeleccionado"
+  [soloLectura]="true"
+  (cerrar)="cerrarVerCaso()"
+>
+</app-ver-caso-integridad>
+
+<div
+  class="traz-overlay"
+  *ngIf="expedienteTrazabilidad"
+  (click)="cerrarTrazabilidad()"
+>
+  <section
+    class="traz-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="traz-integridad-titulo"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="traz-header">
+      <div>
+        <h2 id="traz-integridad-titulo">
+          TRAZABILIDAD DEL EXPEDIENTE
+        </h2>
+
+        <p>{{ expedienteTrazabilidad.cinv }}</p>
+      </div>
+
+      <button
+        type="button"
+        aria-label="Cerrar trazabilidad"
+        (click)="cerrarTrazabilidad()"
+      >
+        ✕
+      </button>
+    </header>
+
+    <div class="traz-body">
+      <div
+        class="traz-mensaje"
+        *ngIf="cargandoTrazabilidad"
+        role="status"
+      >
+        Consultando movimientos...
+      </div>
+
+      <div
+        class="traz-mensaje traz-error"
+        *ngIf="errorTrazabilidad"
+        role="alert"
+      >
+        {{ errorTrazabilidad }}
+      </div>
+
+      <div
+        class="traz-mensaje"
+        *ngIf="
+          !cargandoTrazabilidad &&
+          !errorTrazabilidad &&
+          movimientos.length === 0
+        "
+      >
+        No hay movimientos registrados.
+      </div>
+
+      <ol
+        class="traz-linea"
+        *ngIf="
+          !cargandoTrazabilidad &&
+          !errorTrazabilidad &&
+          movimientos.length > 0
+        "
+      >
+        <li
+          class="traz-evento"
+          *ngFor="let movimiento of movimientos; let i = index"
+          [class.traz-derecha]="i % 2 !== 0"
+        >
+          <span class="traz-numero" aria-hidden="true">
+            {{ i + 1 }}
+          </span>
+
+          <article class="traz-tarjeta">
+            <header class="traz-tarjeta-header">
+              <div class="traz-fecha">
+                <strong>
+                  {{
+                    movimiento.fechaMovimiento
+                      ? (movimiento.fechaMovimiento | date:'dd')
+                      : '—'
+                  }}
+                </strong>
+
+                <span>
+                  {{
+                    movimiento.fechaMovimiento
+                      ? (movimiento.fechaMovimiento | date:'MM/yyyy')
+                      : 'Sin fecha'
+                  }}
+                </span>
+              </div>
+
+              <h3>
+                {{
+                  (movimiento.accion || 'MOVIMIENTO')
+                    .split('_').join(' ')
+                }}
+              </h3>
+            </header>
+
+            <dl class="traz-datos">
+              <div class="traz-dato">
+                <dt>
+                  <span aria-hidden="true">◷</span>
+                  Hora
+                </dt>
+
+                <dd>
+                  {{
+                    movimiento.fechaMovimiento
+                      ? (movimiento.fechaMovimiento | date:'HH:mm')
+                      : '—'
+                  }}
+                </dd>
+              </div>
+
+              <div class="traz-dato">
+                <dt>
+                  <span aria-hidden="true">←</span>
+                  Origen
+                </dt>
+
+                <dd>
+                  {{ nivelVisual(movimiento.nivelOrigen) }}
+                </dd>
+              </div>
+
+              <div class="traz-dato">
+                <dt>
+                  <span aria-hidden="true">→</span>
+                  Destino
+                </dt>
+
+                <dd>
+                  {{ nivelVisual(movimiento.nivelDestino) }}
+                </dd>
+              </div>
+
+              <div class="traz-dato">
+                <dt>
+                  <span aria-hidden="true">▤</span>
+                  Observación
+                </dt>
+
+                <dd class="traz-observacion">
+                  {{ movimiento.observacion || 'Sin observación' }}
+                </dd>
+              </div>
+
+              <div class="traz-dato">
+                <dt>
+                  <span aria-hidden="true">●</span>
+                  Responsable
+                </dt>
+
+                <dd>
+                  {{ movimiento.usuario || '—' }}
+                </dd>
+              </div>
+            </dl>
+          </article>
+        </li>
+      </ol>
+    </div>
+  </section>
+</div>
+<app-trazabilidad-pdf-integridad
+  *ngIf="expedientePdf"
+  [expediente]="expedientePdf"
+  (cerrar)="cerrarPdf()"
+>
+</app-trazabilidad-pdf-integridad>

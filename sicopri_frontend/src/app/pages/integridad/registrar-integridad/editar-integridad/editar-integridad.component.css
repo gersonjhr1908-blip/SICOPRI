@@ -833,3 +833,379 @@
   }
 
 }
+
+.editar-formulario {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.editar-fila {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.editar-fila-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.editar-fila-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.editar-formulario .campo {
+  min-width: 0;
+}
+
+.editar-formulario input,
+.editar-formulario select,
+.editar-formulario textarea {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.editar-formulario input,
+.editar-formulario select {
+  min-height: 44px;
+}
+
+.editar-formulario textarea {
+  resize: vertical;
+}
+
+.editar-formulario .persona-panel {
+  margin-bottom: 22px;
+}
+
+.editar-persona-grid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.editar-persona-mitad {
+  grid-column: span 3;
+}
+
+.editar-persona-tercio {
+  grid-column: span 2;
+}
+
+.editar-persona-direccion {
+  grid-column: span 4;
+}
+
+.editar-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.editar-detalle {
+  margin-bottom: 20px;
+}
+
+.editar-adjuntos {
+  padding: 18px;
+  border: 1px dashed #bfd4c7;
+  border-radius: 9px;
+  background: #f8fbf9;
+}
+
+.editar-adjuntos-cabecera,
+.editar-archivo,
+.editar-acciones {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.editar-adjuntos h3 {
+  margin: 0;
+  color: #145c43;
+  font-size: 13px;
+}
+
+.editar-adjuntos p {
+  color: #6d7f72;
+  font-size: 12px;
+}
+
+.editar-archivo {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #dce6e0;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.editar-archivo-info {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.editar-archivo-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.editar-adjuntos button,
+.editar-acciones button {
+  padding: 10px 14px;
+  border: 1px solid #bfd4c7;
+  border-radius: 6px;
+  background: #fff;
+  color: #145c43;
+  cursor: pointer;
+}
+
+.editar-adjuntos .editar-btn-adjuntar,
+.editar-acciones .editar-btn-guardar {
+  background: #145c43;
+  color: #fff;
+}
+
+.editar-btn-adjuntar {
+  margin-top: 14px;
+}
+
+.editar-acciones {
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+.editar-adjuntos button:disabled,
+.editar-acciones button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .editar-fila-2,
+  .editar-fila-3,
+  .editar-persona-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .editar-persona-grid > .campo {
+    grid-column: auto;
+  }
+
+  .editar-archivo {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .editar-acciones {
+    flex-wrap: wrap;
+  }
+}
+.editar-header {
+  position: relative;
+  display: flex;
+  min-height: 84px;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 65px;
+  background: #176b2c;
+  color: #fff;
+}
+
+.editar-titulo-centro {
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+}
+
+.editar-titulo-centro h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.editar-titulo-centro p {
+  margin: 8px 0 0;
+  color: #fff;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.editar-header .btn-cerrar {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  display: flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 20%);
+  color: #fff;
+  cursor: pointer;
+}
+
+.editar-formulario .persona-panel {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #c5ded2;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.editar-persona-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 0;
+  background: #eff7f3;
+  color: #145c43;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.editar-persona-toggle > span:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.editar-persona-toggle strong {
+  font-size: 12px;
+}
+
+.editar-persona-toggle small {
+  color: #527367;
+  font-size: 11px;
+}
+
+.editar-persona-toggle > span:last-child {
+  font-size: 22px;
+}
+
+.editar-persona-contenido {
+  padding: 18px;
+}
+
+.editar-persona-contenido[hidden] {
+  display: none;
+}
+
+.editar-archivo-contenido {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.editar-archivo-logo {
+  display: flex;
+  width: 42px;
+  height: 46px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: #fff0ed;
+  color: #b43c30;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.editar-archivo-logo.es-zip {
+  background: #fff4d6;
+  color: #926600;
+}
+
+.editar-persona-toggle:focus-visible,
+.editar-header .btn-cerrar:focus-visible {
+  outline: 3px solid #84bca3;
+  outline-offset: -3px;
+}
+
+@media (max-width: 600px) {
+  .editar-titulo-centro h2 {
+    font-size: 15px;
+  }
+
+  .editar-persona-toggle > span:first-child {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+.editar-inspectoria {
+  padding-top: 20px;
+  border-top: 1px solid #dfe7e1;
+}
+
+.editar-formulario input[readonly] {
+  background: #f1f6f3;
+  color: #52685a;
+}
+
+.editar-ayuda {
+  margin: 0 0 16px;
+  color: #6d7f72;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.editar-mensaje-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid #ecc6c2;
+  border-radius: 7px;
+  background: #fff3f1;
+  color: #a13226;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.editar-mensaje-error button {
+  padding: 8px 12px;
+  border: 1px solid #d9b1aa;
+  border-radius: 5px;
+  background: #fff;
+  color: #922c22;
+  cursor: pointer;
+}
+
+.editar-formulario select:disabled,
+.editar-formulario input:disabled,
+.editar-formulario textarea:disabled {
+  background: #f1f5f3;
+  color: #748078;
+  cursor: not-allowed;
+}

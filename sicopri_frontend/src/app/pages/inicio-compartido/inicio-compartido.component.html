@@ -1,0 +1,62 @@
+<section class="inicio-page" aria-label="Inicio del módulo">
+  <header class="bienvenida">
+    <h1>
+      Bienvenido<span *ngIf="nombreUsuario">, {{ nombreUsuario }}</span>
+    </h1>
+
+    <p>Tu espacio de gestión y seguimiento documental.</p>
+  </header>
+
+  <section class="inicio-banner" aria-labelledby="inicio-modulo-titulo">
+    <div class="banner-contenido">
+      <h2 id="inicio-modulo-titulo">
+        {{ titulo }}
+      </h2>
+
+      <span class="nivel-etiqueta">
+        {{ etiqueta }}
+      </span>
+
+      <span class="banner-separador" aria-hidden="true"></span>
+
+      <p>Sistema de gestión y seguimiento de expedientes</p>
+    </div>
+  </section>
+
+  <nav class="accesos-grid" aria-label="Accesos rápidos">
+    <a
+      *ngFor="let acceso of accesos"
+      class="acceso-card"
+      [routerLink]="[rutaBase, acceso.ruta]"
+    >
+      <svg
+        class="acceso-icono"
+        viewBox="0 0 24 26"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path [attr.d]="acceso.icono"></path>
+      </svg>
+
+      <span class="acceso-texto">
+        <strong>{{ acceso.titulo }}</strong>
+
+        <span>
+          {{ acceso.descripcion }}
+        </span>
+      </span>
+    </a>
+  </nav>
+
+  <aside class="gestion-nota" aria-label="Gestión documental">
+    <svg viewBox="0 0 24 26" aria-hidden="true" focusable="false">
+      <path d="M14 2H5v22h15V8l-6-6zm0 0v6h6M8 13h9M8 17h9M8 21h6"></path>
+    </svg>
+
+    <div>
+      <h2>Gestión documental</h2>
+
+      <p>Consulta tus expedientes y realiza el seguimiento de cada caso.</p>
+    </div>
+  </aside>
+</section>

@@ -17,6 +17,7 @@ import sistema.ejercito.mil.pe.dto.IntegridadListadoDTO;
 import sistema.ejercito.mil.pe.model.table.Expediente;
 
 import sistema.ejercito.mil.pe.service.IIntegridadService;
+import java.util.Map;
 
 import java.util.List;
 
@@ -395,6 +396,42 @@ public class IntegridadController {
                 .noContent()
                 .build();
 
+    }
+    @PutMapping("/{idExpediente}/enviar-nivel-3")
+    @Transactional
+    public ResponseEntity<Expediente> enviarANivel3(
+            @PathVariable Long idExpediente
+    ) {
+        String usuario = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        return ResponseEntity.ok(
+                integridadService.enviarANivel3(
+                        idExpediente,
+                        usuario
+                )
+        );
+    }
+    @PutMapping("/{idExpediente}/devolver-desde-nivel-3")
+    @Transactional
+    public ResponseEntity<Expediente> devolverDesdeNivel3(
+            @PathVariable Long idExpediente,
+            @RequestBody Map<String, String> body
+    ) {
+        String usuario = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        return ResponseEntity.ok(
+                integridadService.devolverDesdeNivel3(
+                        idExpediente,
+                        body.get("observacion"),
+                        usuario
+                )
+        );
     }
 
 }

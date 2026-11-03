@@ -1,0 +1,29 @@
+@import "../../integridad-nivel3/pendientes-integridad3/pendientes-integridad3.component.css";
+
+:host {
+  display: block;
+}
+
+.pendientes-integridad-card,
+.tabla-wrapper {
+  overflow: visible;
+  max-height: none;
+}
+
+.tabla-wrapper {
+  padding-bottom: 0;
+}
+
+.acciones-menu {
+  top: calc(100% + 6px);
+  right: 0;
+  bottom: auto;
+  z-index: 100;
+}
+
+@media (max-width: 900px) {
+  .tabla-wrapper {
+    overflow-x: auto;
+    padding-bottom: 100px;
+  }
+}

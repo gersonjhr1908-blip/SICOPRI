@@ -1,0 +1,155 @@
+@import "../../../integridad/registrar-integridad/ver-caso-integridad/ver-caso-integridad.component.css";
+
+.btn-accion-caso {
+  display: block;
+  width: 100%;
+  min-height: 45px;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+.btn-respuesta {
+  background: #2161bb;
+}
+
+.btn-informe {
+  background: #346d9b;
+}
+
+.btn-derivar {
+  background: #177446;
+}
+
+.btn-devolver {
+  background: #ae3e21;
+}
+
+.btn-accion-caso:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.observacion-panel {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.observacion-panel label {
+  color: #40584a;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.observacion-panel textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 190px;
+  padding: 12px;
+  resize: vertical;
+  border: 1px solid #becfc4;
+  border-radius: 6px;
+  background: #fff;
+  color: #34483c;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.observacion-ok {
+  color: #176444;
+}
+
+.observacion-error {
+  color: #a13226;
+}
+
+.informes4-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1350;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background: rgb(0 0 0 / 65%);
+}
+
+.informes4-modal {
+  width: min(1150px, 100%);
+  max-height: 85vh;
+  overflow: auto;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.informes4-modal header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  color: #fff;
+  background: #176444;
+}
+
+.informes4-modal h3 {
+  margin: 0 0 7px;
+  font-size: 17px;
+}
+
+.informes4-modal header button {
+  border: 0;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  color: #fff;
+  background: rgb(255 255 255 / 20%);
+  cursor: pointer;
+}
+
+.informes4-body {
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.informes4-body table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+.informes4-body th {
+  padding: 13px;
+  text-align: left;
+  background: #0b563a;
+  color: #fff;
+  font-size: 11px;
+}
+
+.informes4-body td {
+  padding: 14px 13px;
+  border-bottom: 1px solid #e1e9e4;
+  color: #40584a;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.informes4-body td button {
+  padding: 8px 12px;
+  border: 1px solid #cadbd0;
+  border-radius: 6px;
+  color: #176444;
+  background: #fff;
+  cursor: pointer;
+}

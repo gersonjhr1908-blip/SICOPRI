@@ -1,0 +1,297 @@
+:host {
+  display: block;
+}
+
+.pendientes-integridad-page,
+.pendientes-integridad-page * {
+  box-sizing: border-box;
+}
+
+.pendientes-integridad-page {
+  min-height: calc(100vh - 80px);
+  padding: 22px;
+  background: #f4f7fb;
+}
+
+.pendientes-integridad-card {
+  border: 1px solid #e6eaf0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 8%);
+}
+
+.titulo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 14px 14px 0 0;
+}
+
+.titulo-icono {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #315d25;
+  color: #fff;
+  font-size: 22px;
+}
+
+.titulo-container h2 {
+  margin: 0;
+  color: #315d25;
+  text-align: center;
+  font-size: 21px;
+}
+
+.titulo-container p {
+  margin: 7px 0 0;
+  color: #7a8491;
+  text-align: center;
+  font-size: 13px;
+}
+
+.toolbar-integridad {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid #e4e8ed;
+  background: #f8fafc;
+}
+
+.buscador {
+  position: relative;
+  width: 390px;
+  max-width: 100%;
+}
+
+.buscador input {
+  width: 100%;
+  height: 42px;
+  padding: 0 42px 0 15px;
+  border: 1px solid #cfd7df;
+  border-radius: 8px;
+  background: #fff;
+  color: #39434d;
+  font-size: 13px;
+}
+
+.buscador input:focus {
+  outline: 2px solid #a6c7b2;
+  outline-offset: 1px;
+}
+
+.btn-limpiar {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #777;
+  cursor: pointer;
+}
+
+.btn-actualizar {
+  padding: 10px 15px;
+  border: 1px solid #bfd4c7;
+  border-radius: 7px;
+  background: #fff;
+  color: #315d25;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tabla-wrapper {
+  width: 100%;
+  min-height: 200px;
+  overflow-x: auto;
+  padding-bottom: 65px;
+}
+
+.pendientes-integridad-table {
+  width: 100%;
+  min-width: 1150px;
+  border-collapse: collapse;
+}
+
+.pendientes-integridad-table thead {
+  background: #315d25;
+}
+
+.pendientes-integridad-table th {
+  padding: 16px;
+  color: #fff;
+  text-align: left;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.pendientes-integridad-table td {
+  padding: 16px;
+  border-bottom: 1px solid #edf0f3;
+  color: #46534b;
+  vertical-align: middle;
+  font-size: 12px;
+}
+
+.pendientes-integridad-table tbody tr:hover {
+  background: #f8fbf9;
+}
+
+.texto-tabla {
+  min-width: 150px;
+  max-width: 260px;
+  overflow-wrap: anywhere;
+}
+
+.estado-badge {
+  display: inline-flex;
+  padding: 7px 11px;
+  border: 1px solid #ecd99f;
+  border-radius: 20px;
+  background: #fff4d8;
+  color: #9a6700;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.estado-observado {
+  border-color: #f2c6c3;
+  background: #fdecec;
+  color: #b42318;
+}
+
+.estado-concluido {
+  border-color: #c8e7d4;
+  background: #e7f5ec;
+  color: #176b49;
+}
+
+.acciones {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-menu {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d3ddd6;
+  border-radius: 7px;
+  background: #fff;
+  color: #315d25;
+  font-size: 23px;
+  cursor: pointer;
+}
+
+.acciones-menu {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  z-index: 20;
+  width: 170px;
+  padding: 6px;
+  border: 1px solid #d8e2dc;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 16%);
+}
+
+.acciones-menu button {
+  width: 100%;
+  padding: 11px;
+  border: 0;
+  border-radius: 5px;
+  background: #fff;
+  color: #355044;
+  text-align: left;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.acciones-menu button:hover {
+  background: #edf6f1;
+}
+
+.estado-carga,
+.sin-registros {
+  padding: 45px 20px !important;
+  text-align: center;
+}
+
+.sin-icono {
+  margin-bottom: 15px;
+  font-size: 42px;
+}
+
+.sin-registros h3 {
+  margin: 0;
+  color: #39434d;
+  font-size: 17px;
+}
+
+.sin-registros p {
+  color: #8b949e;
+  font-size: 13px;
+}
+
+.mensaje-error {
+  padding: 16px 24px;
+  background: #fff3f1;
+  color: #a13226;
+}
+
+.error-detalle {
+  display: block;
+  margin-top: 6px;
+  color: #a13226;
+  font-size: 10px;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button:focus-visible {
+  outline: 3px solid #92b9a1;
+  outline-offset: 2px;
+}
+
+@media (max-width: 800px) {
+  .pendientes-integridad-page {
+    padding: 12px;
+  }
+
+  .titulo-container {
+    align-items: flex-start;
+    padding: 18px;
+  }
+
+  .titulo-container h2 {
+    font-size: 17px;
+  }
+
+  .toolbar-integridad {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .buscador {
+    width: 100%;
+  }
+}

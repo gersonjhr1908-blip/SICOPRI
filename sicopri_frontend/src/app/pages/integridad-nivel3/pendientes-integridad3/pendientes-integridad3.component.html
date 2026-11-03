@@ -1,0 +1,198 @@
+<div class="pendientes-integridad-page">
+  <div class="pendientes-integridad-card">
+    <div class="titulo-container">
+      <div class="titulo-icono">📋</div>
+
+      <div>
+        <h2>LISTADO DE DENUNCIAS (PUD) PENDIENTES</h2>
+        <p>Integridad Nivel 3 · Gestión de denuncias recibidas</p>
+      </div>
+    </div>
+
+    <div class="toolbar-integridad">
+      <div class="buscador">
+        <input
+          type="text"
+          [(ngModel)]="search"
+          (input)="buscarDocumentos()"
+          placeholder="BUSCADOR CÓDIGO DENUNCIA (PUD):"
+          aria-label="Buscar denuncia"
+        />
+
+        <button
+          *ngIf="search"
+          type="button"
+          class="btn-limpiar"
+          title="Limpiar búsqueda"
+          (click)="limpiarBusqueda()"
+        >
+          ✕
+        </button>
+      </div>
+
+      <button
+        type="button"
+        class="btn-actualizar"
+        [disabled]="cargando"
+        (click)="cargarDocumentos()"
+      >
+        {{ cargando ? "Cargando..." : "Actualizar" }}
+      </button>
+    </div>
+
+    <div class="mensaje-error" *ngIf="error" role="alert">
+      {{ error }}
+    </div>
+
+    <div class="tabla-wrapper">
+      <table class="pendientes-integridad-table">
+        <thead>
+          <tr>
+            <th>CÓDIGO</th>
+            <th>FECHA DE REGISTRO</th>
+            <th>FECHA DEL ACTO DE CORRUPCIÓN</th>
+            <th>MOTIVO DE LA DENUNCIA</th>
+            <th>DETALLE</th>
+            <th>DETALLE (OTROS)</th>
+            <th>ESTADO</th>
+            <th>ACCIONES</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngIf="cargando">
+            <td colspan="8" class="estado-carga">Cargando denuncias...</td>
+          </tr>
+
+          <ng-container *ngIf="!cargando">
+            <tr
+              *ngFor="let documento of documentos"
+              [class.fila-menu-abierta]="
+                menuAbiertoId === documento.idExpediente
+              "
+            >
+              <td>
+                {{ documento.cinv }}
+
+                <small class="error-detalle" *ngIf="documento.errorDetalle">
+                  No se pudo consultar el detalle.
+                </small>
+              </td>
+
+              <td>
+                {{ documento.fechaRegistro | date: "dd/MM/yyyy" }}
+              </td>
+
+              <td>
+                {{
+                  documento.fechaActoCorrupcion
+                    ? (documento.fechaActoCorrupcion | date: "dd/MM/yyyy")
+                    : "-"
+                }}
+              </td>
+
+              <td class="texto-tabla">
+                {{ obtenerMotivo(documento.motivoDenuncia) }}
+              </td>
+
+              <td class="texto-tabla">
+                {{ documento.detalle || documento.descripcion || "-" }}
+              </td>
+
+              <td class="texto-tabla">
+                {{ documento.detalleOtros || "-" }}
+              </td>
+
+              <td>
+                <span
+                  class="estado-badge"
+                  [class.estado-observado]="
+                    documento.estadoVisual === 'OBSERVADO'
+                  "
+                  [class.estado-concluido]="
+                    documento.estadoVisual === 'CONCLUIDO'
+                  "
+                >
+                  {{ documento.estadoVisual }}
+                </span>
+              </td>
+
+              <td>
+                <div class="acciones">
+                  <button
+                    type="button"
+                    class="btn-menu"
+                    title="Acciones de la denuncia"
+                    [attr.aria-expanded]="
+                      menuAbiertoId === documento.idExpediente
+                    "
+                    (click)="toggleMenu(documento, $event)"
+                  >
+                    ⋮
+                  </button>
+
+                  <div
+                    class="acciones-menu"
+                    *ngIf="menuAbiertoId === documento.idExpediente"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <button type="button" (click)="gestionar(documento)">
+                      ⚙ Gestionar caso
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+            <tr *ngIf="!error && documentos.length === 0">
+              <td colspan="8" class="sin-registros">
+                <div class="sin-icono">📁</div>
+                <h3>No hay denuncias pendientes</h3>
+                <p>
+                  Las denuncias recibidas por Integridad Nivel 3 aparecerán
+                  aquí.
+                </p>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-gestionar-integridad3
+  *ngIf="mostrarCaso && documentoSeleccionado"
+  [denuncia]="documentoSeleccionado"
+  [soloLectura]="false"
+  [informeEnvioGuardado]="informeEnvioGuardado"
+  [respuestaGuardada]="respuestaGuardada"
+  [respuestaNivel4Guardada]="respuestaNivel4Guardada"
+  [procesandoAccion]="procesandoAccion"
+  [consultaRespuestaBloqueada]="
+    cargandoRespuestaCaso || !!errorConsultaRespuesta
+  "
+  (cerrar)="cerrarCaso()"
+  (informarEnvio)="abrirInformeEnvio($event)"
+  (darRespuesta)="abrirRespuesta($event)"
+  (devolverDocumento)="devolverANivel2($event)"
+  (enviarNivel2)="enviarRespuestaAlNivel2($event)"
+  (enviarNivel4)="enviarAIntegridad4($event)"
+>
+</app-gestionar-integridad3>
+
+<app-informar-envio
+  *ngIf="mostrarInformeEnvio && documentoInformeEnvio"
+  [denuncia]="documentoInformeEnvio"
+  (cerrar)="cerrarInformeEnvio()"
+  (informesActualizados)="actualizarInformesEnvio($event)"
+>
+</app-informar-envio>
+
+<app-respuesta-integridad3
+  *ngIf="mostrarRespuesta && documentoRespuesta"
+  [denuncia]="documentoRespuesta"
+  (cerrar)="cerrarRespuesta()"
+  (respuestasActualizadas)="actualizarRespuestas($event)"
+>
+</app-respuesta-integridad3>

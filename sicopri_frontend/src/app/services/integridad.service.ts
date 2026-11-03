@@ -1,381 +1,360 @@
 import { Injectable } from '@angular/core';
-
-import {
-  HttpClient
-} from '@angular/common/http';
-
-import {
-  Observable
-} from 'rxjs';
-
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class IntegridadService {
-
-
-  // =========================================
-  // API
-  // =========================================
-
-  private apiIntegridad =
+  private readonly apiIntegridad =
     'http://localhost:8080/backend-sistema/integridad';
 
+  constructor(private http: HttpClient) {}
 
-  constructor(
-    private http: HttpClient
-  ) { }
-
-
-  // =========================================
-  // GUARDAR DENUNCIA
-  // =========================================
+  // REGISTRAR DENUNCIA
 
   guardarDenuncia(
     expediente: any,
     datosIntegridad: any,
-    archivos: File[]
+    archivos: File[],
   ): Observable<any> {
+    const formData = new FormData();
 
+    // Se guardan en las columnas PERSONA_*
+    // del expediente de Integridad.
+    const expedienteConPersona = {
+      ...expediente,
 
-    const formData =
-      new FormData();
+      datosPersona: {
+        nombres: this.normalizar(datosIntegridad.nombres),
+        apellidos: this.normalizar(datosIntegridad.apellidos),
+        ruc: this.normalizar(datosIntegridad.ruc),
+        dni: this.normalizar(datosIntegridad.dni),
+        telefono: this.normalizar(datosIntegridad.telefono),
+        domicilio: this.normalizar(datosIntegridad.domicilio),
+        correo: this.normalizar(datosIntegridad.correo),
+      },
+    };
 
+    const expedienteBlob = new Blob([JSON.stringify(expedienteConPersona)], {
+      type: 'application/json',
+    });
 
-    const expedienteBlob =
-      new Blob(
+    formData.append('expediente', expedienteBlob);
 
-        [
-          JSON.stringify(
-            expediente
-          )
-        ],
-
-        {
-          type:
-            'application/json'
-        }
-
-      );
-
-
-    formData.append(
-      'expediente',
-      expedienteBlob
-    );
-
-
-    this.agregarSiExiste(
-      formData,
+    // Campos propios de INT_DENUNCIA.
+    const camposIntegridad = [
       'tipoDocumento',
-      datosIntegridad.tipoDocumento
-    );
-
-
-    this.agregarSiExiste(
-      formData,
       'dni',
-      datosIntegridad.dni
-    );
-
-
-    this.agregarSiExiste(
-      formData,
       'correo',
-      datosIntegridad.correo
-    );
-
-
-    this.agregarSiExiste(
-      formData,
       'telefono',
-      datosIntegridad.telefono
-    );
-
-
-    this.agregarSiExiste(
-      formData,
       'fechaActoCorrupcion',
-      datosIntegridad.fechaActoCorrupcion
-    );
-
-
-    this.agregarSiExiste(
-      formData,
       'motivoDenuncia',
-      datosIntegridad.motivoDenuncia
-    );
-
-
-    this.agregarSiExiste(
-      formData,
       'medidaProteccion',
-      datosIntegridad.medidaProteccion
-    );
-
-
-    this.agregarSiExiste(
-      formData,
       'identificacion',
-      datosIntegridad.identificacion
-    );
-
-
-    this.agregarSiExiste(
-      formData,
       'sexo',
-      datosIntegridad.sexo
-    );
-
-
-    this.agregarSiExiste(
-      formData,
       'detalle',
-      datosIntegridad.detalle
-    );
-
-
-    this.agregarSiExiste(
-      formData,
       'detalleOtros',
-      datosIntegridad.detalleOtros
-    );
+    ];
 
+    for (const campo of camposIntegridad) {
+      this.agregarSiExiste(formData, campo, datosIntegridad[campo]);
+    }
 
-    archivos.forEach(
-      (
-        archivo: File
-      ) => {
+    for (const archivo of archivos || []) {
+      formData.append('archivos', archivo, archivo.name);
+    }
 
-        formData.append(
-          'archivos',
-          archivo
-        );
-
-      }
-    );
-
-
-    return this.http.post<any>(
-      this.apiIntegridad,
-      formData
-    );
-
+    return this.http.post<any>(this.apiIntegridad, formData);
   }
 
-
-  // =========================================
   // LISTAR REGISTRADOS
-  // =========================================
 
-  listarRegistrados():
-    Observable<any[]> {
-
-    return this.http.get<any[]>(
-      `${this.apiIntegridad}/registrados`
-    );
-
+  listarRegistrados(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiIntegridad}/registrados`);
   }
 
-
-  // =========================================
   // OBTENER DETALLE
-  // =========================================
 
-  obtenerDetalle(
-    idExpediente: number
-  ): Observable<any> {
-
-    return this.http.get<any>(
-      `${this.apiIntegridad}/${idExpediente}`
-    );
-
+  obtenerDetalle(idExpediente: number): Observable<any> {
+    return this.http.get<any>(`${this.apiIntegridad}/${idExpediente}`);
   }
 
-
-  // =========================================
   // EDITAR DENUNCIA
-  //
-  // PUT /integridad/{id}
-  // =========================================
+  // Conserva los campos que recibe actualmente
+  // el endpoint de edición.
 
-  actualizarDenuncia(
-    idExpediente: number,
-    datos: any
-  ): Observable<any> {
+  actualizarDenuncia(idExpediente: number, datos: any): Observable<any> {
+    const formData = new FormData();
 
-
-    const formData =
-      new FormData();
-
-
-    // =======================================
-    // AQUÍ SÍ ENVIAMOS VACÍOS
-    //
-    // porque si el usuario borra un dato,
-    // también debe quedar borrado en Oracle.
-    // =======================================
-
-    this.agregarInclusoVacio(
-      formData,
+    const camposEdicion = [
       'nroDocumento',
-      datos.nroDocumento
-    );
-
-
-    this.agregarInclusoVacio(
-      formData,
       'tipoDocumento',
-      datos.tipoDocumento
-    );
-
-
-    this.agregarInclusoVacio(
-      formData,
       'dni',
-      datos.dni
-    );
-
-
-    this.agregarInclusoVacio(
-      formData,
       'correo',
-      datos.correo
-    );
-
-
-    this.agregarInclusoVacio(
-      formData,
       'telefono',
-      datos.telefono
-    );
-
-
-    this.agregarInclusoVacio(
-      formData,
       'fechaActoCorrupcion',
-      datos.fechaActoCorrupcion
-    );
-
-
-    this.agregarInclusoVacio(
-      formData,
       'motivoDenuncia',
-      datos.motivoDenuncia
-    );
-
-
-    this.agregarInclusoVacio(
-      formData,
       'medidaProteccion',
-      datos.medidaProteccion
-    );
-
-
-    this.agregarInclusoVacio(
-      formData,
       'identificacion',
-      datos.identificacion
-    );
-
-
-    this.agregarInclusoVacio(
-      formData,
       'sexo',
-      datos.sexo
-    );
-
-
-    this.agregarInclusoVacio(
-      formData,
       'detalle',
-      datos.detalle
-    );
-
-
-    this.agregarInclusoVacio(
-      formData,
       'detalleOtros',
-      datos.detalleOtros
-    );
+    ];
 
+    for (const campo of camposEdicion) {
+      this.agregarInclusoVacio(formData, campo, datos[campo]);
+    }
 
     return this.http.put<any>(
-
       `${this.apiIntegridad}/${idExpediente}`,
-
-      formData
-
+      formData,
     );
-
   }
 
-
-  // =========================================
   // ELIMINACIÓN LÓGICA
-  //
-  // DELETE /integridad/{id}
-  // =========================================
 
-  eliminarDenuncia(
-    idExpediente: number
-  ): Observable<void> {
-
-    return this.http.delete<void>(
-      `${this.apiIntegridad}/${idExpediente}`
-    );
-
+  eliminarDenuncia(idExpediente: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiIntegridad}/${idExpediente}`);
   }
 
+  enviarANivel3(idExpediente: number): Observable<any> {
+    return this.http.put<any>(
+      `${this.apiIntegridad}/${idExpediente}/enviar-nivel-3`,
+      {},
+    );
+  }
 
-  // =========================================
-  // HELPER REGISTRO
-  // =========================================
+  // NORMALIZAR DATOS PERSONALES
+
+  listarRespuestasNivel3(idExpediente: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiIntegridad}/${idExpediente}/respuestas-nivel3`,
+    );
+  }
+
+  guardarRespuestaNivel3(
+    idExpediente: number,
+    respuesta: any,
+    archivo: File,
+  ): Observable<any> {
+    const formData = new FormData();
+
+    formData.append(
+      'respuesta',
+      new Blob([JSON.stringify(respuesta)], { type: 'application/json' }),
+    );
+
+    formData.append('archivo', archivo, archivo.name);
+
+    return this.http.post<any>(
+      `${this.apiIntegridad}/${idExpediente}/respuestas-nivel3`,
+      formData,
+    );
+  }
+
+  verPdfRespuestaNivel3(
+    idExpediente: number,
+    idRespuesta: number,
+  ): Observable<Blob> {
+    return this.http.get(
+      `${this.apiIntegridad}/${idExpediente}/respuestas-nivel3/${idRespuesta}/ver`,
+      { responseType: 'blob' },
+    );
+  }
+
+  eliminarInformeEnvio(
+    idExpediente: number,
+    idInforme: number,
+  ): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiIntegridad}/${idExpediente}/informes-envio/${idInforme}`,
+    );
+  }
+
+  listarInformesEnvio(idExpediente: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiIntegridad}/${idExpediente}/informes-envio`,
+    );
+  }
+
+  guardarInformeEnvio(
+    idExpediente: number,
+    informe: any,
+    archivo: File,
+  ): Observable<any> {
+    const formData = new FormData();
+
+    formData.append(
+      'informe',
+      new Blob([JSON.stringify(informe)], { type: 'application/json' }),
+    );
+
+    formData.append('archivo', archivo, archivo.name);
+
+    return this.http.post<any>(
+      `${this.apiIntegridad}/${idExpediente}/informes-envio`,
+      formData,
+    );
+  }
+
+  verPdfInformeEnvio(
+    idExpediente: number,
+    idInforme: number,
+  ): Observable<Blob> {
+    return this.http.get(
+      `${this.apiIntegridad}/${idExpediente}/informes-envio/${idInforme}/ver`,
+      { responseType: 'blob' },
+    );
+  }
+  devolverDesdeNivel3(
+    idExpediente: number,
+    observacion: string,
+  ): Observable<any> {
+    return this.http.put<any>(
+      `${this.apiIntegridad}/${idExpediente}/devolver-desde-nivel-3`,
+      { observacion },
+    );
+  }
+
+  enviarANivel4(idExpediente: number): Observable<any> {
+    return this.http.put<any>(
+      `${this.apiIntegridad}/${idExpediente}/enviar-nivel-4`,
+      {},
+    );
+  }
+
+  enviarRespuestaNivel2(idExpediente: number): Observable<any> {
+    return this.http.put<any>(
+      `${this.apiIntegridad}/${idExpediente}/enviar-respuesta-nivel-2`,
+      {},
+    );
+  }
+  eliminarRespuestaNivel3(
+    idExpediente: number,
+    idRespuesta: number,
+  ): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiIntegridad}/${idExpediente}/respuestas-nivel3/${idRespuesta}`,
+    );
+  }
+
+  archivarDenuncia(idExpediente: number): Observable<any> {
+    return this.http.put<any>(
+      `${this.apiIntegridad}/${idExpediente}/archivar`,
+      {},
+    );
+  }
+
+  eliminarArchivada(idExpediente: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiIntegridad}/${idExpediente}/archivado`,
+    );
+  }
+
+  listarRespuestasNivel4(idExpediente: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiIntegridad}/${idExpediente}/respuestas-nivel4`,
+    );
+  }
+
+  guardarRespuestaNivel4(
+    idExpediente: number,
+    respuesta: any,
+    archivo: File,
+  ): Observable<any> {
+    const formData = new FormData();
+
+    formData.append(
+      'respuesta',
+      new Blob([JSON.stringify(respuesta)], { type: 'application/json' }),
+    );
+
+    formData.append('archivo', archivo, archivo.name);
+
+    return this.http.post<any>(
+      `${this.apiIntegridad}/${idExpediente}/respuestas-nivel4`,
+      formData,
+    );
+  }
+
+  verPdfRespuestaNivel4(
+    idExpediente: number,
+    idRespuesta: number,
+  ): Observable<Blob> {
+    return this.http.get(
+      `${this.apiIntegridad}/${idExpediente}/respuestas-nivel4/${idRespuesta}/ver`,
+      { responseType: 'blob' },
+    );
+  }
+
+  eliminarRespuestaNivel4(
+    idExpediente: number,
+    idRespuesta: number,
+  ): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiIntegridad}/${idExpediente}/respuestas-nivel4/${idRespuesta}`,
+    );
+  }
+
+  enviarRespuestaDesdeNivel4(idExpediente: number): Observable<any> {
+    return this.http.put<any>(
+      `${this.apiIntegridad}/${idExpediente}/enviar-respuesta-desde-nivel-4`,
+      {},
+    );
+  }
+
+  devolverDesdeNivel4(
+    idExpediente: number,
+    observacion: string,
+  ): Observable<any> {
+    return this.http.put<any>(
+      `${this.apiIntegridad}/${idExpediente}/devolver-desde-nivel-4`,
+      { observacion },
+    );
+  }
+
+  remitirRespuestaNivel4AlNivel2(idExpediente: number): Observable<any> {
+    return this.http.put<any>(
+      `${this.apiIntegridad}/${idExpediente}/remitir-respuesta-nivel-2`,
+      {},
+    );
+  }
+
+  private normalizar(valor: unknown): string | null {
+    if (valor === null || valor === undefined) {
+      return null;
+    }
+
+    const texto = String(valor).trim();
+
+    return texto || null;
+  }
+
+  // REGISTRO:
+  // No envía parámetros vacíos.
 
   private agregarSiExiste(
     formData: FormData,
     nombre: string,
-    valor: any
+    valor: unknown,
   ): void {
-
-    if (
-      valor !== null &&
-      valor !== undefined &&
-      String(valor).trim() !== ''
-    ) {
-
-      formData.append(
-        nombre,
-        String(valor)
-      );
-
+    if (valor !== null && valor !== undefined && String(valor).trim() !== '') {
+      formData.append(nombre, String(valor));
     }
-
   }
 
-
-  // =========================================
-  // HELPER EDICIÓN
-  // =========================================
+  // EDICIÓN:
+  // Conserva el envío de vacíos para borrar campos.
 
   private agregarInclusoVacio(
     formData: FormData,
     nombre: string,
-    valor: any
+    valor: unknown,
   ): void {
-
     formData.append(
-
       nombre,
-
-      valor === null ||
-      valor === undefined
-        ? ''
-        : String(valor)
-
+      valor === null || valor === undefined ? '' : String(valor),
     );
-
   }
-
 }

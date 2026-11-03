@@ -17,6 +17,10 @@ import sistema.ejercito.mil.pe.repository.IIntegridadDenunciaRepo;
 
 import sistema.ejercito.mil.pe.service.IExpedienteArchivoService;
 import sistema.ejercito.mil.pe.service.IIntegridadService;
+import sistema.ejercito.mil.pe.model.table.ExpedienteMovimiento;
+import sistema.ejercito.mil.pe.repository.IExpedienteMovimientoRepo;
+import sistema.ejercito.mil.pe.model.table.DatosPersona;
+import sistema.ejercito.mil.pe.repository.IExpedienteSeguimientoRepo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,6 +45,12 @@ public class IntegridadServiceImpl
 
     private final IExpedienteArchivoService
             archivoService;
+
+    private final IExpedienteMovimientoRepo
+            movimientoRepo;
+
+    private final IExpedienteSeguimientoRepo
+            seguimientoRepo;
 
 
     // =========================================
@@ -86,6 +96,88 @@ public class IntegridadServiceImpl
                     "Los datos del expediente son obligatorios."
             );
 
+        }
+        // IDENTIFICACIÓN
+
+        identificacion = identificacion == null
+                ? null
+                : identificacion.trim();
+
+        if (!"DENUNCIANTE".equals(identificacion)
+                && !"ANONIMA".equals(identificacion)) {
+            throw new IllegalArgumentException(
+                    "Seleccione una identificación válida del denunciante."
+            );
+        }
+
+        sexo = sexo == null || sexo.isBlank()
+                ? null
+                : sexo.trim();
+
+        DatosPersona persona = expediente.getDatosPersona();
+
+        if (persona == null) {
+            persona = new DatosPersona();
+        }
+
+        if (persona.getDni() == null) {
+            persona.setDni(dni);
+        }
+
+        if (persona.getTelefono() == null) {
+            persona.setTelefono(telefono);
+        }
+
+        if (persona.getCorreo() == null) {
+            persona.setCorreo(correo);
+        }
+
+        persona.validarYNormalizar();
+
+        if (persona.getCorreo() != null
+                && persona.getCorreo().length() > 150) {
+            throw new IllegalArgumentException(
+                    "El correo electrónico admite máximo 150 caracteres."
+            );
+        }
+
+        if ("DENUNCIANTE".equals(identificacion)) {
+            if (persona.getNombres() == null
+                    || persona.getApellidos() == null
+                    || persona.getDni() == null
+                    || persona.getTelefono() == null
+                    || persona.getDomicilio() == null
+                    || persona.getCorreo() == null
+                    || sexo == null) {
+                throw new IllegalArgumentException(
+                        "Para el denunciante identificado complete todos "
+                                + "los datos personales. El RUC es opcional."
+                );
+            }
+        }
+
+        if (sexo != null
+                && !"MASCULINO".equals(sexo)
+                && !"FEMENINO".equals(sexo)
+                && !"NO_DECLARA".equals(sexo)) {
+            throw new IllegalArgumentException(
+                    "Seleccione una opción válida de sexo."
+            );
+        }
+
+        expediente.setDatosPersona(persona);
+
+        dni = persona.getDni();
+        telefono = persona.getTelefono();
+        correo = persona.getCorreo();
+
+        Integer destino = expediente.getNivelDestino();
+
+        if (destino == null
+                || (destino != 3 && destino != 4)) {
+            throw new IllegalArgumentException(
+                    "Seleccione un destino: Integridad Nivel 3 o Nivel 4."
+            );
         }
 
 
@@ -158,9 +250,11 @@ public class IntegridadServiceImpl
         );
 
 
-        expediente.setFechaRegistro(
-                LocalDateTime.now()
-        );
+        if (expediente.getFechaRegistro() == null) {
+            throw new IllegalArgumentException(
+                    "La fecha de registro es obligatoria."
+            );
+        }
 
 
         if (
@@ -552,6 +646,42 @@ public class IntegridadServiceImpl
                 denuncia.getDetalleOtros()
         );
 
+        dto.setNroDocumento(
+                expediente.getNroDocumento()
+        );
+
+        dto.setIdNucleo(
+                expediente.getIdNucleo()
+        );
+
+        dto.setIdBrigada(
+                expediente.getIdBrigada()
+        );
+
+        dto.setIdUnidad(
+                expediente.getIdUnidad()
+        );
+
+        dto.setIdNucleoIg(
+                expediente.getIdNucleoIg()
+        );
+
+        dto.setIdIg(
+                expediente.getIdIg()
+        );
+
+        dto.setNivelDestino(
+                expediente.getNivelDestino()
+        );
+
+        dto.setObservacionActual(
+                expediente.getObservacionActual()
+        );
+
+        dto.setDatosPersona(
+                expediente.getDatosPersona()
+        );
+
 
         return dto;
 
@@ -881,40 +1011,25 @@ public class IntegridadServiceImpl
     private void validarEditable(
             Expediente expediente
     ) {
+        validarIntegridadActivo(expediente);
 
-
-        validarIntegridadActivo(
-                expediente
-        );
-
-
-        if (
-                !Integer.valueOf(1)
-                        .equals(
-                                expediente.getIdEstado()
-                        )
-        ) {
-
+        if (!Integer.valueOf(2).equals(
+                expediente.getNivelActual()
+        )) {
             throw new IllegalArgumentException(
-                    "La denuncia ya no se encuentra en estado REGISTRADO."
+                    "La denuncia no se encuentra en Integridad Nivel 2."
             );
-
         }
 
+        Integer estado = expediente.getIdEstado();
 
-        if (
-                !Integer.valueOf(2)
-                        .equals(
-                                expediente.getNivelActual()
-                        )
-        ) {
-
+        if (!Integer.valueOf(1).equals(estado)
+                && !Integer.valueOf(3).equals(estado)) {
             throw new IllegalArgumentException(
-                    "La denuncia ya no se encuentra en Integridad Nivel 2."
+                    "Solo puede modificar denuncias registradas "
+                            + "o devueltas para subsanar."
             );
-
         }
-
     }
 
 
@@ -939,6 +1054,183 @@ public class IntegridadServiceImpl
 
         return valor.trim();
 
+    }
+
+    @Override
+    @Transactional
+    public Expediente enviarANivel3(
+            Long idExpediente,
+            String usuario
+    ) {
+        if (idExpediente == null) {
+            throw new IllegalArgumentException(
+                    "El expediente es obligatorio."
+            );
+        }
+
+        Expediente expediente = expedienteRepo
+                .findById(idExpediente)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Expediente no encontrado."
+                        )
+                );
+
+        validarIntegridadActivo(expediente);
+
+        if (!Integer.valueOf(2).equals(
+                expediente.getNivelActual()
+        )) {
+            throw new IllegalArgumentException(
+                    "La denuncia no se encuentra en Integridad Nivel 2."
+            );
+        }
+
+        Integer estado = expediente.getIdEstado();
+
+        if (!Integer.valueOf(1).equals(estado)
+                && !Integer.valueOf(3).equals(estado)) {
+            throw new IllegalArgumentException(
+                    "Solo puede enviar denuncias registradas "
+                            + "o devueltas para subsanar."
+            );
+        }
+
+        Integer destinoFinal =
+                expediente.getNivelDestino();
+
+        if (!Integer.valueOf(3).equals(destinoFinal)
+                && !Integer.valueOf(4).equals(destinoFinal)) {
+            throw new IllegalArgumentException(
+                    "Seleccione un destino final: Nivel 3 o Nivel 4."
+            );
+        }
+
+        var seguimiento = seguimientoRepo
+                .buscarActivoPorExpediente(idExpediente)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Debe registrar y guardar el seguimiento "
+                                        + "antes de enviar la denuncia."
+                        )
+                );
+
+        if (seguimiento.getFechaInicio() == null
+                || seguimiento.getFechaFin() == null
+                || seguimiento.getFechaFin().isBefore(
+                seguimiento.getFechaInicio()
+        )) {
+            throw new IllegalArgumentException(
+                    "El seguimiento debe tener fechas de inicio y fin válidas."
+            );
+        }
+        expediente.setNivelActual(3);
+        expediente.setIdEstado(2);
+
+        Expediente guardado =
+                expedienteRepo.save(expediente);
+
+        ExpedienteMovimiento movimiento =
+                new ExpedienteMovimiento();
+
+        movimiento.setIdExpediente(
+                guardado.getIdExpediente()
+        );
+
+        movimiento.setNivelOrigen(2);
+        movimiento.setNivelDestino(3);
+        movimiento.setAccion("ENVIADO");
+
+        movimiento.setObservacion(
+                guardado.getObservacionActual()
+        );
+
+        movimiento.setUsuario(usuario);
+        movimiento.setFechaMovimiento(LocalDateTime.now());
+        movimiento.setActivo("S");
+
+        movimientoRepo.save(movimiento);
+
+        return guardado;
+    }
+
+    @Override
+    @Transactional
+    public Expediente devolverDesdeNivel3(
+            Long idExpediente,
+            String observacion,
+            String usuario
+    ) {
+        if (idExpediente == null) {
+            throw new IllegalArgumentException(
+                    "El expediente es obligatorio."
+            );
+        }
+
+        Expediente expediente = expedienteRepo
+                .findById(idExpediente)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Expediente no encontrado."
+                        )
+                );
+
+        validarIntegridadActivo(expediente);
+
+        if (!Integer.valueOf(3).equals(
+                expediente.getNivelActual()
+        )) {
+            throw new IllegalArgumentException(
+                    "La denuncia no se encuentra en Integridad Nivel 3."
+            );
+        }
+
+        if (!Integer.valueOf(2).equals(expediente.getIdEstado())
+                && !Integer.valueOf(3).equals(expediente.getIdEstado())) {
+            throw new IllegalArgumentException(
+                    "El estado actual no permite devolver la denuncia."
+            );
+        }
+
+        String motivo = limpiar(observacion);
+
+        if (motivo == null) {
+            throw new IllegalArgumentException(
+                    "Ingrese el motivo de la devolución."
+            );
+        }
+
+        if (motivo.length() > 2000) {
+            throw new IllegalArgumentException(
+                    "La observación admite máximo 2000 caracteres."
+            );
+        }
+
+        expediente.setObservacionActual(motivo);
+        expediente.setNivelActual(2);
+        expediente.setIdEstado(3);
+
+        Expediente guardado =
+                expedienteRepo.save(expediente);
+
+        ExpedienteMovimiento movimiento =
+                new ExpedienteMovimiento();
+
+        movimiento.setIdExpediente(
+                guardado.getIdExpediente()
+        );
+
+        movimiento.setNivelOrigen(3);
+        movimiento.setNivelDestino(2);
+        movimiento.setAccion("OBSERVADO");
+        movimiento.setObservacion(motivo);
+        movimiento.setUsuario(usuario);
+        movimiento.setFechaMovimiento(LocalDateTime.now());
+        movimiento.setActivo("S");
+
+        movimientoRepo.save(movimiento);
+
+        return guardado;
     }
 
 }

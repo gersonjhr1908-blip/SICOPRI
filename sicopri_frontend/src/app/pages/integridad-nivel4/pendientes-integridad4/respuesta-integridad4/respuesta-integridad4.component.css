@@ -1,0 +1,10 @@
+@import "../../../integridad-nivel3/pendientes-integridad3/respuesta-integridad3/respuesta-integridad3.component.css";
+
+:host {
+  display: block;
+}
+
+.respuesta-acciones button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

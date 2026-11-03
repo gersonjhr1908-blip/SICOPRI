@@ -1,0 +1,639 @@
+<div class="overlay-caso" (click)="salir()">
+  <div
+    class="modal-caso"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="gestionar-integridad-titulo"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="cabecera-caso">
+      <div class="cabecera-centro">
+        <h2 id="gestionar-integridad-titulo">INFORMACIÓN DE CASO APERTURADO</h2>
+
+        <span>{{ detalle?.cinv || denuncia?.cinv || "" }}</span>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar-x"
+        aria-label="Cerrar"
+        [disabled]="
+          procesandoAccion || guardandoSeguimiento || guardandoObservacion
+        "
+        (click)="salir()"
+      >
+        ×
+      </button>
+    </header>
+
+    <div class="layout-caso">
+      <main class="contenido-principal">
+        <nav class="tabs-caso">
+          <button
+            type="button"
+            class="tab-btn"
+            [class.activo]="tabActivo === 'registrado'"
+            (click)="cambiarTab('registrado')"
+          >
+            <span class="numero-tab">1</span>
+            DOC REGISTRADO
+          </button>
+
+          <button
+            type="button"
+            class="tab-btn"
+            [class.activo]="tabActivo === 'adjunto'"
+            (click)="cambiarTab('adjunto')"
+          >
+            <span class="numero-tab">2</span>
+            DOC ADJUNTO
+            <span class="contador-pdf">{{ archivos.length }}</span>
+          </button>
+
+          <button
+            type="button"
+            class="tab-btn"
+            [class.activo]="tabActivo === 'seguimiento'"
+            (click)="cambiarTab('seguimiento')"
+          >
+            <span class="numero-tab">3</span>
+            SEGUIMIENTO
+          </button>
+        </nav>
+
+        <div class="estado-carga" *ngIf="cargandoDetalle">
+          Cargando información...
+        </div>
+
+        <div class="mensaje-error" *ngIf="errorDetalle" role="alert">
+          {{ errorDetalle }}
+        </div>
+
+        <section
+          class="contenido-tab"
+          *ngIf="
+            tabActivo === 'registrado' &&
+            !cargandoDetalle &&
+            !errorDetalle &&
+            detalle
+          "
+        >
+          <div class="form-datos fila-identificacion">
+            <div class="campo">
+              <label>IDENTIFICACIÓN DEL DENUNCIANTE</label>
+              <div class="valor">
+                {{
+                  detalle.identificacion === "DENUNCIANTE"
+                    ? "Denunciante identificado"
+                    : detalle.identificacion === "ANONIMA"
+                      ? "Denuncia anónima"
+                      : "-"
+                }}
+              </div>
+            </div>
+
+            <div class="campo">
+              <label>SEXO</label>
+              <div class="valor">
+                {{
+                  detalle.sexo === "NO_DECLARA"
+                    ? "Prefiero no decirlo"
+                    : mostrarValor(detalle.sexo)
+                }}
+              </div>
+            </div>
+          </div>
+
+          <section class="persona-seccion">
+            <button
+              type="button"
+              class="persona-toggle"
+              [attr.aria-expanded]="mostrarDatosPersona"
+              aria-controls="gestionar-integridad-persona"
+              (click)="mostrarDatosPersona = !mostrarDatosPersona"
+            >
+              <strong>DATOS DE LA PERSONA</strong>
+              <span>{{ mostrarDatosPersona ? "−" : "+" }}</span>
+            </button>
+
+            <div
+              id="gestionar-integridad-persona"
+              class="persona-contenido"
+              [hidden]="!mostrarDatosPersona"
+            >
+              <div class="persona-grid">
+                <div class="campo persona-mitad">
+                  <label>NOMBRES</label>
+                  <div class="valor">
+                    {{ mostrarValor(datosPersona.nombres) }}
+                  </div>
+                </div>
+
+                <div class="campo persona-mitad">
+                  <label>APELLIDOS</label>
+                  <div class="valor">
+                    {{ mostrarValor(datosPersona.apellidos) }}
+                  </div>
+                </div>
+
+                <div class="campo persona-tercio">
+                  <label>RUC</label>
+                  <div class="valor">
+                    {{ mostrarValor(datosPersona.ruc) }}
+                  </div>
+                </div>
+
+                <div class="campo persona-tercio">
+                  <label>DNI</label>
+                  <div class="valor">
+                    {{ mostrarValor(datosPersona.dni) }}
+                  </div>
+                </div>
+
+                <div class="campo persona-tercio">
+                  <label>TELÉFONO</label>
+                  <div class="valor">
+                    {{ mostrarValor(datosPersona.telefono) }}
+                  </div>
+                </div>
+
+                <div class="campo persona-direccion">
+                  <label>DOMICILIO</label>
+                  <div class="valor">
+                    {{ mostrarValor(datosPersona.domicilio) }}
+                  </div>
+                </div>
+
+                <div class="campo persona-tercio">
+                  <label>CORREO ELECTRÓNICO</label>
+                  <div class="valor">
+                    {{ mostrarValor(datosPersona.correo) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="form-datos">
+            <div class="campo">
+              <label>TIPO DE DOCUMENTO</label>
+              <div class="valor">
+                {{ mostrarValor(detalle.tipoDocumento) }}
+              </div>
+            </div>
+
+            <div class="campo">
+              <label>CÓDIGO DE DOCUMENTO</label>
+              <div class="valor">
+                {{ mostrarValor(detalle.nroDocumento) }}
+              </div>
+            </div>
+
+            <div class="campo">
+              <label>FECHA DEL ACTO DE CORRUPCIÓN</label>
+              <div class="valor">
+                {{
+                  detalle.fechaActoCorrupcion
+                    ? (detalle.fechaActoCorrupcion | date: "dd/MM/yyyy")
+                    : "-"
+                }}
+              </div>
+            </div>
+
+            <div class="campo campo-completo">
+              <div class="fila-dos">
+                <div class="campo">
+                  <label>MOTIVO DE LA DENUNCIA</label>
+                  <div class="valor">
+                    {{ obtenerMotivoCompleto(detalle.motivoDenuncia) }}
+                  </div>
+                </div>
+
+                <div class="campo">
+                  <label>MEDIDAS DE PROTECCIÓN</label>
+                  <div class="valor">
+                    {{ obtenerProteccionCompleta(detalle.medidaProteccion) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="campo">
+              <label>FECHA DE REGISTRO</label>
+              <div class="valor">
+                {{
+                  detalle.fechaRegistro
+                    ? (detalle.fechaRegistro | date: "dd/MM/yyyy")
+                    : "-"
+                }}
+              </div>
+            </div>
+
+            <div class="campo campo-completo separador"></div>
+
+            <div class="campo">
+              <label>NÚCLEO</label>
+              <div class="valor">{{ mostrarValor(nombreNucleo) }}</div>
+            </div>
+
+            <div class="campo">
+              <label>GRAN UNIDAD</label>
+              <div class="valor">{{ mostrarValor(nombreBrigada) }}</div>
+            </div>
+
+            <div class="campo">
+              <label>UNIDAD</label>
+              <div class="valor">{{ mostrarValor(nombreUnidad) }}</div>
+            </div>
+
+            <div class="campo">
+              <label>NÚCLEO IG</label>
+              <div class="valor">{{ obtenerNombreNucleoIg() }}</div>
+            </div>
+
+            <div class="campo">
+              <label>IG</label>
+              <div class="valor">{{ mostrarValor(nombreIg) }}</div>
+            </div>
+
+            <div class="campo">
+              <label>DESTINO</label>
+              <div class="valor">{{ obtenerDestino() }}</div>
+            </div>
+
+            <div class="campo campo-completo">
+              <label>DETALLE</label>
+              <div class="valor valor-textarea">
+                {{ mostrarValor(detalle.detalle) }}
+              </div>
+            </div>
+
+            <div class="campo campo-completo">
+              <label>DETALLE (OTROS)</label>
+              <div class="valor valor-textarea">
+                {{ mostrarValor(detalle.detalleOtros) }}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="contenido-tab" *ngIf="tabActivo === 'adjunto'">
+          <div class="estado-carga" *ngIf="cargandoArchivos">
+            Cargando documentos...
+          </div>
+
+          <div class="mensaje-error" *ngIf="errorArchivos">
+            {{ errorArchivos }}
+          </div>
+
+          <div
+            class="sin-archivos"
+            *ngIf="!cargandoArchivos && !archivos.length"
+          >
+            No existen documentos adjuntos.
+          </div>
+
+          <div
+            class="documentos-layout"
+            *ngIf="!cargandoArchivos && archivos.length"
+          >
+            <div class="lista-documentos">
+              <div class="lista-documentos-header">DOCUMENTOS ADJUNTOS</div>
+
+              <button
+                type="button"
+                class="archivo-item"
+                *ngFor="let archivo of archivos"
+                [class.archivo-activo]="
+                  archivoSeleccionado?.idArchivo === archivo.idArchivo
+                "
+                (click)="seleccionarArchivo(archivo)"
+              >
+                <div class="archivo-icono" [class.es-zip]="esZip(archivo)">
+                  {{ obtenerTipoArchivo(archivo) }}
+                </div>
+
+                <div class="archivo-info">
+                  <strong>{{ archivo.nombreArchivo }}</strong>
+                  <small>
+                    {{ obtenerTamanoArchivo(archivo.tamano) }}
+                  </small>
+                </div>
+              </button>
+            </div>
+
+            <div class="visor-documento">
+              <div class="visor-header" *ngIf="archivoSeleccionado">
+                {{ archivoSeleccionado.nombreArchivo }}
+              </div>
+
+              <div class="estado-carga" *ngIf="cargandoPdf">
+                Cargando PDF...
+              </div>
+
+              <iframe
+                *ngIf="pdfUrl && !cargandoPdf"
+                class="visor-pdf"
+                [src]="pdfUrl"
+                title="Documento PDF"
+              ></iframe>
+
+              <div
+                class="visor-vacio"
+                *ngIf="archivoSeleccionado && esZip(archivoSeleccionado)"
+              >
+                <div class="zip-grande">ZIP</div>
+                <p>Archivo comprimido disponible para descargar.</p>
+
+                <button
+                  type="button"
+                  class="btn-principal"
+                  [disabled]="descargandoArchivo"
+                  (click)="descargarZip(archivoSeleccionado)"
+                >
+                  {{ descargandoArchivo ? "DESCARGANDO..." : "DESCARGAR ZIP" }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="contenido-tab" *ngIf="tabActivo === 'seguimiento'">
+          <div class="seguimiento-cabecera">
+            <div>
+              <h3>SEGUIMIENTO DEL EXPEDIENTE</h3>
+              <p>Periodo de atención registrado por Integridad Nivel 2.</p>
+            </div>
+          </div>
+
+          <div class="estado-carga" *ngIf="cargandoSeguimiento">
+            Consultando seguimiento...
+          </div>
+
+          <div class="mensaje-error" *ngIf="errorSeguimiento">
+            {{ errorSeguimiento }}
+          </div>
+
+          <div
+            class="seguimiento-tarjeta"
+            *ngIf="!cargandoSeguimiento && seguimientoGuardado"
+          >
+            <div class="seguimiento-grid">
+              <div class="campo">
+                <label>FECHA DE INICIO</label>
+                <div class="valor">
+                  {{ fechaInicioSeguimiento | date: "dd/MM/yyyy" }}
+                </div>
+              </div>
+
+              <div class="campo">
+                <label>FECHA DE FIN</label>
+                <div class="valor">
+                  {{ fechaFinSeguimiento | date: "dd/MM/yyyy" }}
+                </div>
+              </div>
+
+              <div class="campo">
+                <label>CANTIDAD DE DÍAS</label>
+                <div class="valor dias-seguimiento">
+                  {{ cantidadDiasSeguimiento }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="seguimiento-vacio"
+            *ngIf="
+              !cargandoSeguimiento && !errorSeguimiento && !seguimientoGuardado
+            "
+          >
+            No existe seguimiento registrado.
+          </div>
+        </section>
+      </main>
+
+      <aside class="panel-acciones">
+        <div class="acciones-titulo">ACCIONES</div>
+
+        <button
+          type="button"
+          class="btn-accion-caso btn-respuesta"
+          *ngIf="puedeResponder"
+          [disabled]="accionesBloqueadas"
+          (click)="solicitarRespuesta()"
+        >
+          DAR RESPUESTA
+        </button>
+
+        <button
+          type="button"
+          class="btn-accion-caso btn-informe"
+          *ngIf="puedeInformarEnvio"
+          [disabled]="accionesBloqueadas"
+          (click)="
+            respuestaNivel4Recibida
+              ? abrirInformesRecibidos()
+              : solicitarInformeEnvio()
+          "
+        >
+          {{
+            respuestaNivel4Recibida || informeEnvioGuardado
+              ? "VER INFORME DE ENVÍO"
+              : "INFORMAR ENVÍO"
+          }}
+        </button>
+
+        <button
+          type="button"
+          class="btn-accion-caso btn-respuesta"
+          *ngIf="respuestaNivel4Recibida"
+          [disabled]="accionesBloqueadas"
+          (click)="abrirRespuestasRecibidas()"
+        >
+          VER RESPUESTA DE INTEGRIDAD NIVEL 4
+        </button>
+
+        <button
+          type="button"
+          class="btn-accion-caso btn-derivar"
+          *ngIf="destinoFinal === 4 && !respuestaNivel4Recibida"
+          [disabled]="accionesBloqueadas"
+          (click)="solicitarEnvioNivel4()"
+        >
+          ENVIAR A INTEGRIDAD NIVEL 4
+        </button>
+
+        <small
+          class="ayuda-accion"
+          *ngIf="
+            destinoFinal === 4 &&
+            !respuestaNivel4Recibida &&
+            !informeEnvioGuardado
+          "
+        >
+          Primero guarde el informe de envío con su PDF.
+        </small>
+
+        <button
+          type="button"
+          class="btn-accion-caso btn-derivar"
+          *ngIf="puedeEnviarNivel2"
+          [disabled]="accionesBloqueadas"
+          (click)="solicitarEnvioNivel2()"
+        >
+          ENVIAR RESPUESTA A INTEGRIDAD NIVEL 2
+        </button>
+
+        <button
+          type="button"
+          class="btn-accion-caso btn-devolver"
+          *ngIf="puedeDevolver"
+          [disabled]="accionesBloqueadas"
+          (click)="solicitarDevolucion()"
+        >
+          DEVOLVER DOCUMENTO
+        </button>
+
+        <button
+          type="button"
+          class="btn-salir"
+          [disabled]="
+            procesandoAccion || guardandoObservacion || guardandoSeguimiento
+          "
+          (click)="salir()"
+        >
+          ↩ SALIR
+        </button>
+
+        <div class="observacion-panel">
+          <label for="gestion3-observacion"> OBSERVACIÓN / INDICACIONES </label>
+
+          <textarea
+            id="gestion3-observacion"
+            [(ngModel)]="observacionActual"
+            (ngModelChange)="cambioObservacion()"
+            maxlength="2000"
+            rows="9"
+            [readonly]="soloLectura"
+            [disabled]="
+              cargandoDetalle || !!errorDetalle || !detalle || procesandoAccion
+            "
+            placeholder="Ingrese las observaciones o indicaciones"
+          ></textarea>
+
+          <small *ngIf="guardandoObservacion"> Guardando... </small>
+
+          <small
+            class="observacion-ok"
+            *ngIf="observacionGuardada && !guardandoObservacion"
+          >
+            Guardado.
+          </small>
+
+          <small class="observacion-error" *ngIf="errorObservacion">
+            {{ errorObservacion }}
+          </small>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<div
+  class="respuestas-recibidas-overlay"
+  *ngIf="mostrarRespuestasRecibidas"
+  (click)="cerrarRespuestasRecibidas()"
+>
+  <section
+    class="respuestas-recibidas-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Documentos recibidos"
+    (click)="$event.stopPropagation()"
+  >
+    <header>
+      <div>
+        <h3>{{ tituloDocumentosRecibidos }}</h3>
+        <small>{{ detalle?.cinv || denuncia?.cinv }}</small>
+      </div>
+
+      <button
+        type="button"
+        aria-label="Cerrar documentos"
+        (click)="cerrarRespuestasRecibidas()"
+      >
+        ✕
+      </button>
+    </header>
+
+    <div class="respuestas-recibidas-body">
+      <p *ngIf="cargandoRespuestasRecibidas">
+        Consultando documentos...
+      </p>
+
+      <div class="mensaje-error" *ngIf="errorRespuestasRecibidas">
+        {{ errorRespuestasRecibidas }}
+      </div>
+
+      <div class="respuestas-recibidas-tabla">
+        <table>
+          <thead>
+            <tr>
+              <th>N°</th>
+              <th>DOCUMENTO</th>
+              <th>TIPO</th>
+              <th>FECHA</th>
+              <th>PDF</th>
+              <th>VER</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr
+              *ngFor="
+                let documento of respuestasRecibidas;
+                let i = index
+              "
+            >
+              <td>{{ i + 1 }}</td>
+
+              <td>
+                <strong>{{ documento.nombreDocumento }}</strong>
+                <small>{{ documento.descripcion }}</small>
+              </td>
+
+              <td>{{ documento.tipoDocumento }}</td>
+
+              <td>
+                {{ documento.fechaDocumento | date:'dd/MM/yyyy' }}
+              </td>
+
+              <td>{{ documento.nombreArchivo }}</td>
+
+              <td>
+                <button
+                  type="button"
+                  class="btn-secundario"
+                  (click)="verPdfRespuestaRecibida(documento)"
+                >
+                  👁 Ver PDF
+                </button>
+              </td>
+            </tr>
+
+            <tr
+              *ngIf="
+                !cargandoRespuestasRecibidas &&
+                !errorRespuestasRecibidas &&
+                !respuestasRecibidas.length
+              "
+            >
+              <td colspan="6">No hay documentos registrados.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>

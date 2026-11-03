@@ -1,11 +1,16 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+
+import {
+  ListadoIntegridadCompartidoComponent
+} from '../../integridad/listado-integridad-compartido/listado-integridad-compartido.component';
 
 @Component({
   selector: 'app-listadototal-integridad4',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './listadototal-integridad4.component.html',
-  styleUrl: './listadototal-integridad4.component.css'
+  imports: [ListadoIntegridadCompartidoComponent],
+  template: `
+    <app-listado-integridad-compartido [nivel]="4">
+    </app-listado-integridad-compartido>
+  `
 })
 export class ListadoTotalIntegridad4Component {}

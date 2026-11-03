@@ -1,591 +1,741 @@
-<div class="overlay-caso">
-
-  <div class="modal-caso">
-
-    <!-- ================================================= -->
-    <!-- CABECERA -->
-    <!-- ================================================= -->
-
-    <div class="cabecera-caso">
-
+<div class="overlay-caso" (click)="salir()">
+  <div
+    class="modal-caso"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="integridad-caso-titulo"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="cabecera-caso">
       <div class="cabecera-centro">
+        <h2 id="integridad-caso-titulo">INFORMACIÓN DE CASO APERTURADO</h2>
 
-        <h2>
-          INFORMACIÓN DE CASO APERTURADO
-        </h2>
-
-        <span *ngIf="detalle?.cinv">
-          {{ detalle.cinv }}
-        </span>
-
+        <span>{{ detalle?.cinv || denuncia?.cinv || "" }}</span>
       </div>
-
 
       <button
         type="button"
         class="btn-cerrar-x"
-        (click)="salir()">
-
+        aria-label="Cerrar caso"
+        [disabled]="guardandoSeguimiento"
+        (click)="salir()"
+      >
         ×
-
       </button>
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- CUERPO -->
-    <!-- ================================================= -->
+    </header>
 
     <div class="layout-caso">
-
-
-      <!-- ================================================= -->
-      <!-- PARTE IZQUIERDA -->
-      <!-- ================================================= -->
-
-      <div class="contenido-principal">
-
-
-        <!-- ================================================= -->
-        <!-- TABS -->
-        <!-- ================================================= -->
-
-        <div class="tabs-caso">
-
-
-          <!-- DOC REGISTRADO -->
-
+      <main class="contenido-principal">
+        <nav class="tabs-caso" aria-label="Secciones del caso">
           <button
             type="button"
             class="tab-btn"
             [class.activo]="tabActivo === 'registrado'"
-            (click)="cambiarTab('registrado')">
-
-            <span class="numero-tab">
-              1
-            </span>
-
-            <span>
-              DOC REGISTRADO
-            </span>
-
+            [attr.aria-pressed]="tabActivo === 'registrado'"
+            (click)="cambiarTab('registrado')"
+          >
+            <span class="numero-tab">1</span>
+            <span>DOC REGISTRADO</span>
           </button>
-
-
-          <!-- DOC ADJUNTO -->
 
           <button
             type="button"
             class="tab-btn"
             [class.activo]="tabActivo === 'adjunto'"
-            (click)="cambiarTab('adjunto')">
+            [attr.aria-pressed]="tabActivo === 'adjunto'"
+            (click)="cambiarTab('adjunto')"
+          >
+            <span class="numero-tab">2</span>
+            <span>DOC ADJUNTO</span>
 
-            <span class="numero-tab">
-              2
-            </span>
-
-            <span>
-              DOC ADJUNTO
-            </span>
-
-
-            <span
-              class="contador-pdf"
-              *ngIf="archivos.length > 0">
-
+            <span class="contador-pdf" *ngIf="archivos.length">
               {{ archivos.length }}
-
             </span>
-
           </button>
 
-        </div>
+          <button
+            type="button"
+            class="tab-btn"
+            [class.activo]="tabActivo === 'seguimiento'"
+            [attr.aria-pressed]="tabActivo === 'seguimiento'"
+            (click)="cambiarTab('seguimiento')"
+          >
+            <span class="numero-tab">3</span>
+            <span>SEGUIMIENTO</span>
+          </button>
+        </nav>
 
-
-        <!-- ================================================= -->
-        <!-- DOC REGISTRADO -->
-        <!-- ================================================= -->
-
-        <div
-          class="contenido-tab"
-          *ngIf="tabActivo === 'registrado'">
-
-
-          <!-- CARGANDO -->
-
-          <div
-            class="estado-carga"
-            *ngIf="cargandoDetalle">
-
+        <section class="contenido-tab" *ngIf="tabActivo === 'registrado'">
+          <div class="estado-carga" *ngIf="cargandoDetalle">
             <div class="spinner"></div>
-
-            <span>
-              Cargando información...
-            </span>
-
+            <span>Cargando información...</span>
           </div>
-
-
-          <!-- ERROR -->
 
           <div
             class="mensaje-error"
-            *ngIf="
-              !cargandoDetalle &&
-              errorDetalle
-            ">
-
+            role="alert"
+            *ngIf="!cargandoDetalle && errorDetalle"
+          >
             {{ errorDetalle }}
-
           </div>
 
-
-          <!-- ================================================= -->
-          <!-- DATOS DE INTEGRIDAD -->
-          <!-- ================================================= -->
-
-          <div
-            class="form-datos"
-            *ngIf="
-              !cargandoDetalle &&
-              !errorDetalle &&
-              detalle
-            ">
-
-
-            <!-- FILA 1 -->
-
-            <div class="campo">
-
-              <label>
-                TIPO DOC:
-              </label>
-
-              <div class="valor">
-
-                {{ mostrarValor(detalle.tipoDocumento) }}
-
+          <ng-container *ngIf="!cargandoDetalle && !errorDetalle && detalle">
+            <div class="form-datos fila-identificacion">
+              <div class="campo">
+                <label>IDENTIFICACIÓN DEL DENUNCIANTE</label>
+                <div class="valor">
+                  {{
+                    detalle.identificacion === "DENUNCIANTE"
+                      ? "Denunciante identificado"
+                      : detalle.identificacion === "ANONIMA"
+                        ? "Denuncia anónima"
+                        : mostrarValor(detalle.identificacion)
+                  }}
+                </div>
               </div>
 
+              <div class="campo">
+                <label>SEXO</label>
+                <div class="valor">
+                  {{
+                    detalle.sexo === "NO_DECLARA"
+                      ? "Prefiero no decirlo"
+                      : mostrarValor(detalle.sexo)
+                  }}
+                </div>
+              </div>
             </div>
 
+            <section class="persona-seccion">
+              <button
+                type="button"
+                class="persona-toggle"
+                [attr.aria-expanded]="mostrarDatosPersona"
+                aria-controls="ver-integridad-persona"
+                (click)="mostrarDatosPersona = !mostrarDatosPersona"
+              >
+                <strong>DATOS DE LA PERSONA</strong>
+                <span aria-hidden="true">
+                  {{ mostrarDatosPersona ? "−" : "+" }}
+                </span>
+              </button>
 
-            <div class="campo">
+              <div
+                id="ver-integridad-persona"
+                class="persona-contenido"
+                [hidden]="!mostrarDatosPersona"
+              >
+                <div class="persona-grid">
+                  <div class="campo persona-mitad">
+                    <label>NOMBRES</label>
+                    <div class="valor">
+                      {{ mostrarValor(datosPersona.nombres) }}
+                    </div>
+                  </div>
 
-              <label>
-                N° DNI:
-              </label>
+                  <div class="campo persona-mitad">
+                    <label>APELLIDOS</label>
+                    <div class="valor">
+                      {{ mostrarValor(datosPersona.apellidos) }}
+                    </div>
+                  </div>
 
-              <div class="valor">
+                  <div class="campo persona-tercio">
+                    <label>RUC</label>
+                    <div class="valor">
+                      {{ mostrarValor(datosPersona.ruc) }}
+                    </div>
+                  </div>
 
-                {{ mostrarValor(detalle.dni) }}
+                  <div class="campo persona-tercio">
+                    <label>DNI</label>
+                    <div class="valor">
+                      {{ mostrarValor(datosPersona.dni) }}
+                    </div>
+                  </div>
 
+                  <div class="campo persona-tercio">
+                    <label>TELÉFONO</label>
+                    <div class="valor">
+                      {{ mostrarValor(datosPersona.telefono) }}
+                    </div>
+                  </div>
+
+                  <div class="campo persona-direccion">
+                    <label>DOMICILIO</label>
+                    <div class="valor">
+                      {{ mostrarValor(datosPersona.domicilio) }}
+                    </div>
+                  </div>
+
+                  <div class="campo persona-tercio">
+                    <label>CORREO ELECTRÓNICO</label>
+                    <div class="valor">
+                      {{ mostrarValor(datosPersona.correo) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <div class="form-datos">
+              <div class="campo">
+                <label>TIPO DE DOCUMENTO</label>
+                <div class="valor">
+                  {{ mostrarValor(detalle.tipoDocumento) }}
+                </div>
               </div>
 
-            </div>
-
-
-            <div class="campo">
-
-              <label>
-                FECHA DE REGISTRO:
-              </label>
-
-              <div class="valor">
-
-                {{
-                  detalle.fechaRegistro
-                    ? (detalle.fechaRegistro | date:'dd/MM/yyyy HH:mm')
-                    : '-'
-                }}
-
+              <div class="campo">
+                <label>CÓDIGO DE DOCUMENTO</label>
+                <div class="valor">
+                  {{ mostrarValor(detalle.nroDocumento) }}
+                </div>
               </div>
 
-            </div>
-
-
-            <!-- FILA 2 -->
-
-            <div class="campo">
-
-              <label>
-                CORREO ELEC:
-              </label>
-
-              <div class="valor">
-
-                {{ mostrarValor(detalle.correo) }}
-
+              <div class="campo">
+                <label>FECHA DEL ACTO DE CORRUPCIÓN</label>
+                <div class="valor">
+                  {{
+                    detalle.fechaActoCorrupcion
+                      ? (detalle.fechaActoCorrupcion | date: "dd/MM/yyyy")
+                      : "-"
+                  }}
+                </div>
               </div>
 
-            </div>
+              <div class="campo campo-completo">
+                <div class="fila-dos">
+                  <div class="campo">
+                    <label>MOTIVO DE LA DENUNCIA</label>
+                    <div class="valor">
+                      {{ obtenerMotivoCompleto(detalle.motivoDenuncia) }}
+                    </div>
+                  </div>
 
-
-            <div class="campo">
-
-              <label>
-                TELEF:
-              </label>
-
-              <div class="valor">
-
-                {{ mostrarValor(detalle.telefono) }}
-
+                  <div class="campo">
+                    <label>MEDIDAS DE PROTECCIÓN</label>
+                    <div class="valor">
+                      {{ obtenerProteccionCompleta(detalle.medidaProteccion) }}
+                    </div>
+                  </div>
+                </div>
               </div>
 
-            </div>
-
-
-            <div class="campo">
-
-              <label>
-                FECHA DE ACTO DE CORRUPCIÓN:
-              </label>
-
-              <div class="valor">
-
-                {{
-                  detalle.fechaActoCorrupcion
-                    ? (detalle.fechaActoCorrupcion | date:'dd/MM/yyyy')
-                    : '-'
-                }}
-
+              <div class="campo campo-completo">
+                <div class="fila-dos">
+                  <div class="campo">
+                    <label>FECHA DE REGISTRO</label>
+                    <div class="valor">
+                      {{
+                        detalle.fechaRegistro
+                          ? (detalle.fechaRegistro | date: "dd/MM/yyyy")
+                          : "-"
+                      }}
+                    </div>
+                  </div>
+                </div>
               </div>
 
-            </div>
-
-
-            <!-- FILA 4 -->
-
-            <div class="campo campo-doble">
-
-              <label>
-                IDENTIFICA EL MOTIVO DE TU DENUNCIA:
-              </label>
-
-              <div class="valor">
-
-                {{
-                  obtenerMotivoCompleto(
-                    detalle.motivoDenuncia
-                  )
-                }}
-
+              <div class="campo">
+                <label>NÚCLEO</label>
+                <div class="valor">
+                  {{ mostrarValor(nombreNucleo) }}
+                </div>
               </div>
 
-            </div>
-
-
-            <div class="campo">
-
-              <label>
-                MEDIDAS DE PROTECCIÓN:
-              </label>
-
-              <div class="valor">
-
-                {{ mostrarValor(detalle.medidaProteccion) }}
-
+              <div class="campo">
+                <label>GRAN UNIDAD</label>
+                <div class="valor">
+                  {{ mostrarValor(nombreBrigada) }}
+                </div>
               </div>
 
-            </div>
-
-
-            <!-- FILA 5 -->
-
-            <div class="campo campo-doble">
-
-              <label>
-                IDENTIFICACIÓN DEL DENUNCIANTE:
-              </label>
-
-              <div class="valor">
-
-                {{ mostrarValor(detalle.identificacion) }}
-
+              <div class="campo">
+                <label>UNIDAD</label>
+                <div class="valor">
+                  {{ mostrarValor(nombreUnidad) }}
+                </div>
               </div>
 
-            </div>
+              <div class="campo campo-completo separador"></div>
 
-
-            <div class="campo">
-
-              <label>
-                SEXO:
-              </label>
-
-              <div class="valor">
-
-                {{ mostrarValor(detalle.sexo) }}
-
+              <div class="campo">
+                <label>NÚCLEO IG</label>
+                <div class="valor">
+                  {{ obtenerNombreNucleoIg() }}
+                </div>
               </div>
 
-            </div>
-
-
-            <!-- DETALLE -->
-
-            <div class="campo campo-completo">
-
-              <label>
-                DETALLE:
-              </label>
-
-              <div class="valor valor-textarea">
-
-                {{ mostrarValor(detalle.detalle) }}
-
+              <div class="campo">
+                <label>IG</label>
+                <div class="valor">
+                  {{ mostrarValor(nombreIg) }}
+                </div>
               </div>
 
-            </div>
-
-
-            <!-- DETALLE OTROS -->
-
-            <div
-              class="campo campo-completo"
-              *ngIf="detalle.detalleOtros">
-
-              <label>
-                DETALLE (OTROS):
-              </label>
-
-              <div class="valor valor-textarea">
-
-                {{ mostrarValor(detalle.detalleOtros) }}
-
+              <div class="campo">
+                <label>DESTINO</label>
+                <div class="valor">
+                  {{ obtenerDestino() }}
+                </div>
               </div>
 
+              <div class="campo campo-completo">
+                <label>DETALLE</label>
+                <div class="valor valor-textarea">
+                  {{ mostrarValor(detalle.detalle) }}
+                </div>
+              </div>
+
+              <div class="campo campo-completo">
+                <label>DETALLE (OTROS)</label>
+                <div class="valor valor-textarea">
+                  {{ mostrarValor(detalle.detalleOtros) }}
+                </div>
+              </div>
             </div>
+          </ng-container>
+        </section>
 
-          </div>
-
-        </div>
-
-
-        <!-- ================================================= -->
-        <!-- DOCUMENTOS ADJUNTOS -->
-        <!-- ================================================= -->
-
-        <div
-          class="contenido-tab contenido-pdf"
-          *ngIf="tabActivo === 'adjunto'">
-
-
-          <!-- CARGANDO -->
-
-          <div
-            class="estado-carga"
-            *ngIf="cargandoArchivos">
-
+        <section
+          class="contenido-tab contenido-adjuntos"
+          *ngIf="tabActivo === 'adjunto'"
+        >
+          <div class="estado-carga" *ngIf="cargandoArchivos">
             <div class="spinner"></div>
-
-            <span>
-              Cargando documentos...
-            </span>
-
+            <span>Cargando documentos...</span>
           </div>
 
-
-          <!-- ERROR -->
-
-          <div
-            class="mensaje-error"
-            *ngIf="
-              !cargandoArchivos &&
-              errorArchivos
-            ">
-
+          <div class="mensaje-error" role="alert" *ngIf="errorArchivos">
             {{ errorArchivos }}
-
           </div>
-
-
-          <!-- SIN DOCUMENTOS -->
 
           <div
             class="sin-archivos"
-            *ngIf="
-              !cargandoArchivos &&
-              !errorArchivos &&
-              archivos.length === 0
-            ">
-
-            <div class="pdf-vacio-icono">
-              PDF
-            </div>
-
-            <strong>
-              No existen documentos adjuntos
-            </strong>
-
+            *ngIf="!cargandoArchivos && !errorArchivos && archivos.length === 0"
+          >
+            <span class="sin-archivos-icono">📎</span>
+            <strong>No existen documentos adjuntos</strong>
           </div>
-
-
-          <!-- ================================================= -->
-          <!-- CON DOCUMENTOS -->
-          <!-- ================================================= -->
 
           <div
             class="documentos-layout"
-            *ngIf="
-              !cargandoArchivos &&
-              !errorArchivos &&
-              archivos.length > 0
-            ">
-
-
-            <!-- ================================================= -->
-            <!-- LISTA IZQUIERDA -->
-            <!-- ================================================= -->
-
+            *ngIf="!cargandoArchivos && archivos.length > 0"
+          >
             <div class="lista-documentos">
-
-
-              <div class="lista-documentos-header">
-
-                DOCUMENTOS ADJUNTOS
-
-              </div>
-
+              <div class="lista-documentos-header">DOCUMENTOS ADJUNTOS</div>
 
               <button
                 type="button"
                 class="archivo-item"
-                *ngFor="
-                  let archivo of archivos;
-                  let i = index
-                "
+                *ngFor="let archivo of archivos"
                 [class.archivo-activo]="
-                  archivoSeleccionado?.idArchivo ===
-                  archivo.idArchivo
+                  archivoSeleccionado?.idArchivo === archivo.idArchivo
                 "
-                (click)="seleccionarArchivo(archivo)">
-
-
-                <div class="archivo-icono">
-
-                  PDF
-
+                (click)="seleccionarArchivo(archivo)"
+              >
+                <div
+                  class="archivo-icono"
+                  [class.es-zip]="esZip(archivo)"
+                  aria-hidden="true"
+                >
+                  {{ obtenerTipoArchivo(archivo) }}
                 </div>
-
 
                 <div class="archivo-info">
-
                   <strong>
-                    Documento {{ i + 1 }}
-                  </strong>
-
-                  <span>
-
                     {{
                       archivo.nombreArchivo ||
-                      archivo.nombreGuardado ||
-                      'Documento PDF'
+                        archivo.nombreGuardado ||
+                        "Adjunto"
                     }}
+                  </strong>
 
-                  </span>
-
+                  <small>
+                    {{ obtenerTamanoArchivo(archivo.tamano) }}
+                  </small>
                 </div>
-
               </button>
-
             </div>
 
-
-            <!-- ================================================= -->
-            <!-- VISOR PDF -->
-            <!-- ================================================= -->
-
             <div class="visor-documento">
-
-
-              <div
-                class="visor-header"
-                *ngIf="archivoSeleccionado">
-
+              <div class="visor-header" *ngIf="archivoSeleccionado">
                 {{
                   archivoSeleccionado.nombreArchivo ||
-                  archivoSeleccionado.nombreGuardado ||
-                  'Documento PDF'
+                    archivoSeleccionado.nombreGuardado
                 }}
-
               </div>
 
+              <div class="estado-carga" *ngIf="cargandoPdf">
+                <div class="spinner"></div>
+                <span>Cargando PDF...</span>
+              </div>
 
               <iframe
-                *ngIf="pdfUrl"
+                *ngIf="pdfUrl && !cargandoPdf"
                 class="visor-pdf"
                 [src]="pdfUrl"
-                title="Documento PDF">
-
-              </iframe>
-
+                title="Documento PDF adjunto"
+              ></iframe>
 
               <div
                 class="visor-vacio"
-                *ngIf="!pdfUrl">
+                *ngIf="archivoSeleccionado && esZip(archivoSeleccionado)"
+              >
+                <div class="zip-grande">ZIP</div>
 
-                Seleccione un documento.
+                <strong>Archivo comprimido</strong>
 
+                <p>El contenido del ZIP está disponible para descargar.</p>
+
+                <button
+                  type="button"
+                  class="btn-principal"
+                  [disabled]="descargandoArchivo"
+                  (click)="descargarZip(archivoSeleccionado)"
+                >
+                  {{ descargandoArchivo ? "DESCARGANDO..." : "DESCARGAR ZIP" }}
+                </button>
               </div>
 
+              <div
+                class="visor-vacio"
+                *ngIf="!pdfUrl && !cargandoPdf && !esZip(archivoSeleccionado)"
+              >
+                Seleccione un documento PDF para visualizarlo.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="contenido-tab" *ngIf="tabActivo === 'seguimiento'">
+          <div class="seguimiento-cabecera">
+            <div>
+              <h3>SEGUIMIENTO DEL EXPEDIENTE</h3>
+              <p>Periodo de atención del caso.</p>
             </div>
 
+            <span class="seguimiento-badge" *ngIf="seguimientoGuardado">
+              REGISTRADO
+            </span>
           </div>
 
-        </div>
+          <div class="estado-carga" *ngIf="cargandoSeguimiento">
+            <div class="spinner"></div>
+            <span>Consultando seguimiento...</span>
+          </div>
 
-      </div>
+          <div class="mensaje-error" role="alert" *ngIf="errorSeguimiento">
+            {{ errorSeguimiento }}
+          </div>
 
+          <div class="mensaje-exito" role="status" *ngIf="mensajeSeguimiento">
+            {{ mensajeSeguimiento }}
+          </div>
 
-      <!-- ================================================= -->
-      <!-- ACCIONES -->
-      <!-- ================================================= -->
+          <div
+            class="seguimiento-vacio"
+            *ngIf="
+              !cargandoSeguimiento &&
+              !errorSeguimiento &&
+              !seguimientoGuardado &&
+              !seguimientoActivo
+            "
+          >
+            <h4>No hay seguimiento registrado</h4>
+            <p>Seleccione las fechas de inicio y fin para registrarlo.</p>
+
+            <button
+              type="button"
+              class="btn-principal"
+              *ngIf="!soloLectura"
+              (click)="iniciarSeguimiento()"
+            >
+              INICIAR SEGUIMIENTO
+            </button>
+          </div>
+
+          <div
+            class="seguimiento-tarjeta"
+            *ngIf="
+              !cargandoSeguimiento && (seguimientoGuardado || seguimientoActivo)
+            "
+          >
+            <div class="seguimiento-grid">
+              <div class="campo">
+                <label for="seg-fecha-inicio"> FECHA DE INICIO </label>
+
+                <input
+                  *ngIf="seguimientoActivo"
+                  id="seg-fecha-inicio"
+                  type="date"
+                  [(ngModel)]="fechaInicioSeguimiento"
+                  [disabled]="soloLectura || guardandoSeguimiento"
+                  (ngModelChange)="calcularDiasSeguimiento()"
+                />
+
+                <div class="valor" *ngIf="!seguimientoActivo">
+                  {{
+                    fechaInicioSeguimiento
+                      ? (fechaInicioSeguimiento | date: "dd/MM/yyyy")
+                      : "-"
+                  }}
+                </div>
+              </div>
+
+              <div class="campo">
+                <label for="seg-fecha-fin">FECHA DE FIN</label>
+
+                <input
+                  *ngIf="seguimientoActivo"
+                  id="seg-fecha-fin"
+                  type="date"
+                  [(ngModel)]="fechaFinSeguimiento"
+                  [disabled]="soloLectura || guardandoSeguimiento"
+                  (ngModelChange)="calcularDiasSeguimiento()"
+                />
+
+                <div class="valor" *ngIf="!seguimientoActivo">
+                  {{
+                    fechaFinSeguimiento
+                      ? (fechaFinSeguimiento | date: "dd/MM/yyyy")
+                      : "-"
+                  }}
+                </div>
+              </div>
+
+              <div class="campo">
+                <label>CANTIDAD DE DÍAS</label>
+                <div class="valor dias-seguimiento">
+                  {{ cantidadDiasSeguimiento }}
+                </div>
+              </div>
+            </div>
+
+            <div class="seguimiento-acciones" *ngIf="!soloLectura">
+              <button
+                type="button"
+                class="btn-secundario"
+                *ngIf="seguimientoActivo"
+                [disabled]="guardandoSeguimiento"
+                (click)="cancelarSeguimiento()"
+              >
+                CANCELAR
+              </button>
+
+              <button
+                type="button"
+                class="btn-principal"
+                *ngIf="seguimientoActivo"
+                [disabled]="guardandoSeguimiento"
+                (click)="guardarSeguimiento()"
+              >
+                {{
+                  guardandoSeguimiento ? "GUARDANDO..." : "GUARDAR SEGUIMIENTO"
+                }}
+              </button>
+
+              <button
+                type="button"
+                class="btn-principal"
+                *ngIf="seguimientoGuardado && !seguimientoActivo"
+                (click)="editarSeguimiento()"
+              >
+                EDITAR SEGUIMIENTO
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="btn-secundario btn-reintentar"
+            *ngIf="
+              !cargandoSeguimiento && errorSeguimiento && !seguimientoActivo
+            "
+            (click)="cargarSeguimiento()"
+          >
+            VOLVER A CONSULTAR
+          </button>
+        </section>
+      </main>
 
       <aside class="panel-acciones">
+        <div class="acciones-titulo">ACCIONES</div>
 
+        <button
+          type="button"
+          class="btn-ver-respuesta"
+          *ngIf="
+            casoFinalizado &&
+            (detalle?.nivelDestino ?? denuncia?.nivelDestino) == 4
+          "
+          [disabled]="cargandoDetalle || !!errorDetalle"
+          (click)="abrirInformesRecibidos()"
+        >
+          VER INFORME DE ENVÍO
+        </button>
 
-        <div class="acciones-titulo">
-
-          ACCIONES
-
-        </div>
-
+        <button
+          type="button"
+          class="btn-ver-respuesta"
+          *ngIf="casoFinalizado"
+          [disabled]="cargandoDetalle || !!errorDetalle"
+          (click)="abrirRespuestasRecibidas()"
+        >
+          VER RESPUESTA
+        </button>
 
         <button
           type="button"
           class="btn-enviar"
-          (click)="enviarANivel3()">
-
-          ⇧
-
-          <span>
-            ENVIAR A INSPECTORÍA
-            INTEGRIDAD NIVEL 3
-          </span>
-
+          *ngIf="!soloLectura && !casoFinalizado"
+          [disabled]="
+            cargandoDetalle ||
+            !!errorDetalle ||
+            !detalle ||
+            guardandoSeguimiento
+          "
+          (click)="enviarANivel3()"
+        >
+          ⇧ ENVIAR A INSPECTORÍA INTEGRIDAD NIVEL 3
         </button>
-
 
         <button
           type="button"
           class="btn-salir"
-          (click)="salir()">
-
-          ↩
-
-          <span>
-            SALIR
-          </span>
-
+          [disabled]="guardandoSeguimiento"
+          (click)="salir()"
+        >
+          ↩ SALIR
         </button>
+        <div class="observacion-panel">
+          <label for="integridad-observacion">
+            OBSERVACIÓN / INDICACIONES
+          </label>
 
+          <textarea
+            id="integridad-observacion"
+            [(ngModel)]="observacionActual"
+            (ngModelChange)="cambioObservacion()"
+            maxlength="2000"
+            rows="9"
+            placeholder="Ingrese las observaciones o indicaciones"
+            [readonly]="soloLectura"
+            [disabled]="cargandoDetalle || !!errorDetalle || !detalle"
+          ></textarea>
+
+          <small *ngIf="guardandoObservacion" role="status">
+            Guardando...
+          </small>
+
+          <small
+            class="observacion-ok"
+            *ngIf="observacionGuardada && !guardandoObservacion"
+            role="status"
+          >
+            Guardado.
+          </small>
+
+          <small
+            class="observacion-error"
+            *ngIf="errorObservacion"
+            role="alert"
+          >
+            {{ errorObservacion }}
+          </small>
+        </div>
       </aside>
-
     </div>
-
   </div>
+</div>
+<div
+  class="respuestas-recibidas-overlay"
+  *ngIf="mostrarRespuestasRecibidas"
+  (click)="cerrarRespuestasRecibidas()"
+>
+  <section
+    class="respuestas-recibidas-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Respuestas recibidas"
+    (click)="$event.stopPropagation()"
+  >
+    <header>
+      <div>
+        <h3>{{ tituloDocumentosRecibidos }}</h3>
+        <small>{{ detalle?.cinv || denuncia?.cinv }}</small>
+      </div>
 
+      <button
+        type="button"
+        aria-label="Cerrar respuestas"
+        (click)="cerrarRespuestasRecibidas()"
+      >
+        ✕
+      </button>
+    </header>
+
+    <div class="respuestas-recibidas-body">
+      <p *ngIf="cargandoRespuestasRecibidas">Consultando documentos...</p>
+
+      <div class="mensaje-error" *ngIf="errorRespuestasRecibidas">
+        {{ errorRespuestasRecibidas }}
+      </div>
+
+      <div class="respuestas-recibidas-tabla">
+        <table>
+          <thead>
+            <tr>
+              <th>N°</th>
+              <th>DOCUMENTO</th>
+              <th>TIPO</th>
+              <th>FECHA</th>
+              <th>PDF</th>
+              <th>VER</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let respuesta of respuestasRecibidas; let i = index">
+              <td>{{ respuesta.numeroInforme || i + 1 }}</td>
+
+              <td>
+                <strong>{{ respuesta.nombreDocumento }}</strong>
+                <small>{{ respuesta.descripcion }}</small>
+              </td>
+
+              <td>{{ respuesta.tipoDocumento }}</td>
+
+              <td>
+                {{ respuesta.fechaDocumento | date: "dd/MM/yyyy" }}
+              </td>
+
+              <td>{{ respuesta.nombreArchivo }}</td>
+
+              <td>
+                <button
+                  type="button"
+                  class="btn-secundario"
+                  (click)="verPdfRespuestaRecibida(respuesta)"
+                >
+                  👁 Ver PDF
+                </button>
+              </td>
+            </tr>
+
+            <tr
+              *ngIf="
+                !cargandoRespuestasRecibidas &&
+                !errorRespuestasRecibidas &&
+                !respuestasRecibidas.length
+              "
+            >
+              <td colspan="6">No hay documentos registrados.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 </div>
