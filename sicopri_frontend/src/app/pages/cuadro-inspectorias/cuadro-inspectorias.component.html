@@ -1,0 +1,92 @@
+<section class="cuadro">
+  <header><h1>CUADRO NUMÉRICO DE INVESTIGACIONES POR INSPECTORÍAS NIVEL {{ nivel }}</h1></header>
+  <nav class="pestanas" aria-label="Vista de estadísticas">
+    <button type="button" [attr.aria-pressed]="pestana === 'cuadro'" (click)="pestana = 'cuadro'">
+      ▦ Cuadro Nivel {{ nivel }}
+    </button>
+    <button type="button" [attr.aria-pressed]="pestana === 'graficos'" (click)="pestana = 'graficos'">
+      ▥ Gráficos estadísticos
+    </button>
+  </nav>
+  <div class="contenido">
+    <aside>
+      <label for="tipo-expediente">TIPO</label>
+      <select id="tipo-expediente" [(ngModel)]="tipo" (ngModelChange)="agrupar()" [disabled]="cargando">
+        <option value="todos">Todos</option>
+        <option value="Integridad">Integridad</option>
+        <option value="QRD">QRD</option>
+      </select>
+      <div class="categoria-qrd" *ngIf="tipo === 'QRD'">
+        <label for="categoria-qrd">CATEGORÍA QRD</label>
+        <select id="categoria-qrd" [(ngModel)]="categoriaQrd" (ngModelChange)="agrupar()" [disabled]="cargando">
+          <option value="todos">Todas las categorías</option>
+          <option value="Reclamo">Reclamos</option>
+          <option value="Queja">Quejas</option>
+          <option value="Denuncia">Denuncias</option>
+        </select>
+      </div>
+      <button class="actualizar" type="button" (click)="cargar()" [disabled]="cargando">Actualizar</button>
+      <h2>Resumen general</h2>
+      <div class="resumen" *ngFor="let col of columnas; let i = index">
+        <span>{{ col.nombre }}</span><strong>{{ cargando || error ? '—' : totales[i] }}</strong>
+      </div>
+    </aside>
+    <main>
+      <p *ngIf="cargando" role="status">Consultando investigaciones…</p>
+      <p *ngIf="error" role="alert">{{ error }}</p>
+      <div class="tabla" *ngIf="!cargando && !error && pestana === 'cuadro'">
+        <table>
+          <thead><tr><th scope="col">Inspectoría</th><th scope="col" *ngFor="let col of columnas; let i = index" [attr.data-col]="i">{{ col.nombre }}</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let fila of filas">
+              <th scope="row">{{ fila.nombre }}</th>
+              <td *ngFor="let casos of fila.casos; let i = index">
+                <button class="cantidad" type="button" [attr.data-col]="i"
+                  [attr.aria-label]="fila.nombre + ', ' + columnas[i].nombre + ': ' + casos.length"
+                  (click)="abrir(fila, i)">{{ casos.length }}</button>
+              </td>
+            </tr>
+            <tr *ngIf="!filas.length"><td colspan="8">No hay expedientes para este tipo y nivel.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <section class="grafico" *ngIf="!cargando && !error && pestana === 'graficos'" aria-labelledby="titulo-grafico">
+        <header>
+          <span class="grafico-nivel">NIVEL {{ nivel }}</span>
+          <h2 id="titulo-grafico">Distribución de expedientes</h2>
+          <p>Conteos de todas las inspectorías según los filtros seleccionados.</p>
+        </header>
+        <p *ngIf="!filas.length">No hay expedientes para este tipo y nivel.</p>
+        <div class="grafico-fila" *ngFor="let col of columnas; let i = index">
+          <span>{{ col.nombre }}</span>
+          <div class="grafico-pista" aria-hidden="true">
+            <div class="grafico-barra" [attr.data-col]="i" [style.width.%]="(totales[i] || 0) * 100 / maximoGrafico"></div>
+          </div>
+          <strong>{{ totales[i] || 0 }}</strong>
+        </div>
+        <small>Las columnas de plazo pueden incluir expedientes que también aparecen en una columna de estado.</small>
+      </section>
+    </main>
+  </div>
+</section>
+
+<div class="fondo" *ngIf="detalle as lista" [hidden]="!!caso" (click)="detalle = null">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-detalle" (click)="$event.stopPropagation()">
+    <header><h2 id="titulo-detalle">{{ lista.titulo }}</h2><button type="button" aria-label="Cerrar lista" (click)="detalle = null">×</button></header>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>CINV</th><th>Tipo</th><th>Asunto</th><th>Fecha de registro</th><th>Ver caso</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let exp of lista.casos">
+            <td>{{ exp.cinv }}</td><td>{{ tipoCaso(exp) }}</td><td>{{ exp.asunto || '—' }}</td>
+            <td>{{ exp.fechaRegistro | date:'dd/MM/yyyy' }}</td>
+            <td><button class="ojo" type="button" [attr.aria-label]="'Ver caso ' + exp.cinv" title="Ver caso" (click)="caso = exp">👁</button></td>
+          </tr>
+          <tr *ngIf="!lista.casos.length"><td colspan="5">No hay expedientes en este grupo.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<app-ver-caso *ngIf="caso" [expediente]="caso" (cerrar)="caso = null"></app-ver-caso>

@@ -174,10 +174,10 @@ export class RespuestaIntegridad4Component
     if (
       !archivo.name.toLowerCase().endsWith('.pdf') ||
       archivo.size === 0 ||
-      archivo.size > 10 * 1024 * 1024
+      archivo.size > 1024 * 1024 * 1024
     ) {
       this.advertir(
-        'Adjunte un PDF con contenido y de máximo 10 MB.'
+        'Adjunte un PDF con contenido y de máximo 1 GB.'
       );
       return;
     }

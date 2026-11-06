@@ -66,12 +66,15 @@ export class EditarIntegridadComponent
   telefono = '';
   domicilio = '';
   correo = '';
+  situacion = '';
 
   nroDocumento = '';
   fechaRegistro = '';
   fechaActoCorrupcion = '';
 
   tipoDocumento: string | null = null;
+  otroTipoDocumento = '';
+  private readonly tiposConocidos = ['SOLICITUD', 'OFICIO', 'INFORME', 'CARTA_NOTARIAL', 'FAX', 'ELEVACION', 'ESCRITO', 'CARTA'];
   motivoDenuncia: string | null = null;
   medidaProteccion: string | null = null;
   identificacion: string | null = null;
@@ -105,7 +108,7 @@ export class EditarIntegridadComponent
   eliminandoArchivo: number | null = null;
 
   readonly maxArchivos = 5;
-  readonly maxTamanoArchivo = 10 * 1024 * 1024;
+  readonly maxTamanoArchivo = 1024 * 1024 * 1024;
 
   urlsTemporales: string[] = [];
 
@@ -191,12 +194,14 @@ export class EditarIntegridadComponent
     this.telefono = '';
     this.domicilio = '';
     this.correo = '';
+    this.situacion = '';
 
     this.nroDocumento = '';
     this.fechaRegistro = '';
     this.fechaActoCorrupcion = '';
 
     this.tipoDocumento = null;
+    this.otroTipoDocumento = '';
     this.motivoDenuncia = null;
     this.medidaProteccion = null;
     this.identificacion = null;
@@ -268,6 +273,7 @@ export class EditarIntegridadComponent
 
           this.dni = persona.dni ?? data.dni ?? '';
           this.correo = persona.correo ?? data.correo ?? '';
+          this.situacion = persona.situacion ?? '';
           this.telefono = persona.telefono ?? data.telefono ?? '';
 
           this.nroDocumento = data.nroDocumento ?? '';
@@ -278,7 +284,15 @@ export class EditarIntegridadComponent
           this.fechaActoCorrupcion =
             String(data.fechaActoCorrupcion ?? '').slice(0, 10);
 
-          this.tipoDocumento = data.tipoDocumento || null;
+          const tipoGuardado = String(data.tipoDocumento ?? '').trim();
+          const tipoNormalizado = tipoGuardado.toUpperCase();
+          if (this.tiposConocidos.includes(tipoNormalizado)) {
+            this.tipoDocumento = tipoNormalizado;
+            this.otroTipoDocumento = '';
+          } else {
+            this.tipoDocumento = tipoGuardado ? 'OTROS' : null;
+            this.otroTipoDocumento = tipoNormalizado === 'OTROS' ? '' : tipoGuardado;
+          }
           this.motivoDenuncia = data.motivoDenuncia || null;
           this.medidaProteccion = data.medidaProteccion || null;
           this.identificacion = data.identificacion || null;
@@ -647,55 +661,36 @@ export class EditarIntegridadComponent
     }
 
     const nuevos: File[] = [];
+    const rechazados: string[] = [];
 
     for (const archivo of seleccionados) {
       const nombre = archivo.name.toLowerCase();
+      const repetido = this.archivosActuales.some(
+        existente => String(existente.nombreArchivo ?? '').toLowerCase() === nombre,
+      ) || [...this.archivosNuevos, ...nuevos].some(
+        existente => existente.name === archivo.name && existente.size === archivo.size,
+      );
 
       if (!nombre.endsWith('.pdf') && !nombre.endsWith('.zip')) {
-        this.mostrarAdvertencia(
-          'Solo se permiten archivos PDF o ZIP.'
-        );
-        return;
-      }
-
-      if (archivo.size === 0 || archivo.size > this.maxTamanoArchivo) {
-        this.mostrarAdvertencia(
-          `"${archivo.name}" debe tener contenido y no superar los 10 MB.`
-        );
-        return;
-      }
-
-      const repetidoNuevo = [
-        ...this.archivosNuevos,
-        ...nuevos
-      ].some(
-        existente =>
-          existente.name === archivo.name &&
-          existente.size === archivo.size
-      );
-
-      const repetidoActual = this.archivosActuales.some(
-        existente =>
-          String(existente.nombreArchivo || '')
-            .toLowerCase() === nombre
-      );
-
-      if (!repetidoNuevo && !repetidoActual) {
+        rechazados.push(`${archivo.name}: solo se permite PDF o ZIP.`);
+      } else if (archivo.size === 0) {
+        rechazados.push(`${archivo.name}: está vacío.`);
+      } else if (archivo.size > this.maxTamanoArchivo) {
+        rechazados.push(`${archivo.name}: supera el máximo de 1 GB.`);
+      } else if (repetido) {
+        rechazados.push(`${archivo.name}: ya está adjunto.`);
+      } else if (this.totalArchivos + nuevos.length >= this.maxArchivos) {
+        rechazados.push(`${archivo.name}: se alcanzó el máximo de ${this.maxArchivos} archivos.`);
+      } else {
         nuevos.push(archivo);
       }
     }
 
-    if (this.totalArchivos + nuevos.length > this.maxArchivos) {
-      this.mostrarAdvertencia(
-        'Solo se permiten 5 archivos en total, entre PDF y ZIP.'
-      );
-      return;
-    }
+    this.archivosNuevos = [...this.archivosNuevos, ...nuevos];
 
-    this.archivosNuevos = [
-      ...this.archivosNuevos,
-      ...nuevos
-    ];
+    if (rechazados.length) {
+      this.mostrarAdvertencia(rechazados.join(' · '));
+    }
   }
 
   quitarArchivoNuevo(index: number): void {
@@ -804,6 +799,16 @@ export class EditarIntegridadComponent
       return;
     }
 
+    if (this.tipoDocumento === 'OTROS') {
+      const tipo = this.otroTipoDocumento.trim();
+      if (!tipo || tipo.length > 50) {
+        this.mostrarAdvertencia(
+          'Especifique el tipo de documento con un máximo de 50 caracteres.'
+        );
+        return;
+      }
+    }
+
     if (!this.fechaRegistro || !this.fechaActoCorrupcion) {
       this.mostrarAdvertencia(
         'Seleccione la fecha de registro y la fecha del acto de corrupción.'
@@ -857,7 +862,9 @@ export class EditarIntegridadComponent
     const datos = {
       nroDocumento: this.nroDocumento.trim(),
       fechaRegistro: `${this.fechaRegistro}T00:00:00`,
-      tipoDocumento: this.tipoDocumento,
+      tipoDocumento: this.tipoDocumento === 'OTROS'
+        ? this.otroTipoDocumento.trim()
+        : this.tipoDocumento,
 
       dni: this.dni.trim() || null,
       correo: this.correo.trim() || null,
@@ -870,7 +877,8 @@ export class EditarIntegridadComponent
         dni: this.dni.trim() || null,
         telefono: this.telefono.trim() || null,
         domicilio: this.domicilio.trim() || null,
-        correo: this.correo.trim() || null
+        correo: this.correo.trim() || null,
+        situacion: this.situacion || null
       },
 
       fechaActoCorrupcion: this.fechaActoCorrupcion,

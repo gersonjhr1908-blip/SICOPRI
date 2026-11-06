@@ -156,10 +156,10 @@ export class RespuestaIntegridad3Component
 
     if (
       archivo.size === 0 ||
-      archivo.size > 10 * 1024 * 1024
+      archivo.size > 1024 * 1024 * 1024
     ) {
       this.advertir(
-        'El PDF debe tener contenido y no superar los 10 MB.'
+        'El PDF debe tener contenido y no superar los 1 GB.'
       );
       return;
     }

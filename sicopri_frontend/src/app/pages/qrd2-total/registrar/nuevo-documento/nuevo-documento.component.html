@@ -128,6 +128,8 @@
           />
         </div>
 
+        
+
         <div class="campo persona-correo">
           <label for="persona-correo">CORREO ELECTRÓNICO</label>
           <input
@@ -150,6 +152,33 @@
           >
             {{ erroresPersona.correo }}
           </small>
+        </div>
+
+        <div class="campo persona-situacion">
+          <label for="qrd2-persona-situacion">
+            SITUACIÓN DE LA PERSONA (opcional)
+          </label>
+
+          <select
+            id="qrd2-persona-situacion"
+            [(ngModel)]="datosPersona.situacion"
+          >
+            <option value="">Seleccione</option>
+            <option value="Oficial en actividad">Oficial en actividad</option>
+            <option value="Oficial en retiro">Oficial en retiro</option>
+            <option value="TCO y/o SOO en actividad">
+              TCO y/o SOO en actividad
+            </option>
+            <option value="TCO y/o SOO en retiro">
+              TCO y/o SOO en retiro
+            </option>
+            <option value="Personal civil del Ejército">
+              Personal civil del Ejército
+            </option>
+            <option value="Personal civil ajeno al Ejército">
+              Personal civil ajeno al Ejército
+            </option>
+          </select>
         </div>
       </fieldset>
     </div>
@@ -397,7 +426,7 @@
       <div>
         <strong> DOCUMENTOS ADJUNTOS </strong>
 
-        <small> Máximo 5 archivos PDF · 10 MB por archivo </small>
+        <small> Máximo 5 archivos PDF · 1 GB por archivo </small>
       </div>
 
       <div class="contador-pdf">{{ archivos.length }}/5</div>

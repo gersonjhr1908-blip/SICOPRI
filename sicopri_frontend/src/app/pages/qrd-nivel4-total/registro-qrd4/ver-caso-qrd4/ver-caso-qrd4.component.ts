@@ -163,6 +163,7 @@ export class VerCasoQrd4Component implements OnChanges, OnDestroy {
     telefono: '',
     domicilio: '',
     correo: '',
+    situacion: '',
   };
 
   readonly camposPersona = [
@@ -215,6 +216,13 @@ export class VerCasoQrd4Component implements OnChanges, OnDestroy {
       maximo: 254,
       placeholder: 'Ingrese el correo',
     },
+    {
+      clave: 'situacion',
+      etiqueta: 'SITUACIÓN DE LA PERSONA',
+      tipo: 'text',
+      maximo: 80,
+      placeholder: 'Seleccione',
+    },
   ];
 
   private cargarDatosPersona(persona: any = null): void {
@@ -226,6 +234,7 @@ export class VerCasoQrd4Component implements OnChanges, OnDestroy {
       telefono: persona?.telefono ?? '',
       domicilio: persona?.domicilio ?? '',
       correo: persona?.correo ?? '',
+      situacion: persona?.situacion ?? '',
     };
 
     this.mostrarDatosPersona = Object.values(this.datosPersona).some(
@@ -264,6 +273,7 @@ export class VerCasoQrd4Component implements OnChanges, OnDestroy {
       telefono: this.datosPersona['telefono'].trim(),
       domicilio: this.datosPersona['domicilio'].trim(),
       correo: this.datosPersona['correo'].trim(),
+      situacion: this.datosPersona['situacion'] || null,
     };
   }
   readonly personaSoloLectura = true;

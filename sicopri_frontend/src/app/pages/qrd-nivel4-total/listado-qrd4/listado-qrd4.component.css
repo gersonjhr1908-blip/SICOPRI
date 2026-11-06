@@ -326,3 +326,8 @@
   width: 100%;
   white-space: nowrap;
 }
+.estado-badge.estado-archivado {
+  background: #fdecec;
+  color: #b42318;
+  border: 1px solid #f2c6c3;
+}

@@ -213,7 +213,7 @@
                 />
               </div>
 
-              <div class="campo editar-persona-direccion">
+              <div class="campo editar-persona-tercio">
                 <label for="edit-domicilio">
                   DOMICILIO {{ esIdentificado ? '*' : '' }}
                 </label>
@@ -242,6 +242,18 @@
                   placeholder="Ingrese el correo"
                 />
               </div>
+              <div class="campo editar-persona-tercio">
+                <label for="edit-situacion">SITUACIÓN DE LA PERSONA (opcional)</label>
+                <select id="edit-situacion" [(ngModel)]="situacion">
+                  <option value="">Seleccione</option>
+                  <option>Oficial en actividad</option>
+                  <option>Oficial en retiro</option>
+                  <option>TCO y/o SOO en actividad</option>
+                  <option>TCO y/o SOO en retiro</option>
+                  <option>Personal civil del Ejército</option>
+                  <option>Personal civil ajeno al Ejército</option>
+                </select>
+              </div>
             </fieldset>
           </div>
         </section>
@@ -255,6 +267,7 @@
             <select
               id="edit-tipo-documento"
               [(ngModel)]="tipoDocumento"
+              (ngModelChange)="otroTipoDocumento = ''"
             >
               <option [ngValue]="null">Seleccione</option>
               <option value="SOLICITUD">Solicitud</option>
@@ -264,8 +277,17 @@
                 Carta notarial
               </option>
               <option value="FAX">Fax</option>
+              <option value="ELEVACION">Elevación</option>
+              <option value="ESCRITO">Escrito</option>
+              <option value="CARTA">Carta</option>
               <option value="OTROS">Otros</option>
             </select>
+          </div>
+
+          <div class="campo" *ngIf="tipoDocumento === 'OTROS'">
+            <label for="edit-otro-tipo">ESPECIFIQUE EL TIPO DE DOCUMENTO *</label>
+            <input id="edit-otro-tipo" type="text" [(ngModel)]="otroTipoDocumento"
+              maxlength="50" placeholder="Ej. Acta, resolución, parte..." required />
           </div>
 
           <div class="campo">
@@ -282,6 +304,12 @@
             />
           </div>
 
+          <ng-container *ngIf="tipoDocumento !== 'OTROS'">
+            <ng-container *ngTemplateOutlet="campoFechaActo"></ng-container>
+          </ng-container>
+        </div>
+
+        <ng-template #campoFechaActo>
           <div class="campo">
             <label for="edit-fecha-acto">
               FECHA DEL ACTO DE CORRUPCIÓN *
@@ -293,9 +321,12 @@
               [(ngModel)]="fechaActoCorrupcion"
             />
           </div>
-        </div>
+        </ng-template>
 
-        <div class="editar-fila editar-fila-2">
+        <div class="editar-fila" [ngClass]="tipoDocumento === 'OTROS' ? 'editar-fila-3' : 'editar-fila-2'">
+          <ng-container *ngIf="tipoDocumento === 'OTROS'">
+            <ng-container *ngTemplateOutlet="campoFechaActo"></ng-container>
+          </ng-container>
           <div class="campo">
             <label for="edit-motivo">
               MOTIVO DE LA DENUNCIA *
@@ -533,7 +564,7 @@
           <div class="editar-adjuntos-cabecera">
             <div>
               <h3>DOCUMENTOS ADJUNTOS</h3>
-              <p>PDF o ZIP · Máximo 5 archivos de 10 MB cada uno.</p>
+              <p>PDF o ZIP · Máximo 5 archivos de 1 GB cada uno.</p>
             </div>
 
             <span>{{ totalArchivos }} / {{ maxArchivos }}</span>

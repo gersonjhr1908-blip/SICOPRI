@@ -322,6 +322,7 @@ public class ExpedienteController {
             return ResponseEntity.notFound().build();
         }
 
+
         Resource recurso =
                 new FileSystemResource(ruta);
 

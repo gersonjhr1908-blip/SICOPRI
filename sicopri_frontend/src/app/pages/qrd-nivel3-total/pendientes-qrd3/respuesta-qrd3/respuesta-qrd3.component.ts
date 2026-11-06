@@ -55,6 +55,8 @@ export class RespuestaQrd3Component
     cargandoInformes = false;
     guardandoInforme = false;
 
+    otroTipoDocumento = '';
+
     formulario = {
         nombreDocumento: '',
         tipoDocumento: '',
@@ -134,12 +136,12 @@ export class RespuestaQrd3Component
 
         if (
             archivo.size >
-            10 * 1024 * 1024
+            1024 * 1024 * 1024
         ) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Archivo demasiado grande',
-                text: 'El PDF no puede superar los 10 MB.'
+                text: 'El PDF no puede superar 1 GB.'
             });
 
             input.value = '';
@@ -162,10 +164,22 @@ export class RespuestaQrd3Component
                 .nombreDocumento
                 .trim();
 
-        const tipo =
-            this.formulario
-                .tipoDocumento
-                .trim();
+        const tipoSeleccionado = this.formulario.tipoDocumento.trim();
+
+const tipo = tipoSeleccionado === 'OTROS'
+    ? this.otroTipoDocumento.trim()
+    : tipoSeleccionado;
+
+if (tipoSeleccionado === 'OTROS' && !tipo) {
+    void Swal.fire({
+        icon: 'warning',
+        title: 'Especifique el tipo de documento',
+        text: 'Escriba el tipo de documento para guardar el informe.',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#145c43'
+    });
+    return;
+}
 
         const descripcion =
             this.formulario
@@ -496,6 +510,7 @@ export class RespuestaQrd3Component
     }
 
     private limpiarFormulario(): void {
+        this.otroTipoDocumento = '';
         this.formulario = {
             nombreDocumento: '',
             tipoDocumento: '',

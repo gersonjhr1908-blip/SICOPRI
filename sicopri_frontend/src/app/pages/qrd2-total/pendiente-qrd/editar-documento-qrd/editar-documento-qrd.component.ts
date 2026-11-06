@@ -80,6 +80,7 @@ export class EditarDocumentoQrdComponent implements OnInit {
     telefono: '',
     domicilio: '',
     correo: '',
+    situacion: '',
   };
 
   readonly camposPersona = [
@@ -95,6 +96,13 @@ export class EditarDocumentoQrdComponent implements OnInit {
       tipo: 'email',
       maximo: 254,
     },
+    {
+      clave: 'situacion',
+      etiqueta: 'SITUACIÓN DE LA PERSONA',
+      tipo: 'text',
+      maximo: 80,
+      placeholder: 'Seleccione',
+    },
   ];
 
   private cargarDatosPersona(): void {
@@ -108,6 +116,7 @@ export class EditarDocumentoQrdComponent implements OnInit {
       telefono: persona?.telefono ?? '',
       domicilio: persona?.domicilio ?? '',
       correo: persona?.correo ?? '',
+      situacion: persona?.situacion ?? '',
     };
 
     this.mostrarDatosPersona = Object.values(this.datosPersona).some(
@@ -264,7 +273,9 @@ export class EditarDocumentoQrdComponent implements OnInit {
     this.tiposDocumento = (tiposDocumento || []).map((tipo) => ({
       ...tipo,
       idTipoDocumento: Number(tipo.idTipoDocumento),
-    }));
+    })).sort(
+      (a, b) => Number(this.esOtros(a)) - Number(this.esOtros(b)),
+    );
 
     if (this.formulario.idTipoExpediente !== null) {
       const datos = await firstValueFrom(
@@ -373,10 +384,12 @@ export class EditarDocumentoQrdComponent implements OnInit {
         Number(this.formulario.idTipoDocumento),
     );
 
-    return (
-      String(tipo?.nombre || '')
-        .trim()
-        .toUpperCase() === 'OTROS'
+    return this.esOtros(tipo);
+  }
+
+  private esOtros(tipo?: { codigo?: string; nombre?: string }): boolean {
+    return [tipo?.codigo, tipo?.nombre].some(
+      valor => String(valor ?? '').trim().toUpperCase() === 'OTROS',
     );
   }
 
@@ -537,44 +550,48 @@ export class EditarDocumentoQrdComponent implements OnInit {
     return nombre;
   }
 
-  seleccionarArchivos(evento: Event): void {
-    const input = evento.target as HTMLInputElement;
-    const seleccionados = Array.from(input.files || []);
-
+  seleccionarArchivos(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const seleccionados = Array.from(input.files ?? []);
     input.value = '';
 
-    if (this.guardando || this.eliminandoArchivo !== null) {
+    if (!seleccionados.length || this.guardando || this.eliminandoArchivo !== null) {
       return;
     }
 
-    const total =
-      this.archivosActuales.length +
-      this.archivosNuevos.length +
-      seleccionados.length;
-
-    if (total > 5) {
-      this.error = 'Solo se permiten 5 PDF en total, incluidos los actuales.';
-      return;
-    }
-
-    if (
-      seleccionados.some(
-        (archivo) =>
-          !archivo.name.toLowerCase().endsWith('.pdf') ||
-          (archivo.type !== '' && archivo.type !== 'application/pdf'),
-      )
-    ) {
-      this.error = 'Solo se permiten archivos PDF.';
-      return;
-    }
-
-    if (seleccionados.some((archivo) => archivo.size > 10 * 1024 * 1024)) {
-      this.error = 'Cada PDF debe pesar como máximo 10 MB.';
-      return;
-    }
-
+    const maxTamano = 1024 * 1024 * 1024;
+    const totalActual = this.archivosActuales.length + this.archivosNuevos.length;
+    const nuevos: File[] = [];
+    const rechazados: string[] = [];
     this.error = '';
-    this.archivosNuevos = [...this.archivosNuevos, ...seleccionados];
+
+    for (const archivo of seleccionados) {
+      const esPdf =
+        (archivo.type === '' || archivo.type === 'application/pdf') &&
+        archivo.name.toLowerCase().endsWith('.pdf');
+
+      if (!esPdf) {
+        rechazados.push(`${archivo.name}: solo se permiten archivos PDF.`);
+      } else if (archivo.size > maxTamano) {
+        rechazados.push(`${archivo.name}: supera el máximo de 1 GB.`);
+      } else if (totalActual + nuevos.length >= 5) {
+        rechazados.push(`${archivo.name}: ya hay 5 PDF adjuntos.`);
+      } else {
+        nuevos.push(archivo);
+      }
+    }
+
+    this.archivosNuevos = [...this.archivosNuevos, ...nuevos];
+
+    if (rechazados.length > 0) {
+      void Swal.fire({
+        icon: 'warning',
+        title: 'Archivos no adjuntados',
+        text: rechazados.join(' · '),
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#145c43',
+      });
+    }
   }
 
   quitarArchivoNuevo(indice: number): void {
@@ -766,6 +783,7 @@ export class EditarDocumentoQrdComponent implements OnInit {
           telefono: this.datosPersona['telefono'].trim(),
           domicilio: this.datosPersona['domicilio'].trim(),
           correo: this.datosPersona['correo'].trim(),
+          situacion: this.datosPersona['situacion'] || null,
         },
         idTipoExpediente: Number(f.idTipoExpediente),
         idTipoDocumento: Number(f.idTipoDocumento),

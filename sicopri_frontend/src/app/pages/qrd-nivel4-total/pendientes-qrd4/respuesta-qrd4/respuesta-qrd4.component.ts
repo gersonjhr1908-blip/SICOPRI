@@ -5,17 +5,14 @@ import {
   Input,
   OnChanges,
   Output,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 
 import Swal from 'sweetalert2';
 
-import {
-  ExpedienteService
-} from '../../../../services/expediente.service';
-
+import { ExpedienteService } from '../../../../services/expediente.service';
 
 interface InformeQrd4 {
   idRespuesta: number;
@@ -29,26 +26,19 @@ interface InformeQrd4 {
   nombreArchivo: string;
 }
 
-
 @Component({
   selector: 'app-respuesta-qrd4',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule
-  ],
+  imports: [CommonModule, FormsModule],
   templateUrl: './respuesta-qrd4.component.html',
-  styleUrl: './respuesta-qrd4.component.css'
+  styleUrl: './respuesta-qrd4.component.css',
 })
-export class RespuestaQrd4Component
-  implements OnChanges {
-
+export class RespuestaQrd4Component implements OnChanges {
   @Input()
   expediente: any = null;
 
   @Output()
   cerrar = new EventEmitter<void>();
-
 
   pestanaActiva: number = 1;
 
@@ -60,208 +50,155 @@ export class RespuestaQrd4Component
 
   guardandoInforme: boolean = false;
 
-
+  otroTipoDocumento = '';
   formulario = {
     nombreDocumento: '',
     tipoDocumento: '',
     origen: 'Inspectoría QRD - Nivel 4',
     destino: 'Inspectoría QRD - Nivel 2',
     fecha: this.fechaActual(),
-    descripcion: ''
+    descripcion: '',
   };
 
+  constructor(private expedienteService: ExpedienteService) {}
 
-  constructor(
-    private expedienteService:
-      ExpedienteService
-  ) {}
-
-
-  ngOnChanges(
-    changes: SimpleChanges
-  ): void {
-
-    if (
-      changes['expediente'] &&
-      this.expediente
-    ) {
-
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['expediente'] && this.expediente) {
       this.limpiarFormulario();
 
       this.pestanaActiva = 1;
 
       this.cargarInformes();
-
     }
-
   }
-
 
   get siguienteNumero(): number {
-
-    const ultimo =
-      this.informes.reduce(
-        (
-          mayor: number,
-          informe: InformeQrd4
-        ) => Math.max(
-          mayor,
-          informe.numero
-        ),
-        0
-      );
+    const ultimo = this.informes.reduce(
+      (mayor: number, informe: InformeQrd4) => Math.max(mayor, informe.numero),
+      0,
+    );
 
     return ultimo + 1;
-
   }
 
-
-  cambiarPestana(
-    numero: number
-  ): void {
-
+  cambiarPestana(numero: number): void {
     this.pestanaActiva = numero;
-
   }
 
+  seleccionarArchivo(evento: Event): void {
+    const input = evento.target as HTMLInputElement;
 
-  seleccionarArchivo(
-    evento: Event
-  ): void {
-
-    const input =
-      evento.target as HTMLInputElement;
-
-    const archivo =
-      input.files?.[0] || null;
+    const archivo = input.files?.[0] || null;
 
     if (!archivo) {
       return;
     }
 
-    if (
-      archivo.type !==
-      'application/pdf'
-    ) {
-
+    if (archivo.type !== 'application/pdf') {
       Swal.fire({
         icon: 'warning',
         title: 'Archivo no válido',
-        text: 'Solo se permite adjuntar archivos PDF.'
+        text: 'Solo se permite adjuntar archivos PDF.',
       });
 
       input.value = '';
 
       return;
     }
+    if (archivo.size > 1024 * 1024 * 1024) {
+      input.value = '';
 
-    this.archivoSeleccionado =
-      archivo;
+      void Swal.fire({
+        icon: 'warning',
+        title: 'Archivo demasiado grande',
+        text: 'El PDF no puede superar 1 GB.',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#145c43',
+      });
 
+      return;
+    }
+
+    this.archivoSeleccionado = archivo;
   }
 
-
   guardarInforme(): void {
+    const idExpediente = Number(this.expediente?.idExpediente);
 
-    const idExpediente =
-      Number(
-        this.expediente?.idExpediente
-      );
+    const nombre = this.formulario.nombreDocumento.trim();
 
-    const nombre =
-      this.formulario
-        .nombreDocumento
-        .trim();
+    const tipoSeleccionado = this.formulario.tipoDocumento.trim();
 
     const tipo =
-      this.formulario
-        .tipoDocumento
-        .trim();
+      tipoSeleccionado === 'OTROS'
+        ? this.otroTipoDocumento.trim()
+        : tipoSeleccionado;
 
-    const descripcion =
-      this.formulario
-        .descripcion
-        .trim();
+    if (tipoSeleccionado === 'OTROS' && !tipo) {
+      void Swal.fire({
+        icon: 'warning',
+        title: 'Especifique el tipo de documento',
+        text: 'Escriba el tipo de documento para guardar el informe.',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#145c43',
+      });
+      return;
+    }
 
+    const descripcion = this.formulario.descripcion.trim();
 
     if (!idExpediente) {
-
       Swal.fire({
         icon: 'error',
         title: 'Expediente no encontrado',
-        text: 'No se encontró el identificador del expediente.'
+        text: 'No se encontró el identificador del expediente.',
       });
 
       return;
-
     }
 
-
-    if (
-      !nombre ||
-      !tipo ||
-      !this.formulario.fecha ||
-      !descripcion
-    ) {
-
+    if (!nombre || !tipo || !this.formulario.fecha || !descripcion) {
       Swal.fire({
         icon: 'warning',
         title: 'Complete los datos',
-        text: 'Nombre, tipo, fecha y descripción son obligatorios.'
+        text: 'Nombre, tipo, fecha y descripción son obligatorios.',
       });
 
       return;
-
     }
 
-
     if (!this.archivoSeleccionado) {
-
       Swal.fire({
         icon: 'warning',
         title: 'Adjunte el PDF',
-        text: 'Debe adjuntar un PDF para guardar el informe.'
+        text: 'Debe adjuntar un PDF para guardar el informe.',
       });
 
       return;
-
     }
-
 
     this.guardandoInforme = true;
 
-
     const respuesta = {
+      nombreDocumento: nombre,
 
-      nombreDocumento:
-        nombre,
+      tipoDocumento: tipo,
 
-      tipoDocumento:
-        tipo,
+      descripcion: descripcion,
 
-      descripcion:
-        descripcion,
-
-      fechaDocumento:
-        this.formulario.fecha
-
+      fechaDocumento: this.formulario.fecha,
     };
-
 
     this.expedienteService
       .guardarRespuestaQrd4(
-
         idExpediente,
 
         respuesta,
 
-        this.archivoSeleccionado
-
+        this.archivoSeleccionado,
       )
       .subscribe({
-
         next: () => {
-
           this.guardandoInforme = false;
 
           this.cargarInformes();
@@ -271,23 +208,16 @@ export class RespuestaQrd4Component
             title: 'Informe guardado correctamente',
             text: 'El informe y su PDF fueron registrados.',
             confirmButtonText: 'ACEPTAR',
-            confirmButtonColor: '#176b49'
+            confirmButtonColor: '#176b49',
           }).then(() => {
-
             this.limpiarFormulario();
 
             this.pestanaActiva = 2;
-
           });
-
         },
 
         error: (err) => {
-
-          console.error(
-            'ERROR AL GUARDAR RESPUESTA QRD4:',
-            err
-          );
+          console.error('ERROR AL GUARDAR RESPUESTA QRD4:', err);
 
           this.guardandoInforme = false;
 
@@ -297,117 +227,59 @@ export class RespuestaQrd4Component
             text:
               err?.error?.message ||
               err?.error?.mensaje ||
-              'Ocurrió un error al registrar el informe.'
+              'Ocurrió un error al registrar el informe.',
           });
-
-        }
-
+        },
       });
-
   }
 
-
   cargarInformes(): void {
-
-    const idExpediente =
-      Number(
-        this.expediente?.idExpediente
-      );
+    const idExpediente = Number(this.expediente?.idExpediente);
 
     if (!idExpediente) {
-
       this.informes = [];
 
       return;
-
     }
-
 
     this.cargandoInformes = true;
 
+    this.expedienteService.listarRespuestasQrd4(idExpediente).subscribe({
+      next: (data: any[]) => {
+        this.informes = (data || []).map((respuesta: any) => ({
+          idRespuesta: Number(respuesta.idRespuesta),
 
-    this.expedienteService
-      .listarRespuestasQrd4(
-        idExpediente
-      )
-      .subscribe({
+          numero: Number(respuesta.numeroInforme),
 
-        next: (data: any[]) => {
+          nombreDocumento: respuesta.nombreDocumento || '-',
 
-          this.informes =
-            (data || []).map(
-              (respuesta: any) => ({
+          tipoDocumento: respuesta.tipoDocumento || '-',
 
-                idRespuesta:
-                  Number(
-                    respuesta.idRespuesta
-                  ),
+          origen: `Inspectoría QRD - Nivel ${respuesta.nivelOrigen || 4}`,
 
-                numero:
-                  Number(
-                    respuesta.numeroInforme
-                  ),
+          destino: `Inspectoría QRD - Nivel ${respuesta.nivelDestino || 2}`,
 
-                nombreDocumento:
-                  respuesta.nombreDocumento ||
-                  '-',
+          fecha: String(respuesta.fechaDocumento || '').substring(0, 10),
 
-                tipoDocumento:
-                  respuesta.tipoDocumento ||
-                  '-',
+          descripcion: respuesta.descripcion || '',
 
-                origen:
-                  `Inspectoría QRD - Nivel ${
-                    respuesta.nivelOrigen || 4
-                  }`,
+          nombreArchivo: respuesta.nombreArchivo || 'Documento PDF',
+        }));
 
-                destino:
-                  `Inspectoría QRD - Nivel ${
-                    respuesta.nivelDestino || 2
-                  }`,
+        this.cargandoInformes = false;
+      },
 
-                fecha:
-                  String(
-                    respuesta.fechaDocumento || ''
-                  ).substring(0, 10),
+      error: (err) => {
+        console.error('ERROR AL CARGAR RESPUESTAS QRD4:', err);
 
-                descripcion:
-                  respuesta.descripcion ||
-                  '',
+        this.informes = [];
 
-                nombreArchivo:
-                  respuesta.nombreArchivo ||
-                  'Documento PDF'
-
-              })
-            );
-
-          this.cargandoInformes = false;
-
-        },
-
-        error: (err) => {
-
-          console.error(
-            'ERROR AL CARGAR RESPUESTAS QRD4:',
-            err
-          );
-
-          this.informes = [];
-
-          this.cargandoInformes = false;
-
-        }
-
-      });
-
+        this.cargandoInformes = false;
+      },
+    });
   }
 
-
-  eliminarInforme(
-    informe: InformeQrd4
-  ): void {
-
+  eliminarInforme(informe: InformeQrd4): void {
     Swal.fire({
       icon: 'warning',
       title: '¿Eliminar informe?',
@@ -415,151 +287,90 @@ export class RespuestaQrd4Component
       showCancelButton: true,
       confirmButtonText: 'SÍ, ELIMINAR',
       cancelButtonText: 'CANCELAR',
-      confirmButtonColor: '#b42318'
+      confirmButtonColor: '#b42318',
     }).then((resultado) => {
-
       if (!resultado.isConfirmed) {
         return;
       }
 
       this.expedienteService
-        .eliminarRespuestaQrd4(
-          informe.idRespuesta
-        )
+        .eliminarRespuestaQrd4(informe.idRespuesta)
         .subscribe({
-
           next: () => {
-
             this.cargarInformes();
 
             Swal.fire({
               icon: 'success',
               title: 'Informe eliminado',
-              text: 'El informe fue eliminado correctamente.'
+              text: 'El informe fue eliminado correctamente.',
             });
-
           },
 
           error: (err) => {
-
-            console.error(
-              'ERROR AL ELIMINAR INFORME QRD4:',
-              err
-            );
+            console.error('ERROR AL ELIMINAR INFORME QRD4:', err);
 
             Swal.fire({
               icon: 'error',
               title: 'No se pudo eliminar',
-              text:
-                err?.error?.message ||
-                'No se pudo eliminar el informe.'
+              text: err?.error?.message || 'No se pudo eliminar el informe.',
             });
-
-          }
-
+          },
         });
-
     });
-
   }
 
+  verPdf(informe: InformeQrd4): void {
+    this.expedienteService.verPdfRespuestaQrd4(informe.idRespuesta).subscribe({
+      next: (blob: Blob) => {
+        const url = URL.createObjectURL(
+          new Blob([blob], {
+            type: 'application/pdf',
+          }),
+        );
 
-  verPdf(
-    informe: InformeQrd4
-  ): void {
+        window.open(url, '_blank');
 
-    this.expedienteService
-      .verPdfRespuestaQrd4(
-        informe.idRespuesta
-      )
-      .subscribe({
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+        }, 30000);
+      },
 
-        next: (blob: Blob) => {
+      error: (err) => {
+        console.error('ERROR AL ABRIR PDF DE RESPUESTA:', err);
 
-          const url =
-            URL.createObjectURL(
-              new Blob(
-                [blob],
-                {
-                  type: 'application/pdf'
-                }
-              )
-            );
-
-          window.open(
-            url,
-            '_blank'
-          );
-
-          setTimeout(() => {
-            URL.revokeObjectURL(url);
-          }, 30000);
-
-        },
-
-        error: (err) => {
-
-          console.error(
-            'ERROR AL ABRIR PDF DE RESPUESTA:',
-            err
-          );
-
-          Swal.fire({
-            icon: 'error',
-            title: 'No se pudo abrir el PDF',
-            text: 'El archivo no está disponible.'
-          });
-
-        }
-
-      });
-
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudo abrir el PDF',
+          text: 'El archivo no está disponible.',
+        });
+      },
+    });
   }
-
 
   cerrarModal(): void {
-
     this.cerrar.emit();
-
   }
-
 
   private limpiarFormulario(): void {
-
+    this.otroTipoDocumento = '';
     this.formulario = {
+      nombreDocumento: '',
 
-      nombreDocumento:
-        '',
+      tipoDocumento: '',
 
-      tipoDocumento:
-        '',
+      origen: 'Inspectoría QRD - Nivel 4',
 
-      origen:
-        'Inspectoría QRD - Nivel 4',
+      destino: 'Inspectoría QRD - Nivel 2',
 
-      destino:
-        'Inspectoría QRD - Nivel 2',
+      fecha: this.fechaActual(),
 
-      fecha:
-        this.fechaActual(),
-
-      descripcion:
-        ''
-
+      descripcion: '',
     };
 
-    this.archivoSeleccionado =
-      null;
-
+    this.archivoSeleccionado = null;
   }
-
 
   private fechaActual(): string {
-
-    return new Date()
-      .toISOString()
-      .slice(0, 10);
-
+    return new Date().toISOString().slice(0, 10);
   }
-
 }

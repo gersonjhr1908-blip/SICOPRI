@@ -2,193 +2,125 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ExpedienteService {
-
-
   // =========================================
   // URL CATÁLOGOS
   // =========================================
 
-  private apiUrl =
-    'http://localhost:8080/backend-sistema/expediente';
-
+  private apiUrl = 'http://localhost:8080/backend-sistema/expediente';
 
   // =========================================
   // URL EXPEDIENTES
   // =========================================
 
-  private apiExpedientes =
-    'http://localhost:8080/backend-sistema/expedientes';
-
+  private apiExpedientes = 'http://localhost:8080/backend-sistema/expedientes';
 
   // =========================================
   // CONSTRUCTOR
   // =========================================
 
-  constructor(
-    private http: HttpClient
-  ) { }
-
+  constructor(private http: HttpClient) {}
 
   // =========================================
   // TIPOS DE EXPEDIENTE
   // DENUNCIA / QUEJA / RECLAMO
   // =========================================
 
-  getTiposExpediente():
-    Observable<any[]> {
-
-    return this.http.get<any[]>(
-      `${this.apiUrl}/catalogos/tipos-expediente`
-    );
-
+  getTiposExpediente(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/catalogos/tipos-expediente`);
   }
-
 
   // =========================================
   // TIPOS DE DOCUMENTO
   // =========================================
 
-  getTiposDocumento():
-    Observable<any[]> {
-
-    return this.http.get<any[]>(
-      `${this.apiUrl}/catalogos/tipos-documento`
-    );
-
+  getTiposDocumento(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/catalogos/tipos-documento`);
   }
-
 
   // =========================================
   // ESTADOS INTERNOS
   // =========================================
 
-  getEstadosExpediente():
-    Observable<any[]> {
-
-    return this.http.get<any[]>(
-      `${this.apiUrl}/catalogos/estados`
-    );
-
+  getEstadosExpediente(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/catalogos/estados`);
   }
-
 
   // =========================================
   // SITUACIONES GENERALES
   // =========================================
 
-  getSituaciones():
-    Observable<any[]> {
-
-    return this.http.get<any[]>(
-      `${this.apiUrl}/catalogos/situaciones`
-    );
-
+  getSituaciones(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/catalogos/situaciones`);
   }
-
 
   // =========================================
   // TIPIFICACIONES POR SECCIÓN
   // =========================================
 
-  getTipificaciones(
-    idTipoExpediente: number
-  ): Observable<any[]> {
-
+  getTipificaciones(idTipoExpediente: number): Observable<any[]> {
     return this.http.get<any[]>(
-      `${this.apiUrl}/catalogos/tipificaciones/${idTipoExpediente}`
+      `${this.apiUrl}/catalogos/tipificaciones/${idTipoExpediente}`,
     );
-
   }
 
+  agregarTipificacion(
+    idTipoExpediente: number,
+    nombre: string,
+  ): Observable<unknown[]> {
+    return this.http.post<unknown[]>(
+      `${this.apiUrl}/catalogos/tipificaciones/${idTipoExpediente}`,
+      { nombre },
+    );
+  }
+
+  eliminarTipificacion(idTipificacion: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/catalogos/tipificaciones/item/${idTipificacion}`,
+    );
+  }
 
   // =========================================
   // GUARDAR EXPEDIENTE + PDFs
   // =========================================
 
-  guardarExpediente(
-    expediente: any,
-    archivos: File[]
-  ): Observable<any> {
+  guardarExpediente(expediente: any, archivos: File[]): Observable<any> {
+    const formData = new FormData();
 
-    const formData =
-      new FormData();
+    const expedienteBlob = new Blob([JSON.stringify(expediente)], {
+      type: 'application/json',
+    });
 
+    formData.append('expediente', expedienteBlob);
 
-    const expedienteBlob =
-      new Blob(
-        [
-          JSON.stringify(
-            expediente
-          )
-        ],
-        {
-          type:
-            'application/json'
-        }
-      );
+    archivos.forEach((archivo) => {
+      formData.append('archivos', archivo);
+    });
 
-
-    formData.append(
-      'expediente',
-      expedienteBlob
-    );
-
-
-    archivos.forEach(
-      archivo => {
-
-        formData.append(
-          'archivos',
-          archivo
-        );
-
-      }
-    );
-
-
-    return this.http.post<any>(
-      this.apiExpedientes,
-      formData
-    );
-
+    return this.http.post<any>(this.apiExpedientes, formData);
   }
-
 
   // =========================================
   // LISTAR EXPEDIENTES
   // =========================================
 
-  listarExpedientes():
-    Observable<any[]> {
-
-    return this.http.get<any[]>(
-      this.apiExpedientes
-    );
-
+  listarExpedientes(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiExpedientes);
   }
-
 
   // =========================================
   // ACTUALIZAR EXPEDIENTE COMPLETO
   // =========================================
 
-  actualizarExpediente(
-    idExpediente: number,
-    expediente: any
-  ): Observable<any> {
-
+  actualizarExpediente(idExpediente: number, expediente: any): Observable<any> {
     return this.http.put<any>(
       `${this.apiExpedientes}/${idExpediente}`,
-      expediente
+      expediente,
     );
-
   }
-
 
   // =========================================
   // ACTUALIZAR SOLO OBSERVACIÓN
@@ -200,98 +132,67 @@ export class ExpedienteService {
 
   actualizarObservacion(
     idExpediente: number,
-    observacion: string
+    observacion: string,
   ): Observable<any> {
-
     return this.http.put<any>(
       `${this.apiExpedientes}/${idExpediente}/observacion`,
       {
-        observacion:
-          observacion || ''
-      }
+        observacion: observacion || '',
+      },
     );
-
   }
-
 
   // =========================================
   // ELIMINAR EXPEDIENTE
   // =========================================
 
-  eliminarExpediente(
-    idExpediente: number
-  ): Observable<any> {
-
-    return this.http.delete<any>(
-      `${this.apiExpedientes}/${idExpediente}`
-    );
-
+  eliminarExpediente(idExpediente: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiExpedientes}/${idExpediente}`);
   }
-
 
   // =========================================
   // QRD3 -> QRD2
   // =========================================
 
-  enviarANivel2(
-    idExpediente: number
-  ): Observable<any> {
-
+  enviarANivel2(idExpediente: number): Observable<any> {
     return this.http.put<any>(
       `${this.apiExpedientes}/${idExpediente}/enviar-nivel-2`,
-      {}
+      {},
     );
-
   }
-
 
   // =========================================
   // QRD2 -> QRD3
   // QRD4 -> QRD3
   // =========================================
 
-  enviarANivel3(
-    idExpediente: number
-  ): Observable<any> {
-
+  enviarANivel3(idExpediente: number): Observable<any> {
     return this.http.put<any>(
       `${this.apiExpedientes}/${idExpediente}/enviar-nivel-3`,
-      {}
+      {},
     );
-
   }
-
 
   // =========================================
   // QRD3 -> QRD4
   // =========================================
 
-  enviarANivel4(
-    idExpediente: number
-  ): Observable<any> {
-
+  enviarANivel4(idExpediente: number): Observable<any> {
     return this.http.put<any>(
       `${this.apiExpedientes}/${idExpediente}/enviar-nivel-4`,
-      {}
+      {},
     );
-
   }
-
 
   // =========================================
   // TRAZABILIDAD
   // =========================================
 
-  listarMovimientos(
-    idExpediente: number
-  ): Observable<any[]> {
-
+  listarMovimientos(idExpediente: number): Observable<any[]> {
     return this.http.get<any[]>(
-      `${this.apiExpedientes}/${idExpediente}/movimientos`
+      `${this.apiExpedientes}/${idExpediente}/movimientos`,
     );
-
   }
-
 
   // =========================================
   // GUARDAR SEGUIMIENTO
@@ -303,22 +204,17 @@ export class ExpedienteService {
   guardarSeguimiento(
     idExpediente: number,
     fechaInicio: string,
-    fechaFin: string
+    fechaFin: string,
   ): Observable<any> {
-
     return this.http.post<any>(
       `${this.apiExpedientes}/${idExpediente}/seguimiento`,
       {
-        fechaInicio:
-          fechaInicio,
+        fechaInicio: fechaInicio,
 
-        fechaFin:
-          fechaFin
-      }
+        fechaFin: fechaFin,
+      },
     );
-
   }
-
 
   // =========================================
   // OBTENER SEGUIMIENTO
@@ -333,16 +229,11 @@ export class ExpedienteService {
   // - QRD4
   // =========================================
 
-  obtenerSeguimiento(
-    idExpediente: number
-  ): Observable<any> {
-
+  obtenerSeguimiento(idExpediente: number): Observable<any> {
     return this.http.get<any>(
-      `${this.apiExpedientes}/${idExpediente}/seguimiento`
+      `${this.apiExpedientes}/${idExpediente}/seguimiento`,
     );
-
   }
-
 
   // =========================================
   // ACTUALIZAR SEGUIMIENTO
@@ -354,55 +245,37 @@ export class ExpedienteService {
   actualizarSeguimiento(
     idExpediente: number,
     fechaInicio: string,
-    fechaFin: string
+    fechaFin: string,
   ): Observable<any> {
-
     return this.http.put<any>(
       `${this.apiExpedientes}/${idExpediente}/seguimiento`,
       {
-        fechaInicio:
-          fechaInicio,
+        fechaInicio: fechaInicio,
 
-        fechaFin:
-          fechaFin
-      }
+        fechaFin: fechaFin,
+      },
     );
-
   }
-
 
   // =========================================
   // LISTAR PDFs DEL EXPEDIENTE
   // =========================================
 
-  listarArchivosExpediente(
-    idExpediente: number
-  ): Observable<any[]> {
-
+  listarArchivosExpediente(idExpediente: number): Observable<any[]> {
     return this.http.get<any[]>(
-      `${this.apiExpedientes}/${idExpediente}/archivos`
+      `${this.apiExpedientes}/${idExpediente}/archivos`,
     );
-
   }
-
 
   // =========================================
   // OBTENER PDF COMO BLOB
   // =========================================
 
-  verArchivo(
-    idArchivo: number
-  ): Observable<Blob> {
-
-    return this.http.get(
-      `${this.apiExpedientes}/archivos/${idArchivo}/ver`,
-      {
-        responseType: 'blob'
-      }
-    );
-
+  verArchivo(idArchivo: number): Observable<Blob> {
+    return this.http.get(`${this.apiExpedientes}/archivos/${idArchivo}/ver`, {
+      responseType: 'blob',
+    });
   }
-
 
   // =========================================
   // AGREGAR PDFs A EXPEDIENTE EXISTENTE
@@ -411,65 +284,40 @@ export class ExpedienteService {
   agregarArchivosExpediente(
     idExpediente: number,
     cinv: string,
-    archivos: File[]
+    archivos: File[],
   ): Observable<any[]> {
+    const formData = new FormData();
 
-    const formData =
-      new FormData();
+    formData.append('cinv', cinv);
 
-
-    formData.append(
-      'cinv',
-      cinv
-    );
-
-
-    archivos.forEach(
-      (archivo: File) => {
-
-        formData.append(
-          'archivos',
-          archivo
-        );
-
-      }
-    );
-
+    archivos.forEach((archivo: File) => {
+      formData.append('archivos', archivo);
+    });
 
     return this.http.post<any[]>(
       `${this.apiExpedientes}/${idExpediente}/archivos`,
-      formData
+      formData,
     );
-
   }
-
 
   // =========================================
   // ELIMINAR PDF
   // =========================================
 
-  eliminarArchivoExpediente(
-    idArchivo: number
-  ): Observable<any> {
-
-    return this.http.delete(
-      `${this.apiExpedientes}/archivos/${idArchivo}`
-    );
-
+  eliminarArchivoExpediente(idArchivo: number): Observable<any> {
+    return this.http.delete(`${this.apiExpedientes}/archivos/${idArchivo}`);
   }
 
   actualizarDestino(
     idExpediente: number,
-    nivelDestino: number
+    nivelDestino: number,
   ): Observable<any> {
-
     return this.http.put<any>(
       `${this.apiExpedientes}/${idExpediente}/destino`,
       {
-        nivelDestino: nivelDestino
-      }
+        nivelDestino: nivelDestino,
+      },
     );
-
   }
 
   // =========================================
@@ -482,83 +330,54 @@ export class ExpedienteService {
   guardarRespuestaQrd4(
     idExpediente: number,
     respuesta: any,
-    archivo: File
+    archivo: File,
   ): Observable<any> {
+    const formData = new FormData();
 
-    const formData =
-      new FormData();
+    const respuestaBlob = new Blob([JSON.stringify(respuesta)], {
+      type: 'application/json',
+    });
 
-    const respuestaBlob =
-      new Blob(
-        [
-          JSON.stringify(
-            respuesta
-          )
-        ],
-        {
-          type:
-            'application/json'
-        }
-      );
+    formData.append('respuesta', respuestaBlob);
 
-    formData.append(
-      'respuesta',
-      respuestaBlob
-    );
-
-    formData.append(
-      'archivo',
-      archivo
-    );
+    formData.append('archivo', archivo);
 
     return this.http.post<any>(
       `${this.apiExpedientes}/${idExpediente}/respuestas`,
-      formData
+      formData,
     );
   }
-
 
   // =========================================
   // LISTAR RESPUESTAS DEL EXPEDIENTE
   // =========================================
 
-  listarRespuestasQrd4(
-    idExpediente: number
-  ): Observable<any[]> {
-
+  listarRespuestasQrd4(idExpediente: number): Observable<any[]> {
     return this.http.get<any[]>(
-      `${this.apiExpedientes}/${idExpediente}/respuestas`
+      `${this.apiExpedientes}/${idExpediente}/respuestas`,
     );
   }
-
 
   // =========================================
   // VER PDF DE UNA RESPUESTA
   // =========================================
 
-  verPdfRespuestaQrd4(
-    idRespuesta: number
-  ): Observable<Blob> {
-
+  verPdfRespuestaQrd4(idRespuesta: number): Observable<Blob> {
     return this.http.get(
       `${this.apiExpedientes}/respuestas/${idRespuesta}/ver`,
       {
-        responseType: 'blob'
-      }
+        responseType: 'blob',
+      },
     );
   }
-
 
   // =========================================
   // ELIMINAR RESPUESTA
   // =========================================
 
-  eliminarRespuestaQrd4(
-    idRespuesta: number
-  ): Observable<any> {
-
+  eliminarRespuestaQrd4(idRespuesta: number): Observable<any> {
     return this.http.delete<any>(
-      `${this.apiExpedientes}/respuestas/${idRespuesta}`
+      `${this.apiExpedientes}/respuestas/${idRespuesta}`,
     );
   }
 
@@ -567,16 +386,12 @@ export class ExpedienteService {
   // ENVÍA RESPUESTA NORMAL
   // =========================================
 
-  enviarRespuestaANivel3(
-    idExpediente: number
-  ): Observable<any> {
-
+  enviarRespuestaANivel3(idExpediente: number): Observable<any> {
     return this.http.put<any>(
       `${this.apiExpedientes}/${idExpediente}/enviar-respuesta-nivel-3`,
-      {}
+      {},
     );
   }
-
 
   // =========================================
   // QRD4 -> QRD3
@@ -585,49 +400,59 @@ export class ExpedienteService {
 
   devolverDocumentoANivel3(
     idExpediente: number,
-    observacion: string
+    observacion: string,
   ): Observable<any> {
-
     return this.http.put<any>(
       `${this.apiExpedientes}/${idExpediente}/devolver-nivel-3`,
       {
-        observacion: observacion
-      }
+        observacion: observacion,
+      },
     );
   }
 
-  enviarRespuestaANivel2(
-    idExpediente: number
-  ): Observable<any> {
-
+  enviarRespuestaANivel2(idExpediente: number): Observable<any> {
     return this.http.put<any>(
       `${this.apiExpedientes}/${idExpediente}/enviar-respuesta-nivel-2`,
-      {}
+      {},
     );
-
   }
 
-
-  archivarExpediente(
-    idExpediente: number
-  ): Observable<any> {
-
+  archivarExpediente(idExpediente: number): Observable<any> {
     return this.http.put<any>(
       `${this.apiExpedientes}/${idExpediente}/archivar`,
-      {}
+      {},
     );
-
   }
 
   devolverDesdeNivel3(
     idExpediente: number,
-    observacion: string
+    observacion: string,
   ): Observable<any> {
     return this.http.put<any>(
       `${this.apiExpedientes}/${idExpediente}/devolver-desde-nivel-3`,
-      { observacion }
+      { observacion },
     );
   }
 
-}
+  eliminarComoAdministrador(idExpediente: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiExpedientes}/${idExpediente}/administrador`,
+    );
+  }
 
+  cambiarInspectoriaComoAdministrador(
+    idExpediente: number,
+    datos: {
+      idNucleo: string;
+      idBrigada: string;
+      idUnidad: string;
+      idNucleoIg: number;
+      idIg: string;
+    },
+  ): Observable<void> {
+    return this.http.put<void>(
+      `${this.apiExpedientes}/${idExpediente}/administrador/inspectoria`,
+      datos,
+    );
+  }
+}

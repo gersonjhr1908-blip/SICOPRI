@@ -15,6 +15,7 @@ import sistema.ejercito.mil.pe.dto.IntegridadDetalleDTO;
 import sistema.ejercito.mil.pe.dto.IntegridadListadoDTO;
 
 import sistema.ejercito.mil.pe.model.table.Expediente;
+import sistema.ejercito.mil.pe.model.table.DatosPersona;
 
 import sistema.ejercito.mil.pe.service.IIntegridadService;
 import java.util.Map;
@@ -322,7 +323,10 @@ public class IntegridadController {
                     value = "detalleOtros",
                     required = false
             )
-            String detalleOtros
+            String detalleOtros,
+
+            @RequestParam(value = "situacion", required = false)
+            String situacion
 
     ) {
 
@@ -358,7 +362,26 @@ public class IntegridadController {
                                 detalleOtros
 
                         );
+        if (situacion != null) {
+            String valor = situacion.trim();
 
+            if (valor.length() > 80) {
+                throw new IllegalArgumentException(
+                        "La situación de la persona admite máximo 80 caracteres."
+                );
+            }
+
+            DatosPersona persona = actualizado.getDatosPersona();
+
+            if (persona == null && !valor.isEmpty()) {
+                persona = new DatosPersona();
+                actualizado.setDatosPersona(persona);
+            }
+
+            if (persona != null) {
+                persona.setSituacion(valor.isEmpty() ? null : valor);
+            }
+        }
 
         return ResponseEntity.ok(
                 actualizado

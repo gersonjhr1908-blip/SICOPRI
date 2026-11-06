@@ -157,7 +157,7 @@
                   </div>
                 </div>
 
-                <div class="campo persona-direccion">
+                <div class="campo persona-tercio">
                   <label>DOMICILIO</label>
                   <div class="valor">
                     {{ mostrarValor(datosPersona.domicilio) }}
@@ -168,6 +168,12 @@
                   <label>CORREO ELECTRÓNICO</label>
                   <div class="valor">
                     {{ mostrarValor(datosPersona.correo) }}
+                  </div>
+                </div>
+                <div class="campo persona-tercio">
+                  <label>SITUACIÓN DE LA PERSONA</label>
+                  <div class="valor">
+                    {{ datosPersona.situacion || "No registrado" }}
                   </div>
                 </div>
               </div>
@@ -568,9 +574,7 @@
     </header>
 
     <div class="respuestas-recibidas-body">
-      <p *ngIf="cargandoRespuestasRecibidas">
-        Consultando documentos...
-      </p>
+      <p *ngIf="cargandoRespuestasRecibidas">Consultando documentos...</p>
 
       <div class="mensaje-error" *ngIf="errorRespuestasRecibidas">
         {{ errorRespuestasRecibidas }}
@@ -590,12 +594,7 @@
           </thead>
 
           <tbody>
-            <tr
-              *ngFor="
-                let documento of respuestasRecibidas;
-                let i = index
-              "
-            >
+            <tr *ngFor="let documento of respuestasRecibidas; let i = index">
               <td>{{ i + 1 }}</td>
 
               <td>
@@ -606,7 +605,7 @@
               <td>{{ documento.tipoDocumento }}</td>
 
               <td>
-                {{ documento.fechaDocumento | date:'dd/MM/yyyy' }}
+                {{ documento.fechaDocumento | date: "dd/MM/yyyy" }}
               </td>
 
               <td>{{ documento.nombreArchivo }}</td>

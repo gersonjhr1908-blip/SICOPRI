@@ -1,3 +1,4 @@
+import { TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -34,6 +35,8 @@ import {
   styleUrl: './ver-caso-listado-qrd.component.css',
 })
 export class VerCasoListadoQrdComponent implements OnChanges, OnDestroy {
+  @Input() editorInspectoria: TemplateRef<{ $implicit: string }> | null = null;
+
   // =========================================
   // EXPEDIENTE
   // =========================================
@@ -193,6 +196,7 @@ export class VerCasoListadoQrdComponent implements OnChanges, OnDestroy {
     { clave: 'telefono', etiqueta: 'TELÉFONO' },
     { clave: 'domicilio', etiqueta: 'DOMICILIO' },
     { clave: 'correo', etiqueta: 'CORREO ELECTRÓNICO' },
+    { clave: 'situacion', etiqueta: 'SITUACIÓN DE LA PERSONA' },
   ];
 
   obtenerDatoPersona(clave: string): string {
@@ -1218,3 +1222,4 @@ export class VerCasoListadoQrdComponent implements OnChanges, OnDestroy {
     this.cerrar.emit();
   }
 }
+

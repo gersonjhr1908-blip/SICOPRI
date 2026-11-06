@@ -69,6 +69,7 @@
                 [class.estado-observado]="doc.estadoVisual === 'OBSERVADO'"
                 [class.estado-concluido]="doc.estadoVisual === 'CONCLUIDO'"
                 [class.estado-enviado]="doc.estadoVisual.startsWith('ENVIADO')"
+                [class.estado-archivado]="doc.estadoVisual === 'ARCHIVADO'"
               >
                 {{ doc.estadoVisual }}
               </span>
@@ -108,15 +109,6 @@
                     title="Se habilita con el estado Archivado"
                   >
                     🗃 Archivar caso
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled
-                    *ngIf="doc.estadoVisual === 'ARCHIVADO'"
-                    title="Solo disponible para expedientes archivados"
-                  >
-                    🗑 Eliminar
                   </button>
                 </div>
               </div>

@@ -6,6 +6,8 @@ import { FormsModule } from '@angular/forms';
 
 import { ExpedienteService } from '../../../../services/expediente.service';
 
+import Swal from 'sweetalert2';
+
 import {
   UsersService,
   Nucleo,
@@ -35,6 +37,7 @@ export class NuevoDocumentoComponent implements OnInit {
     telefono: '',
     domicilio: '',
     correo: '',
+    situacion: '',
   };
 
   get hayDatosPersona(): boolean {
@@ -66,6 +69,7 @@ export class NuevoDocumentoComponent implements OnInit {
       telefono: '',
       domicilio: '',
       correo: '',
+      situacion: '',
     };
     this.mostrarDatosPersona = false;
   }
@@ -300,7 +304,14 @@ export class NuevoDocumentoComponent implements OnInit {
 
     this.expedienteService.getTiposDocumento().subscribe({
       next: (data) => {
-        this.tiposDocumento = data || [];
+        const esOtros = (tipo: { codigo?: string; nombre?: string }): boolean =>
+          [tipo.codigo, tipo.nombre].some(
+            (valor) => valor?.trim().toUpperCase() === 'OTROS',
+          );
+
+        this.tiposDocumento = [...(data ?? [])].sort(
+          (a, b) => Number(esOtros(a)) - Number(esOtros(b)),
+        );
       },
 
       error: (err) => {
@@ -338,20 +349,19 @@ export class NuevoDocumentoComponent implements OnInit {
   // =========================================
 
   esTipoDocumentoOtros(): boolean {
-    if (!this.idTipoDocumento) {
-      return false;
-    }
-
     const tipo = this.tiposDocumento.find(
       (item: any) =>
         Number(item.idTipoDocumento) === Number(this.idTipoDocumento),
     );
 
-    const nombre = String(tipo?.nombre || '')
+    const codigo = String(tipo?.codigo ?? '')
+      .trim()
+      .toUpperCase();
+    const nombre = String(tipo?.nombre ?? '')
       .trim()
       .toUpperCase();
 
-    return nombre === 'OTROS';
+    return codigo === 'OTROS' || nombre === 'OTROS';
   }
 
   // =========================================
@@ -590,68 +600,46 @@ export class NuevoDocumentoComponent implements OnInit {
 
   seleccionarArchivos(event: Event): void {
     const input = event.target as HTMLInputElement;
+    const seleccionados = Array.from(input.files ?? []);
+    input.value = '';
 
-    if (!input.files) {
+    if (seleccionados.length === 0) {
       return;
     }
 
-    const seleccionados: File[] = Array.from(input.files);
+    const maxTamano = 1024 * 1024 * 1024;
+    const nuevos: File[] = [];
+    const rechazados: string[] = [];
 
-    // =======================================
-    // MÁXIMO 5
-    // =======================================
+    for (const archivo of seleccionados) {
+      const esPdf =
+        archivo.type === 'application/pdf' &&
+        archivo.name.toLowerCase().endsWith('.pdf');
 
-    if (seleccionados.length > 5) {
-      alert('Solo puedes adjuntar un máximo de 5 archivos PDF.');
-
-      input.value = '';
-
-      this.archivos = [];
-
-      return;
+      if (!esPdf) {
+        rechazados.push(`${archivo.name}: solo se permiten archivos PDF.`);
+      } else if (archivo.size > maxTamano) {
+        rechazados.push(`${archivo.name}: supera el máximo de 1 GB.`);
+      } else if (this.archivos.length + nuevos.length >= 5) {
+        rechazados.push(`${archivo.name}: ya hay 5 PDF adjuntos.`);
+      } else {
+        nuevos.push(archivo);
+      }
     }
 
-    // =======================================
-    // SOLO PDF
-    // =======================================
-
-    const archivoInvalido = seleccionados.some(
-      (archivo: File) =>
-        archivo.type !== 'application/pdf' ||
-        !archivo.name.toLowerCase().endsWith('.pdf'),
-    );
-
-    if (archivoInvalido) {
-      alert('Solo se permiten archivos PDF.');
-
-      input.value = '';
-
-      this.archivos = [];
-
-      return;
+    if (nuevos.length > 0) {
+      this.archivos = [...this.archivos, ...nuevos];
     }
 
-    // =======================================
-    // MÁXIMO 10 MB
-    // =======================================
-
-    const maxTamano = 10 * 1024 * 1024;
-
-    const archivoGrande = seleccionados.some(
-      (archivo: File) => archivo.size > maxTamano,
-    );
-
-    if (archivoGrande) {
-      alert('Cada archivo PDF debe pesar como máximo 10 MB.');
-
-      input.value = '';
-
-      this.archivos = [];
-
-      return;
+    if (rechazados.length > 0) {
+      void Swal.fire({
+        icon: 'warning',
+        title: 'Archivos no adjuntados',
+        text: rechazados.join('\n'),
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#145c43',
+      });
     }
-
-    this.archivos = seleccionados;
   }
 
   // =========================================
@@ -930,6 +918,7 @@ export class NuevoDocumentoComponent implements OnInit {
             telefono: this.datosPersona.telefono.trim(),
             domicilio: this.datosPersona.domicilio.trim(),
             correo: this.datosPersona.correo.trim(),
+            situacion: this.datosPersona.situacion || null,
           }
         : null,
       // =====================================

@@ -205,6 +205,19 @@
             placeholder="Ingrese el correo"
           />
         </div>
+
+        <div class="campo persona-situacion">
+          <label for="int-situacion">SITUACIÓN DE LA PERSONA (opcional)</label>
+          <select id="int-situacion" [(ngModel)]="situacion">
+            <option value="">Seleccione</option>
+            <option>Oficial en actividad</option>
+            <option>Oficial en retiro</option>
+            <option>TCO y/o SOO en actividad</option>
+            <option>TCO y/o SOO en retiro</option>
+            <option>Personal civil del Ejército</option>
+            <option>Personal civil ajeno al Ejército</option>
+          </select>
+        </div>
       </fieldset>
 
       <p
@@ -225,6 +238,7 @@
       <select
         id="int-tipo-documento"
         [(ngModel)]="tipoDocumento"
+        (ngModelChange)="otroTipoDocumento = ''"
         [disabled]="guardando"
       >
         <option [ngValue]="null">Seleccione</option>
@@ -233,8 +247,24 @@
         <option value="INFORME">Informe</option>
         <option value="CARTA_NOTARIAL">Carta notarial</option>
         <option value="FAX">Fax</option>
+        <option value="ELEVACION">Elevación</option>
+        <option value="ESCRITO">Escrito</option>
+        <option value="CARTA">Carta</option>
         <option value="OTROS">Otros</option>
       </select>
+    </div>
+
+    <div class="campo" *ngIf="tipoDocumento === 'OTROS'">
+      <label for="int-otro-tipo">ESPECIFIQUE EL TIPO DE DOCUMENTO *</label>
+      <input
+        id="int-otro-tipo"
+        type="text"
+        [(ngModel)]="otroTipoDocumento"
+        maxlength="50"
+        [disabled]="guardando"
+        placeholder="Ej. Acta, resolución, parte..."
+        required
+      />
     </div>
 
     <div class="campo">
@@ -250,6 +280,12 @@
       />
     </div>
 
+    <ng-container *ngIf="tipoDocumento !== 'OTROS'">
+      <ng-container *ngTemplateOutlet="campoFechaActo"></ng-container>
+    </ng-container>
+  </div>
+
+  <ng-template #campoFechaActo>
     <div class="campo">
       <label for="int-fecha-acto">
         FECHA DEL ACTO DE CORRUPCIÓN
@@ -264,10 +300,14 @@
         required
       />
     </div>
-  </div>
+  </ng-template>
 
   <!-- MOTIVO Y PROTECCIÓN -->
-  <div class="fila fila-2">
+  <div class="fila" [ngClass]="tipoDocumento === 'OTROS' ? 'fila-3' : 'fila-2'">
+    <ng-container *ngIf="tipoDocumento === 'OTROS'">
+      <ng-container *ngTemplateOutlet="campoFechaActo"></ng-container>
+    </ng-container>
+
     <div class="campo">
       <label for="int-motivo">
         MOTIVO DE LA DENUNCIA
@@ -534,7 +574,7 @@
     <div class="adjuntos-cabecera">
       <div>
         <strong>DOCUMENTOS ADJUNTOS</strong>
-        <p>PDF o ZIP · Máximo 5 archivos de 10 MB cada uno.</p>
+        <p>PDF o ZIP · Máximo 5 archivos de 1 GB cada uno.</p>
       </div>
 
       <input

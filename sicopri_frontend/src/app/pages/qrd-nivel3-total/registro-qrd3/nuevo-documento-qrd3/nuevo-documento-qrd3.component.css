@@ -812,8 +812,9 @@ button:disabled {
   grid-column: span 2;
 }
 
-.persona-domicilio {
-  grid-column: span 4;
+.persona-domicilio,
+.persona-situacion {
+  grid-column: span 2;
 }
 
 .persona-error {

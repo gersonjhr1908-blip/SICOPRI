@@ -91,12 +91,6 @@
                       ✎ Editar
                     </button>
 
-                    <button type="button" class="opcion-eliminar" *ngIf="
-                        doc.estadoVisual === 'OBSERVADO'
-                      " (click)="eliminar(doc)">
-                      🗑 Eliminar
-                    </button>
-
                     <button type="button" class="opcion-archivar" *ngIf="esConcluido(doc)" (click)="archivar(doc)">
                       📁 Archivar
                     </button>

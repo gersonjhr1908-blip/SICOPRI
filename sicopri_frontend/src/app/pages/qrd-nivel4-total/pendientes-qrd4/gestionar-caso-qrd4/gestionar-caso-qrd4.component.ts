@@ -195,6 +195,7 @@ export class GestionarCasoQrd4Component implements OnChanges, OnDestroy {
     { clave: 'telefono', etiqueta: 'TELÉFONO' },
     { clave: 'domicilio', etiqueta: 'DOMICILIO' },
     { clave: 'correo', etiqueta: 'CORREO ELECTRÓNICO' },
+    { clave: 'situacion', etiqueta: 'SITUACIÓN DE LA PERSONA' },
   ];
 
   obtenerDatoPersona(clave: string): string {

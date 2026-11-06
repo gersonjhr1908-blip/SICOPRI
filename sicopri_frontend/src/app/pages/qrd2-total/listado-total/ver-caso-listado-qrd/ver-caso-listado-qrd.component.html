@@ -86,7 +86,6 @@
                   [class.persona-medio]="
                     campo.clave === 'nombres' || campo.clave === 'apellidos'
                   "
-                  [class.persona-ancho]="campo.clave === 'domicilio'"
                 >
                   <dt>{{ campo.etiqueta }}</dt>
                   <dd>{{ obtenerDatoPersona(campo.clave) }}</dd>
@@ -134,29 +133,44 @@
           <div class="grid-qrd grid-3">
             <div class="campo-qrd">
               <label>NÚCLEO</label>
-              <input type="text" [value]="nombreNucleo || '-'" readonly />
+              <ng-container *ngIf="editorInspectoria as editor; else lectura_idNucleo">
+  <ng-container *ngTemplateOutlet="editor; context: { $implicit: 'idNucleo' }"></ng-container>
+</ng-container>
+<ng-template #lectura_idNucleo><input type="text" [value]="nombreNucleo || '-'" readonly /></ng-template>
             </div>
 
             <div class="campo-qrd">
               <label>GRAN UNIDAD</label>
-              <input type="text" [value]="nombreBrigada || '-'" readonly />
+              <ng-container *ngIf="editorInspectoria as editor; else lectura_idBrigada">
+  <ng-container *ngTemplateOutlet="editor; context: { $implicit: 'idBrigada' }"></ng-container>
+</ng-container>
+<ng-template #lectura_idBrigada><input type="text" [value]="nombreBrigada || '-'" readonly /></ng-template>
             </div>
 
             <div class="campo-qrd">
               <label>UNIDAD</label>
-              <input type="text" [value]="nombreUnidad || '-'" readonly />
+              <ng-container *ngIf="editorInspectoria as editor; else lectura_idUnidad">
+  <ng-container *ngTemplateOutlet="editor; context: { $implicit: 'idUnidad' }"></ng-container>
+</ng-container>
+<ng-template #lectura_idUnidad><input type="text" [value]="nombreUnidad || '-'" readonly /></ng-template>
             </div>
           </div>
 
           <div class="grid-qrd grid-3 fila-inspectoria">
             <div class="campo-qrd">
               <label>NÚCLEO IG</label>
-              <input type="text" [value]="nombreNucleoIg || '-'" readonly />
+              <ng-container *ngIf="editorInspectoria as editor; else lectura_idNucleoIg">
+  <ng-container *ngTemplateOutlet="editor; context: { $implicit: 'idNucleoIg' }"></ng-container>
+</ng-container>
+<ng-template #lectura_idNucleoIg><input type="text" [value]="nombreNucleoIg || '-'" readonly /></ng-template>
             </div>
 
             <div class="campo-qrd">
               <label>IG</label>
-              <input type="text" [value]="nombreIg || '-'" readonly />
+              <ng-container *ngIf="editorInspectoria as editor; else lectura_idIg">
+  <ng-container *ngTemplateOutlet="editor; context: { $implicit: 'idIg' }"></ng-container>
+</ng-container>
+<ng-template #lectura_idIg><input type="text" [value]="nombreIg || '-'" readonly /></ng-template>
             </div>
 
             <div class="campo-qrd">
@@ -563,3 +577,5 @@
     </div>
   </div>
 </div>
+
+

@@ -1,1 +1,52 @@
-<p>mantenimiento works!</p>
+<section class="mantenimiento">
+  <header>
+    <h1>LISTA DE MANTENIMIENTO</h1>
+    <p>Administración de catálogos del sistema</p>
+  </header>
+
+  <button class="catalogo" type="button" [attr.aria-expanded]="abierto"
+    aria-controls="catalogo-tipificaciones" [disabled]="cargando || guardando"
+    (click)="alternarCatalogo()">
+    <span>Tipificaciones QRD</span>
+    <span aria-hidden="true">{{ abierto ? '−' : '+' }}</span>
+  </button>
+
+  <section *ngIf="abierto" id="catalogo-tipificaciones" class="panel">
+    <div class="barra">
+      <label>Categoría
+        <select [(ngModel)]="categoria" (ngModelChange)="cargar()" [disabled]="cargando || guardando">
+          <option *ngFor="let opcion of categorias" [ngValue]="opcion.id">{{ opcion.nombre }}</option>
+        </select>
+      </label>
+      <button type="button" class="principal" *ngIf="!agregando"
+        [disabled]="cargando || !!error" (click)="agregando = true">
+        + Agregar tipificación
+      </button>
+    </div>
+
+    <form *ngIf="agregando" class="barra formulario" (ngSubmit)="guardar()">
+      <label>Nueva tipificación
+        <input name="nombre" [(ngModel)]="nombre" maxlength="100" required [disabled]="guardando">
+      </label>
+      <button type="submit" class="principal" [disabled]="!nombre.trim() || cargando || guardando || !!error">
+        {{ guardando ? 'Guardando…' : 'Guardar' }}
+      </button>
+      <button type="button" class="secundario" [disabled]="guardando" (click)="agregando = false; nombre = ''">
+        Cancelar
+      </button>
+    </form>
+
+    <p *ngIf="cargando" role="status">Cargando tipificaciones…</p>
+    <div *ngIf="error" role="alert">{{ error }} <button type="button" (click)="cargar()">Reintentar</button></div>
+    <p *ngIf="!cargando && !error && !tipificaciones.length">Esta categoría aún no tiene tipificaciones.</p>
+    <ol *ngIf="tipificaciones.length" class="lista">
+            <li *ngFor="let tipificacion of tipificaciones">
+        {{ tipificacion.nombre }}
+        <button type="button" class="secundario" [disabled]="guardando || cargando" (click)="eliminar(tipificacion)">Eliminar</button>
+      </li>
+    </ol>
+  </section>
+</section>
+
+
+

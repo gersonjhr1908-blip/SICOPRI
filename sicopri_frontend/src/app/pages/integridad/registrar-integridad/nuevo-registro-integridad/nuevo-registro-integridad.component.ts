@@ -45,10 +45,12 @@ export class NuevoRegistroIntegridadComponent implements OnInit, OnDestroy {
   telefono = '';
   domicilio = '';
   correo = '';
+  situacion = '';
 
   // DOCUMENTO
 
   tipoDocumento: string | null = null;
+  otroTipoDocumento = '';
 
   codigo = '';
   fechaRegistro = '';
@@ -87,7 +89,7 @@ export class NuevoRegistroIntegridadComponent implements OnInit, OnDestroy {
   archivos: File[] = [];
 
   readonly maxArchivos = 5;
-  readonly maxTamanoPdf = 10 * 1024 * 1024;
+  readonly maxTamanoPdf = 1024 * 1024 * 1024;
 
   // CONTROL
 
@@ -478,9 +480,7 @@ export class NuevoRegistroIntegridadComponent implements OnInit, OnDestroy {
 
   seleccionarArchivos(event: Event): void {
     const input = event.target as HTMLInputElement;
-
-    const seleccionados = Array.from(input.files || []);
-
+    const seleccionados = Array.from(input.files ?? []);
     input.value = '';
 
     if (this.guardando || !seleccionados.length) {
@@ -488,52 +488,37 @@ export class NuevoRegistroIntegridadComponent implements OnInit, OnDestroy {
     }
 
     const nuevos: File[] = [];
+    const rechazados: string[] = [];
 
     for (const archivo of seleccionados) {
       const nombre = archivo.name.toLowerCase();
-
-      const extensionValida =
-        nombre.endsWith('.pdf') || nombre.endsWith('.zip');
-
-      if (!extensionValida) {
-        this.mostrarAdvertencia(
-          `El archivo "${archivo.name}" no está permitido. Solo puede adjuntar PDF o ZIP.`,
-        );
-        return;
-      }
-
-      if (archivo.size === 0) {
-        this.mostrarAdvertencia(`El archivo "${archivo.name}" está vacío.`);
-        return;
-      }
-
-      if (archivo.size > this.maxTamanoPdf) {
-        this.mostrarAdvertencia(
-          `El archivo "${archivo.name}" supera los 10 MB.`,
-        );
-        return;
-      }
-
       const repetido = [...this.archivos, ...nuevos].some(
-        (existente) =>
+        existente =>
           existente.name === archivo.name &&
           existente.size === archivo.size &&
           existente.lastModified === archivo.lastModified,
       );
 
-      if (!repetido) {
+      if (!nombre.endsWith('.pdf') && !nombre.endsWith('.zip')) {
+        rechazados.push(`${archivo.name}: solo se permite PDF o ZIP.`);
+      } else if (archivo.size === 0) {
+        rechazados.push(`${archivo.name}: está vacío.`);
+      } else if (archivo.size > this.maxTamanoPdf) {
+        rechazados.push(`${archivo.name}: supera el máximo de 1 GB.`);
+      } else if (repetido) {
+        rechazados.push(`${archivo.name}: ya está adjunto.`);
+      } else if (this.archivos.length + nuevos.length >= this.maxArchivos) {
+        rechazados.push(`${archivo.name}: ya hay ${this.maxArchivos} archivos adjuntos.`);
+      } else {
         nuevos.push(archivo);
       }
     }
 
-    if (this.archivos.length + nuevos.length > this.maxArchivos) {
-      this.mostrarAdvertencia(
-        `Solo se permiten ${this.maxArchivos} archivos en total, entre PDF y ZIP.`,
-      );
-      return;
-    }
-
     this.archivos = [...this.archivos, ...nuevos];
+
+    if (rechazados.length) {
+      this.mostrarAdvertencia(rechazados.join(' · '));
+    }
   }
 
   eliminarArchivo(index: number): void {
@@ -599,6 +584,14 @@ export class NuevoRegistroIntegridadComponent implements OnInit, OnDestroy {
     if (!this.fechaRegistro) {
       this.mostrarAdvertencia('Seleccione la fecha de registro.');
       return false;
+    }
+
+    if (this.tipoDocumento === 'OTROS') {
+      const tipo = this.otroTipoDocumento.trim();
+      if (!tipo || tipo.length > 50) {
+        this.mostrarAdvertencia('Especifique el tipo de documento con un máximo de 50 caracteres.');
+        return false;
+      }
     }
 
     if (!this.fechaActoCorrupcion) {
@@ -688,7 +681,9 @@ export class NuevoRegistroIntegridadComponent implements OnInit, OnDestroy {
     };
 
     const datosIntegridad = {
-      tipoDocumento: this.tipoDocumento,
+      tipoDocumento: this.tipoDocumento === 'OTROS'
+        ? this.otroTipoDocumento.trim()
+        : this.tipoDocumento,
 
       identificacion: this.identificacion,
       sexo: this.sexo || null,
@@ -700,6 +695,7 @@ export class NuevoRegistroIntegridadComponent implements OnInit, OnDestroy {
       telefono: this.telefono.trim() || null,
       domicilio: this.domicilio.trim() || null,
       correo: this.correo.trim() || null,
+      situacion: this.situacion || null,
 
       fechaActoCorrupcion: this.fechaActoCorrupcion,
       motivoDenuncia: this.motivoDenuncia,
@@ -768,8 +764,10 @@ export class NuevoRegistroIntegridadComponent implements OnInit, OnDestroy {
     this.telefono = '';
     this.domicilio = '';
     this.correo = '';
+    this.situacion = '';
 
     this.tipoDocumento = null;
+    this.otroTipoDocumento = '';
     this.codigo = '';
     this.fechaRegistro = '';
 

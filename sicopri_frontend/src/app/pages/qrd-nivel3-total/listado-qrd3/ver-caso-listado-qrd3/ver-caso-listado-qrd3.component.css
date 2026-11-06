@@ -1095,10 +1095,6 @@
   grid-column: span 3;
 }
 
-.persona-consulta-campo.persona-ancho {
-  grid-column: span 4;
-}
-
 .persona-consulta-campo dt {
   margin-bottom: 6px;
   color: #344c41;

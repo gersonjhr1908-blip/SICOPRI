@@ -1,0 +1,54 @@
+:host {
+  display: block;
+  padding: clamp(12px, 2vw, 24px);
+}
+
+.manual {
+  overflow: hidden;
+  border: 1px solid #dce5df;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 6px 24px rgb(21 41 27 / 8%);
+}
+
+.manual-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 20px 24px;
+  background: #f2f7f3;
+  color: #244c34;
+}
+
+.manual-cabecera h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.manual-cabecera p {
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+
+.btn-descargar {
+  padding: 10px 16px;
+  border-radius: 7px;
+  background: #145c43;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.btn-descargar:focus-visible {
+  outline: 2px solid #145c43;
+  outline-offset: 3px;
+}
+
+.manual-visor {
+  display: block;
+  width: 100%;
+  height: clamp(420px, calc(100dvh - 220px), 1000px);
+  border: 0;
+}

@@ -46,6 +46,15 @@
       </div>
 
 
+      <div class="filtro-estado">
+        <label for="total-reg-estado">Estado</label>
+        <select id="total-reg-estado" [(ngModel)]="estadoFiltro" (ngModelChange)="buscar()">
+          <option [ngValue]="0">Todos los estados</option>
+          <option *ngFor="let estado of estadosFiltro" [ngValue]="estado">
+            {{ obtenerEstado(estado) }}
+          </option>
+        </select>
+      </div>
       <!-- =================================== -->
       <!-- TOTAL DOCUMENTOS -->
       <!-- =================================== -->
@@ -200,7 +209,8 @@
             <!-- ESTADO / ACCIONES -->
             <!-- =============================== -->
 
-            <td>
+            <td class="celda-estado-acciones">
+              <div class="estado-acciones-fila">
 
               <div class="estado" [ngClass]="doc.estadoClase">
                 {{ doc.estado }}
@@ -210,27 +220,49 @@
               <div class="acciones-container">
 
                 <!-- BOTÓN TRES PUNTOS -->
-                <button type="button" class="btn-acciones" title="Acciones" (click)="toggleMenu(doc)">
+                <button type="button" class="btn-acciones" title="Acciones" cdkOverlayOrigin #origenMenu="cdkOverlayOrigin" [attr.aria-expanded]="!!doc.menuAbierto" (click)="toggleMenu(doc)">
                   ⋮
                 </button>
 
 
                 <!-- MENÚ FLOTANTE -->
-                <div class="menu-acciones" *ngIf="doc.menuAbierto">
+                <ng-template
+                  cdkConnectedOverlay
+                  [cdkConnectedOverlayOrigin]="origenMenu"
+                  [cdkConnectedOverlayOpen]="!!doc.menuAbierto"
+                  [cdkConnectedOverlayPositions]="posicionesMenu"
+                  (overlayOutsideClick)="doc.menuAbierto = false"
+                  (overlayKeydown)="$event.key === 'Escape' && (doc.menuAbierto = false)"
+                >
+                <div class="menu-acciones">
 
-                  <button type="button" class="menu-opcion" (click)="verCaso(doc)">
+                  <button type="button" class="menu-opcion" [disabled]="cargandoCaso" (click)="verCaso(doc)">
                     <span class="menu-icono">▣</span>
                     <span>Ver Caso</span>
+                  </button>
+                  <button type="button" class="menu-opcion" [disabled]="cargandoCaso" (click)="verCaso(doc, true)">
+                    <span class="menu-icono">✎</span>
+                    <span>Cambiar INSP</span>
                   </button>
 
 
                   <button type="button" class="menu-opcion" (click)="verTrazabilidad(doc)">
                     <span class="menu-icono">☷</span>
-                    <span>Trazabilidad</span>
+                    <span>Traz</span>
+                  </button>
+                  <button type="button" class="menu-opcion" (click)="verTrazabilidad(doc, 'pdf')">
+                    <span class="menu-icono">▤</span>
+                    <span>TrazPDF</span>
+                  </button>
+                  <button type="button" class="menu-opcion" [disabled]="eliminando" (click)="eliminar(doc)">
+                    <span class="menu-icono">🗑</span>
+                    <span>Eliminar</span>
                   </button>
 
                 </div>
+                </ng-template>
 
+              </div>
               </div>
 
             </td>
@@ -319,6 +351,37 @@
 <!-- MODAL VER CASO -->
 <!-- ===================================== -->
 
-<app-ver-caso *ngIf="mostrarVerCaso && expedienteSeleccionado" [expediente]="expedienteSeleccionado"
+<p class="total-reg-error" *ngIf="errorCaso" role="alert">{{ errorCaso }}</p>
+
+<app-ver-caso *ngIf="mostrarVerCaso && expedienteSeleccionado" [expediente]="expedienteSeleccionado" [editarInspectoria]="editarInspectoria" (inspectoriaGuardada)="cerrarVerCaso(); cargarDocumentos()"
   (cerrar)="cerrarVerCaso()">
 </app-ver-caso>
+
+<ng-container *ngIf="documentoTrazabilidad as documento">
+  <app-trazabilidad-qrd
+    *ngIf="modoTrazabilidad === 'historial'"
+    [modulo]="esIntegridad(documento) ? 'INTEGRIDAD' : 'QRD'"
+    [expediente]="documento"
+    (cerrar)="documentoTrazabilidad = null"
+  ></app-trazabilidad-qrd>
+
+  <ng-container *ngIf="modoTrazabilidad === 'pdf'">
+    <app-trazabilidad-pdf-integridad
+      *ngIf="esIntegridad(documento); else pdfQrd"
+      [expediente]="documento"
+      (cerrar)="documentoTrazabilidad = null"
+    ></app-trazabilidad-pdf-integridad>
+
+    <ng-template #pdfQrd>
+      <app-trazabilidad-pdf
+        [expediente]="documento"
+        (cerrar)="documentoTrazabilidad = null"
+      ></app-trazabilidad-pdf>
+    </ng-template>
+  </ng-container>
+</ng-container>
+
+
+
+
+

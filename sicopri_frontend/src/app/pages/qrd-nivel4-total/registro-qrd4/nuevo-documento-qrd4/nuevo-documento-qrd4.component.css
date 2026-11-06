@@ -806,6 +806,7 @@ button:disabled {
 }
 
 .persona-campo input,
+.persona-campo select,
 .persona-valor {
   display: block;
   width: 100%;

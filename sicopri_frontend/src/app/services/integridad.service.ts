@@ -33,6 +33,7 @@ export class IntegridadService {
         telefono: this.normalizar(datosIntegridad.telefono),
         domicilio: this.normalizar(datosIntegridad.domicilio),
         correo: this.normalizar(datosIntegridad.correo),
+        situacion: this.normalizar(datosIntegridad.situacion),
       },
     };
 
@@ -104,6 +105,10 @@ export class IntegridadService {
 
     for (const campo of camposEdicion) {
       this.agregarInclusoVacio(formData, campo, datos[campo]);
+    }
+
+    if (datos.datosPersona && 'situacion' in datos.datosPersona) {
+      formData.append('situacion', datos.datosPersona.situacion ?? '');
     }
 
     return this.http.put<any>(

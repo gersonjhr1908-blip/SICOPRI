@@ -229,11 +229,9 @@ fieldset:disabled textarea {
   grid-column: span 2;
 }
 
-.persona-domicilio {
-  grid-column: span 4;
-}
-
-.persona-correo {
+.persona-domicilio,
+.persona-correo,
+.persona-situacion {
   grid-column: span 2;
 }
 

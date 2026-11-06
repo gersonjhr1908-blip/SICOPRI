@@ -1,1 +1,18 @@
-<p>manual works!</p>
+<section class="manual">
+  <header class="manual-cabecera">
+    <div>
+      <h1>MANUAL DEL ADMINISTRADOR</h1>
+      <p>SICOPRI · Guía de uso de la vista Administrador</p>
+    </div>
+
+    <a class="btn-descargar" [href]="pdf" download="manual-administrador.pdf">
+      Descargar PDF
+    </a>
+  </header>
+
+  <iframe
+    class="manual-visor"
+    [src]="visorPdf"
+    title="Manual del Administrador de SICOPRI"
+  ></iframe>
+</section>

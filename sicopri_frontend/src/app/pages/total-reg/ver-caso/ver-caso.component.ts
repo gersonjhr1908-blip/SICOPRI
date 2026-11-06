@@ -1,504 +1,110 @@
+import { FormsModule } from '@angular/forms';
+import { firstValueFrom, of } from 'rxjs';
+import Swal from 'sweetalert2';
+import { ExpedienteService } from '../../../services/expediente.service';
+import { UsersService } from '../../../services/users.service';
 import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output
-} from '@angular/core';
-
-import {
-  DomSanitizer,
-  SafeResourceUrl
-} from '@angular/platform-browser';
-
-import {
-  ExpedienteService
-} from '../../../services/expediente.service';
-
+import { VerCasoListadoQrdComponent } from '../../qrd2-total/listado-total/ver-caso-listado-qrd/ver-caso-listado-qrd.component';
+import { VerCasoIntegridadComponent } from '../../integridad/registrar-integridad/ver-caso-integridad/ver-caso-integridad.component';
 
 @Component({
   selector: 'app-ver-caso',
-
   standalone: true,
-
-  imports: [
-    CommonModule
-  ],
-
-  templateUrl:
-    './ver-caso.component.html',
-
-  styleUrl:
-    './ver-caso.component.css'
+  imports: [CommonModule, FormsModule, VerCasoListadoQrdComponent, VerCasoIntegridadComponent],
+  templateUrl: './ver-caso.component.html',
+  styleUrl: './ver-caso.component.css',
 })
-export class VerCasoComponent {
+export class VerCasoComponent implements OnInit {
+  @Input() expediente: any = null;
+  @Output() cerrar = new EventEmitter<void>();
 
+  get esIntegridad(): boolean {
+    return String(this.expediente?.categoria ?? '').trim().toUpperCase() === 'INTEGRIDAD';
+  }
+  @Input() editarInspectoria = false;
+  @Output() inspectoriaGuardada = new EventEmitter<void>();
 
-  // =========================================
-  // EXPEDIENTE SELECCIONADO
-  // =========================================
+  readonly etiquetasInspectoria: Record<string, string> = {
+    idNucleo: 'Núcleo', idBrigada: 'Brigada', idUnidad: 'Unidad',
+    idNucleoIg: 'Núcleo IG', idIg: 'IG',
+  };
 
-  @Input()
-  expediente: any = null;
+  valores: Record<string, string> = {};
+  opciones: Record<string, { id: string; nombre: string }[]> = {};
+  cargando = false;
+  guardando = false;
+  error = '';
 
+  constructor(private usuarios: UsersService, private expedientes: ExpedienteService) {}
 
-  // =========================================
-  // CERRAR MODAL
-  // =========================================
-
-  @Output()
-  cerrar =
-    new EventEmitter<void>();
-
-
-  // =========================================
-  // PESTAÑA ACTIVA
-  //
-  // 1 = DOC REGISTRADO
-  // 2 = DOC ADJUNTO
-  // 3 = SEGUIMIENTO
-  // =========================================
-
-  pestanaActiva: number = 1;
-
-
-  // =========================================
-  // ARCHIVOS DEL EXPEDIENTE
-  // =========================================
-
-  archivos: any[] = [];
-
-
-  // =========================================
-  // ARCHIVO SELECCIONADO
-  // =========================================
-
-  archivoSeleccionado: any = null;
-
-
-  // =========================================
-  // URL SEGURA DEL PDF
-  // =========================================
-
-  pdfUrl: SafeResourceUrl | null = null;
-
-
-  // =========================================
-  // URL TEMPORAL DEL BLOB
-  //
-  // La guardamos para poder liberarla
-  // cuando cambiemos de PDF o cerremos.
-  // =========================================
-
-  private objectUrlActual: string | null = null;
-
-
-  // =========================================
-  // ESTADO DE CARGA DE ARCHIVOS
-  // =========================================
-
-  cargandoArchivos: boolean = false;
-
-
-  // =========================================
-  // ESTADO DE CARGA DEL PDF
-  // =========================================
-
-  cargandoPdf: boolean = false;
-
-
-  // =========================================
-  // ERROR
-  // =========================================
-
-  errorArchivos: string = '';
-
-
-  // =========================================
-  // CONTROL PARA NO CONSULTAR DOS VECES
-  // =========================================
-
-  archivosCargados: boolean = false;
-
-
-  // =========================================
-  // CONSTRUCTOR
-  // =========================================
-
-  constructor(
-
-    private expedienteService:
-      ExpedienteService,
-
-    private sanitizer:
-      DomSanitizer
-
-  ) {}
-
-
-  // =========================================
-  // CAMBIAR PESTAÑA
-  // =========================================
-
-  cambiarPestana(
-    numero: number
-  ): void {
-
-    this.pestanaActiva =
-      numero;
-
-
-    // =======================================
-    // AL ENTRAR A DOC ADJUNTO
-    // CARGAMOS LOS PDFs UNA SOLA VEZ
-    // =======================================
-
-    if (
-      numero === 2 &&
-      !this.archivosCargados
-    ) {
-
-      this.cargarArchivos();
-
+  async ngOnInit(): Promise<void> {
+    if (!this.editarInspectoria) return;
+    for (const campo of ['idNucleo', 'idBrigada', 'idUnidad', 'idNucleoIg', 'idIg']) {
+      this.valores[campo] = String(this.expediente?.[campo] ?? '');
     }
-
+    await this.cargarOpciones();
   }
 
+  async cambiar(campo: string, valor: string): Promise<void> {
+    this.valores[campo] = valor;
+    if (campo === 'idNucleo') this.valores['idBrigada'] = '';
+    if (campo === 'idNucleo' || campo === 'idBrigada') this.valores['idUnidad'] = '';
+    if (campo === 'idNucleoIg') this.valores['idIg'] = '';
+    if (['idNucleo', 'idBrigada', 'idNucleoIg'].includes(campo)) await this.cargarOpciones();
+  }
 
-  // =========================================
-  // CARGAR PDFs DEL EXPEDIENTE
-  // =========================================
+  async cargarOpciones(): Promise<void> {
+    this.cargando = true;
+    this.error = '';
+    const { idNucleo, idBrigada, idNucleoIg } = this.valores;
+    try {
+      const [nucleos, brigadas, unidades, inspectores] = await Promise.all([
+        firstValueFrom(this.usuarios.getNucleos()),
+        firstValueFrom(idNucleo ? this.usuarios.getBrigadas(idNucleo) : of([])),
+        firstValueFrom(idNucleo && idBrigada ? this.usuarios.getUnidades(idNucleo, idBrigada) : of([])),
+        firstValueFrom(idNucleoIg ? this.usuarios.getBrigadas(idNucleoIg) : of([])),
+      ]);
+      const opciones = (filas: any[], clave: string) =>
+        (filas ?? []).map(fila => ({ id: String(fila[clave]), nombre: String(fila.nombre ?? fila[clave]) }));
+      this.opciones = {
+        idNucleo: opciones(nucleos, 'idNucleo'),
+        idBrigada: opciones(brigadas, 'idBrigada'),
+        idUnidad: opciones(unidades, 'idUnidad'),
+        idNucleoIg: opciones(nucleos, 'idNucleo'),
+        idIg: opciones(inspectores, 'idBrigada'),
+      };
+    } catch {
+      this.error = 'No se pudieron cargar los catálogos de inspectoría.';
+    } finally {
+      this.cargando = false;
+    }
+  }
 
-  cargarArchivos(): void {
-
-
-    // =======================================
-    // VALIDAR EXPEDIENTE
-    // =======================================
-
-    if (
-      !this.expediente ||
-      !this.expediente.idExpediente
-    ) {
-
-      this.errorArchivos =
-        'No se encontró el ID del expediente.';
-
+  async guardarInspectoria(): Promise<void> {
+    if (this.guardando || this.cargando || this.error) return;
+    if (!Object.keys(this.opciones).every(campo =>
+      this.opciones[campo].some(opcion => opcion.id === this.valores[campo])
+    )) {
+      await Swal.fire('Complete los cinco campos de inspectoría', '', 'warning');
       return;
-
     }
-
-
-    // =======================================
-    // PREPARAR ESTADO
-    // =======================================
-
-    this.cargandoArchivos =
-      true;
-
-    this.errorArchivos =
-      '';
-
-    this.archivos =
-      [];
-
-    this.archivoSeleccionado =
-      null;
-
-    this.limpiarPdf();
-
-
-    // =======================================
-    // CONSULTAR ARCHIVOS EN BACKEND
-    // =======================================
-
-    this.expedienteService
-      .listarArchivosExpediente(
-        this.expediente.idExpediente
-      )
-      .subscribe({
-
-        next: (
-          respuesta: any[]
-        ) => {
-
-
-          // =================================
-          // GUARDAR ARCHIVOS
-          // =================================
-
-          this.archivos =
-            respuesta || [];
-
-
-          this.archivosCargados =
-            true;
-
-
-          this.cargandoArchivos =
-            false;
-
-
-          // =================================
-          // MOSTRAR PRIMER PDF
-          // AUTOMÁTICAMENTE
-          // =================================
-
-          if (
-            this.archivos.length > 0
-          ) {
-
-            this.seleccionarArchivo(
-              this.archivos[0]
-            );
-
-          }
-
-        },
-
-
-        error: (
-          error
-        ) => {
-
-          console.error(
-            'ERROR AL CARGAR PDFs:',
-            error
-          );
-
-
-          this.cargandoArchivos =
-            false;
-
-
-          this.archivosCargados =
-            false;
-
-
-          this.errorArchivos =
-            'No se pudieron cargar los documentos adjuntos.';
-
-        }
-
-      });
-
-  }
-
-
-  // =========================================
-  // SELECCIONAR PDF
-  // =========================================
-
-  seleccionarArchivo(
-    archivo: any
-  ): void {
-
-
-    // =======================================
-    // VALIDAR
-    // =======================================
-
-    if (
-      !archivo ||
-      !archivo.idArchivo
-    ) {
-
-      return;
-
+    const { idNucleo, idBrigada, idUnidad, idNucleoIg, idIg } = this.valores;
+    this.guardando = true;
+    try {
+      await firstValueFrom(this.expedientes.cambiarInspectoriaComoAdministrador(
+        Number(this.expediente.idExpediente),
+        { idNucleo, idBrigada, idUnidad, idNucleoIg: Number(idNucleoIg), idIg },
+      ));
+      this.inspectoriaGuardada.emit();
+      void Swal.fire('Inspectoría actualizada', '', 'success');
+    } catch (error: any) {
+      await Swal.fire('No se pudo guardar', error?.error?.message || 'Revise la respuesta del servidor.', 'error');
+    } finally {
+      this.guardando = false;
     }
-
-
-    // =======================================
-    // ARCHIVO SELECCIONADO
-    // =======================================
-
-    this.archivoSeleccionado =
-      archivo;
-
-
-    // =======================================
-    // LIMPIAR PDF ANTERIOR
-    // =======================================
-
-    this.limpiarPdf();
-
-
-    // =======================================
-    // CARGANDO
-    // =======================================
-
-    this.cargandoPdf =
-      true;
-
-    this.errorArchivos =
-      '';
-
-
-    // =======================================
-    // SOLICITAR PDF COMO BLOB
-    //
-    // Importante:
-    // esto pasa por HttpClient y por
-    // el interceptor/token del sistema.
-    // =======================================
-
-    this.expedienteService
-      .verArchivo(
-        archivo.idArchivo
-      )
-      .subscribe({
-
-        next: (
-          blob: Blob
-        ) => {
-
-
-          // =================================
-          // CONSTRUIR BLOB PDF
-          // =================================
-
-          const pdfBlob =
-            new Blob(
-              [blob],
-              {
-                type: 'application/pdf'
-              }
-            );
-
-
-          // =================================
-          // CREAR URL TEMPORAL
-          // =================================
-
-          this.objectUrlActual =
-            URL.createObjectURL(
-              pdfBlob
-            );
-
-
-          // =================================
-          // HACER URL SEGURA PARA IFRAME
-          // =================================
-
-          this.pdfUrl =
-            this.sanitizer
-              .bypassSecurityTrustResourceUrl(
-                this.objectUrlActual
-              );
-
-
-          this.cargandoPdf =
-            false;
-
-        },
-
-
-        error: (
-          error
-        ) => {
-
-          console.error(
-            'ERROR AL VISUALIZAR PDF:',
-            error
-          );
-
-
-          this.cargandoPdf =
-            false;
-
-
-          this.pdfUrl =
-            null;
-
-
-          this.errorArchivos =
-            'No se pudo visualizar el documento PDF.';
-
-        }
-
-      });
-
   }
-
-
-  // =========================================
-  // LIMPIAR PDF ACTUAL
-  // =========================================
-
-  private limpiarPdf(): void {
-
-
-    // =======================================
-    // LIBERAR URL TEMPORAL
-    // =======================================
-
-    if (
-      this.objectUrlActual
-    ) {
-
-      URL.revokeObjectURL(
-        this.objectUrlActual
-      );
-
-      this.objectUrlActual =
-        null;
-
-    }
-
-
-    this.pdfUrl =
-      null;
-
-  }
-
-
-  // =========================================
-  // CERRAR MODAL
-  // =========================================
-
-  cerrarModal(): void {
-
-
-    // =======================================
-    // LIMPIAR PDF
-    // =======================================
-
-    this.limpiarPdf();
-
-
-    // =======================================
-    // LIMPIAR DATOS
-    // =======================================
-
-    this.archivoSeleccionado =
-      null;
-
-    this.archivos =
-      [];
-
-    this.archivosCargados =
-      false;
-
-    this.cargandoArchivos =
-      false;
-
-    this.cargandoPdf =
-      false;
-
-    this.errorArchivos =
-      '';
-
-    this.pestanaActiva =
-      1;
-
-
-    // =======================================
-    // AVISAR AL PADRE
-    // =======================================
-
-    this.cerrar.emit();
-
-  }
-
 }
+
+

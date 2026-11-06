@@ -37,7 +37,7 @@ public class ExpedienteArchivoServiceImpl
     private static final int MAX_ARCHIVOS = 5;
 
     private static final long MAX_TAMANIO =
-            10L * 1024L * 1024L;
+            1024L * 1024L * 1024L;
 
     // =========================================
     // GUARDAR ARCHIVOS
@@ -296,7 +296,7 @@ public class ExpedienteArchivoServiceImpl
 
         if (archivo.getSize() > MAX_TAMANIO) {
             throw new IllegalArgumentException(
-                    "Cada archivo PDF debe pesar como máximo 10 MB."
+                    "Cada archivo PDF debe pesar como máximo 1 GB."
             );
         }
 
@@ -344,7 +344,7 @@ public class ExpedienteArchivoServiceImpl
 
         if (archivo.getSize() > MAX_TAMANIO) {
             throw new IllegalArgumentException(
-                    "Cada archivo debe pesar como máximo 10 MB."
+                    "Cada archivo debe pesar como máximo 1 GB."
             );
         }
 

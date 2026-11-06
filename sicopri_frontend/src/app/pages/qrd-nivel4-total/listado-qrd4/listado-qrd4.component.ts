@@ -87,7 +87,7 @@ export class ListadoQrd4Component implements OnInit {
             categoriaSistema !== 'INTEGRIDAD' &&
             [1, 2, 3].includes(tipo) &&
             participaQrd4 &&
-            [2, 3, 4, 11, 12, 19].includes(estado)
+            [2, 3, 4, 5, 11, 12, 19].includes(estado)
           );
         });
 
@@ -144,7 +144,7 @@ export class ListadoQrd4Component implements OnInit {
     const estado = Number(exp.idEstado);
     const nivelActual = Number(exp.nivelActual);
 
-    if (estado === 19) {
+    if (estado === 5 || estado === 19) {
       return 'ARCHIVADO';
     }
 

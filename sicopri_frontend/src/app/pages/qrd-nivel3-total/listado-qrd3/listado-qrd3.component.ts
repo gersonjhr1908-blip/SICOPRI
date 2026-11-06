@@ -5,13 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { ExpedienteService } from '../../../services/expediente.service';
 import { VerCasoListadoQrd3Component } from './ver-caso-listado-qrd3/ver-caso-listado-qrd3.component';
 
-import {
-  TrazabilidadQrdComponent
-} from '../../trazabilidad-qrd/trazabilidad-qrd.component';
+import { TrazabilidadQrdComponent } from '../../trazabilidad-qrd/trazabilidad-qrd.component';
 
-import {
-  TrazabilidadPdfComponent
-} from '../../trazabilidad-qrd/trazabilidad-pdf/trazabilidad-pdf.component';
+import { TrazabilidadPdfComponent } from '../../trazabilidad-qrd/trazabilidad-pdf/trazabilidad-pdf.component';
 
 @Component({
   selector: 'app-listado-qrd3',
@@ -94,7 +90,7 @@ export class ListadoQrd3Component implements OnInit {
             categoriaSistema !== 'INTEGRIDAD' &&
             [1, 2, 3].includes(tipo) &&
             participaQrd3 &&
-            [2, 3, 4, 11, 12, 19].includes(estado)
+            [2, 3, 4, 5, 11, 12, 19].includes(estado)
           );
         });
 
@@ -151,7 +147,7 @@ export class ListadoQrd3Component implements OnInit {
     const estado = Number(exp.idEstado);
     const nivelActual = Number(exp.nivelActual);
 
-    if (estado === 19) {
+    if (estado === 5 || estado === 19) {
       return 'ARCHIVADO';
     }
 

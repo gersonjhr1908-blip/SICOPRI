@@ -1,16 +1,9 @@
 <div class="respuesta-overlay" (click)="cerrarModal()">
-  <section
-    class="respuesta-modal"
-    (click)="$event.stopPropagation()"
-  >
+  <section class="respuesta-modal" (click)="$event.stopPropagation()">
     <header class="respuesta-header">
       <div>
         <h2>REGISTRAR RESPUESTA</h2>
-
-        <p>
-          {{ expediente?.cinv || '-' }}
-          · Inspectoría QRD Nivel 3
-        </p>
+        <p>{{ expediente?.cinv || "-" }} · Inspectoría QRD Nivel 3</p>
       </div>
 
       <button
@@ -40,129 +33,93 @@
       >
         <span>2</span>
         DOCUMENTOS ADJUNTOS
-
-        <b *ngIf="informes.length > 0">
-          {{ informes.length }}
-        </b>
+        <b *ngIf="informes.length > 0">{{ informes.length }}</b>
       </button>
     </nav>
 
-    <!-- REGISTRAR INFORME -->
-    <main
-      class="respuesta-body"
-      *ngIf="pestanaActiva === 1"
-    >
-      <div class="numero-informe">
-        INFORME N° {{ siguienteNumero }}
-      </div>
+    <main class="respuesta-body" *ngIf="pestanaActiva === 1">
+      <div class="numero-informe">INFORME N° {{ siguienteNumero }}</div>
 
       <div class="form-grid">
-        <label>
-          NOMBRE DEL DOCUMENTO *
+        <div
+          class="fila-documento-respuesta"
+          [class.con-otro]="formulario.tipoDocumento === 'OTROS'"
+        >
+          <label>
+            NOMBRE DEL DOCUMENTO *
+            <input
+              type="text"
+              maxlength="255"
+              [(ngModel)]="formulario.nombreDocumento"
+              placeholder="Ej.: Informe de respuesta"
+            />
+          </label>
 
-          <input
-            type="text"
-            maxlength="255"
-            [(ngModel)]="formulario.nombreDocumento"
-            placeholder="Ej.: Informe de respuesta"
-          />
-        </label>
+          <label>
+            TIPO DE DOCUMENTO *
+            <select
+              [(ngModel)]="formulario.tipoDocumento"
+              (ngModelChange)="otroTipoDocumento = ''"
+            >
+              <option value="">Seleccione tipo</option>
+              <option value="INFORME">INFORME</option>
+              <option value="OFICIO">OFICIO</option>
+              <option value="MEMORANDO">MEMORANDO</option>
+              <option value="CARTA">CARTA</option>
+              <option value="OTROS">OTROS</option>
+            </select>
+          </label>
 
-        <label>
-          TIPO DE DOCUMENTO *
-
-          <select
-            [(ngModel)]="formulario.tipoDocumento"
-          >
-            <option value="">
-              Seleccione tipo
-            </option>
-
-            <option value="INFORME">
-              INFORME
-            </option>
-
-            <option value="OFICIO">
-              OFICIO
-            </option>
-
-            <option value="MEMORANDO">
-              MEMORANDO
-            </option>
-
-            <option value="CARTA">
-              CARTA
-            </option>
-
-            <option value="OTROS">
-              OTROS
-            </option>
-          </select>
-        </label>
+          <label *ngIf="formulario.tipoDocumento === 'OTROS'">
+            ESPECIFIQUE EL TIPO DE DOCUMENTO *
+            <input
+              type="text"
+              name="otroTipoDocumento"
+              [(ngModel)]="otroTipoDocumento"
+              placeholder="Ej. Acta, resolución, parte..."
+              required
+            />
+          </label>
+        </div>
 
         <label>
           ORIGEN
-
-          <input
-            type="text"
-            [value]="formulario.origen"
-            readonly
-          />
+          <input type="text" [value]="formulario.origen" readonly />
         </label>
 
         <label>
           DESTINO
-
-          <input
-            type="text"
-            [value]="formulario.destino"
-            readonly
-          />
+          <input type="text" [value]="formulario.destino" readonly />
         </label>
 
         <label>
           FECHA *
-
-          <input
-            type="date"
-            [(ngModel)]="formulario.fecha"
-          />
+          <input type="date" [(ngModel)]="formulario.fecha" />
         </label>
       </div>
 
       <label class="campo-completo">
         DESCRIPCIÓN DEL DOCUMENTO *
-
         <textarea
           rows="5"
           maxlength="2000"
           [(ngModel)]="formulario.descripcion"
           placeholder="Describa el contenido del informe..."
         ></textarea>
-
-        <small>
-          {{ formulario.descripcion.length }}/2000
-        </small>
+        <small>{{ formulario.descripcion.length }}/2000</small>
       </label>
 
       <div class="pdf-carga">
         <div>
           <strong>ADJUNTAR PDF *</strong>
-
-          <p>
-            Seleccione el informe en formato PDF.
-            Máximo 10 MB.
-          </p>
+          <p>Seleccione el informe en formato PDF. Máximo 1 GB.</p>
         </div>
 
         <label class="btn-adjuntar">
           📎
           {{
-            archivoSeleccionado
-              ? archivoSeleccionado.name
-              : 'SELECCIONAR PDF'
+            archivoSeleccionado ? archivoSeleccionado.name : "SELECCIONAR PDF"
           }}
-
           <input
             type="file"
             accept="application/pdf,.pdf"
@@ -172,11 +129,7 @@
       </div>
 
       <footer class="acciones-formulario">
-        <button
-          type="button"
-          class="btn-cancelar"
-          (click)="cerrarModal()"
-        >
+        <button type="button" class="btn-cancelar" (click)="cerrarModal()">
           CANCELAR
         </button>
 
@@ -186,27 +139,16 @@
           [disabled]="guardandoInforme"
           (click)="guardarInforme()"
         >
-          {{
-            guardandoInforme
-              ? 'GUARDANDO...'
-              : 'GUARDAR INFORME'
-          }}
+          {{ guardandoInforme ? "GUARDANDO..." : "GUARDAR INFORME" }}
         </button>
       </footer>
     </main>
 
-    <!-- DOCUMENTOS ADJUNTOS -->
-    <main
-      class="respuesta-body documentos-body"
-      *ngIf="pestanaActiva === 2"
-    >
+    <main class="respuesta-body documentos-body" *ngIf="pestanaActiva === 2">
       <div class="documentos-cabecera">
         <div>
           <h3>INFORMES REGISTRADOS</h3>
-
-          <p>
-            Los informes que agregues aparecerán aquí inmediatamente.
-          </p>
+          <p>Los informes que agregues aparecerán aquí inmediatamente.</p>
         </div>
 
         <button
@@ -220,35 +162,20 @@
 
       <div
         class="sin-informes"
-        *ngIf="
-          !cargandoInformes &&
-          informes.length === 0
-        "
+        *ngIf="!cargandoInformes && informes.length === 0"
       >
         <div>📄</div>
-
-        <strong>
-          Aún no hay informes registrados
-        </strong>
-
-        <p>
-          Registra el primer informe desde la pestaña anterior.
-        </p>
+        <strong>Aún no hay informes registrados</strong>
+        <p>Registra el primer informe desde la pestaña anterior.</p>
       </div>
 
-      <div
-        class="cargando-informes"
-        *ngIf="cargandoInformes"
-      >
+      <div class="cargando-informes" *ngIf="cargandoInformes">
         Cargando informes...
       </div>
 
       <div
         class="tabla-informes"
-        *ngIf="
-          !cargandoInformes &&
-          informes.length > 0
-        "
+        *ngIf="!cargandoInformes && informes.length > 0"
       >
         <table>
           <thead>
@@ -265,43 +192,17 @@
           </thead>
 
           <tbody>
-            <tr
-              *ngFor="let informe of informes"
-            >
+            <tr *ngFor="let informe of informes">
+              <td>{{ informe.numero }}</td>
               <td>
-                {{ informe.numero }}
+                <strong>{{ informe.nombreDocumento }}</strong>
+                <small>{{ informe.descripcion }}</small>
               </td>
-
-              <td>
-                <strong>
-                  {{ informe.nombreDocumento }}
-                </strong>
-
-                <small>
-                  {{ informe.descripcion }}
-                </small>
-              </td>
-
-              <td>
-                {{ informe.tipoDocumento }}
-              </td>
-
-              <td>
-                {{ informe.origen }}
-              </td>
-
-              <td>
-                {{ informe.destino }}
-              </td>
-
-              <td>
-                {{ informe.fecha | date:'dd/MM/yyyy' }}
-              </td>
-
-              <td>
-                {{ informe.nombreArchivo }}
-              </td>
-
+              <td>{{ informe.tipoDocumento }}</td>
+              <td>{{ informe.origen }}</td>
+              <td>{{ informe.destino }}</td>
+              <td>{{ informe.fecha | date: "dd/MM/yyyy" }}</td>
+              <td>{{ informe.nombreArchivo }}</td>
               <td class="fila-acciones">
                 <button
                   type="button"

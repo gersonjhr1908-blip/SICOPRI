@@ -70,14 +70,13 @@
               [class.persona-medio]="
                 campo.clave === 'nombres' || campo.clave === 'apellidos'
               "
-              [class.persona-ancho]="campo.clave === 'domicilio'"
             >
               <span class="persona-label">
                 {{ campo.etiqueta }}
               </span>
 
               <input
-                *ngIf="!personaSoloLectura; else datoConsulta"
+                *ngIf="!personaSoloLectura && campo.clave !== 'situacion'"
                 [type]="campo.tipo"
                 [name]="'persona_' + campo.clave"
                 [(ngModel)]="datosPersona[campo.clave]"
@@ -93,11 +92,25 @@
                 "
               />
 
-              <ng-template #datoConsulta>
+              <select
+                *ngIf="!personaSoloLectura && campo.clave === 'situacion'"
+                name="persona_situacion"
+                [(ngModel)]="datosPersona['situacion']"
+              >
+                <option value="">Seleccione</option>
+                <option>Oficial en actividad</option>
+                <option>Oficial en retiro</option>
+                <option>TCO y/o SOO en actividad</option>
+                <option>TCO y/o SOO en retiro</option>
+                <option>Personal civil del Ejército</option>
+                <option>Personal civil ajeno al Ejército</option>
+              </select>
+
+              <ng-container *ngIf="personaSoloLectura">
                 <span class="persona-valor">
                   {{ datosPersona[campo.clave] || "No registrado" }}
                 </span>
-              </ng-template>
+              </ng-container>
 
               <small
                 class="persona-error"
@@ -330,7 +343,7 @@
           <div>
             <span class="documentos-label"> PDFs DEL EXPEDIENTE </span>
 
-            <small> Máximo 5 archivos PDF · 10 MB por archivo </small>
+            <small> Máximo 5 archivos PDF · 1 GB por archivo </small>
           </div>
 
           <div class="contador-pdf">

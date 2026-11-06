@@ -208,6 +208,7 @@ export class GestionarCasoQrd3Component implements OnChanges, OnDestroy {
     { clave: 'telefono', etiqueta: 'TELÉFONO' },
     { clave: 'domicilio', etiqueta: 'DOMICILIO' },
     { clave: 'correo', etiqueta: 'CORREO ELECTRÓNICO' },
+    { clave: 'situacion', etiqueta: 'SITUACIÓN DE LA PERSONA' },
   ];
 
   obtenerDatoPersona(clave: string): string {
@@ -1194,8 +1195,16 @@ export class GestionarCasoQrd3Component implements OnChanges, OnDestroy {
 
     this.expedienteService.listarRespuestasQrd4(idExpediente).subscribe({
       next: (data: any[]) => {
-        this.respuestasQrd4 = Array.isArray(data) ? data : [];
-        this.tieneRespuestaQrd4 = this.respuestasQrd4.length > 0;
+        this.respuestasQrd4 = (Array.isArray(data) ? data : []).filter(
+          (respuesta) =>
+            Number(respuesta.nivelOrigen) === 4 &&
+            Number(respuesta.nivelDestino) === 3,
+        );
+
+        this.tieneRespuestaQrd4 =
+          Number(this.expediente?.nivelActual) === 3 &&
+          Number(this.expediente?.idEstado) === 4 &&
+          this.respuestasQrd4.length > 0;
         this.cargandoRespuestasQrd4 = false;
       },
       error: (err) => {
@@ -1210,34 +1219,45 @@ export class GestionarCasoQrd3Component implements OnChanges, OnDestroy {
   }
 
   verPdfRespuestaQrd4(respuesta: any): void {
-    const idRespuesta = Number(respuesta?.idRespuesta);
+  const idRespuesta = Number(respuesta?.idRespuesta);
 
-    if (!idRespuesta) {
-      Swal.fire(
-        'Error',
-        'No se encontró el identificador del informe.',
-        'error',
-      );
-      return;
-    }
-
-    this.expedienteService.verPdfRespuestaQrd4(idRespuesta).subscribe({
-      next: (blob: Blob) => {
-        if (this.objectUrlRespuesta) {
-          URL.revokeObjectURL(this.objectUrlRespuesta);
-        }
-
-        this.objectUrlRespuesta = URL.createObjectURL(blob);
-        this.respuestaPdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-          this.objectUrlRespuesta,
-        );
-      },
-      error: (err) => {
-        console.error('ERROR AL ABRIR PDF DE RESPUESTA QRD4:', err);
-        Swal.fire('Error', 'No se pudo abrir el PDF del informe.', 'error');
-      },
-    });
+  if (!Number.isInteger(idRespuesta) || idRespuesta <= 0) {
+    void Swal.fire('Error', 'No se encontró el identificador del informe.', 'error');
+    return;
   }
+
+  const pestana = window.open('about:blank', '_blank');
+
+  if (!pestana) {
+    void Swal.fire(
+      'Ventana bloqueada',
+      'Permite las ventanas emergentes para abrir el PDF.',
+      'warning',
+    );
+    return;
+  }
+
+  pestana.opener = null;
+  pestana.document.title = 'Abriendo PDF';
+  pestana.document.body.textContent = 'Cargando PDF...';
+
+  this.expedienteService.verPdfRespuestaQrd4(idRespuesta).subscribe({
+    next: (blob: Blob) => {
+      if (pestana.closed) {
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      pestana.location.replace(url);
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    },
+    error: (error) => {
+      pestana.close();
+      console.error('ERROR AL ABRIR PDF DE RESPUESTA QRD4:', error);
+      void Swal.fire('Error', 'No se pudo abrir el PDF del informe.', 'error');
+    },
+  });
+}
 
   enviarRespuestaANivel2(): void {
     if (!this.tieneRespuestaQrd4 || !this.expediente?.idExpediente) {
@@ -1295,7 +1315,11 @@ export class GestionarCasoQrd3Component implements OnChanges, OnDestroy {
   }
 
   puedeEnviarNivel4(): boolean {
-    return Number(this.expediente?.nivelDestino) === 4;
+    return (
+      Number(this.expediente?.nivelActual) === 3 &&
+      Number(this.expediente?.nivelDestino) === 4 &&
+      Number(this.expediente?.idEstado) !== 4
+    );
   }
 
   puedeDarRespuesta(): boolean {

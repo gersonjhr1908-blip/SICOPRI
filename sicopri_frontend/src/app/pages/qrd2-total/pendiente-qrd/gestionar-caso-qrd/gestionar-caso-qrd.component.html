@@ -89,7 +89,6 @@
                   [class.persona-medio]="
                     campo.clave === 'nombres' || campo.clave === 'apellidos'
                   "
-                  [class.persona-ancho]="campo.clave === 'domicilio'"
                 >
                   <span class="persona-label">{{ campo.etiqueta }}</span>
 
@@ -509,98 +508,98 @@
           </div>
         </div>
       </aside>
+    </div>
+  </div>
+</div>
 
-      <div
-        class="modal-respuestas"
-        *ngIf="mostrarRespuestas"
+<div
+  class="modal-respuestas"
+  *ngIf="mostrarRespuestas"
+  (click)="cerrarRespuestas()"
+>
+  <div class="respuestas-contenido" (click)="$event.stopPropagation()">
+    <header class="respuestas-header">
+      <div>
+        <h3>RESPUESTAS RECIBIDAS</h3>
+        <p>{{ expediente?.cinv || "-" }}</p>
+      </div>
+
+      <button
+        type="button"
+        class="btn-cerrar-respuestas"
+        title="Cerrar"
         (click)="cerrarRespuestas()"
       >
-        <div class="respuestas-contenido" (click)="$event.stopPropagation()">
-          <header class="respuestas-header">
-            <div>
-              <h3>RESPUESTAS RECIBIDAS</h3>
-              <p>{{ expediente?.cinv || "-" }}</p>
-            </div>
+        ✕
+      </button>
+    </header>
 
-            <button
-              type="button"
-              class="btn-cerrar-respuestas"
-              title="Cerrar"
-              (click)="cerrarRespuestas()"
-            >
-              ✕
-            </button>
-          </header>
+    <div class="cargando-respuestas" *ngIf="cargandoRespuestas">
+      Cargando respuestas...
+    </div>
 
-          <div class="cargando-respuestas" *ngIf="cargandoRespuestas">
-            Cargando respuestas...
-          </div>
+    <div
+      class="sin-respuestas"
+      *ngIf="!cargandoRespuestas && respuestas.length === 0"
+    >
+      No hay respuestas registradas.
+    </div>
 
-          <div
-            class="sin-respuestas"
-            *ngIf="!cargandoRespuestas && respuestas.length === 0"
-          >
-            No hay respuestas registradas.
-          </div>
+    <div
+      class="tabla-respuestas"
+      *ngIf="!cargandoRespuestas && respuestas.length > 0"
+    >
+      <table>
+        <thead>
+          <tr>
+            <th>N°</th>
+            <th>DOCUMENTO</th>
+            <th>TIPO</th>
+            <th>ORIGEN</th>
+            <th>DESTINO</th>
+            <th>FECHA</th>
+            <th>PDF</th>
+            <th>ACCIONES</th>
+          </tr>
+        </thead>
 
-          <div
-            class="tabla-respuestas"
-            *ngIf="!cargandoRespuestas && respuestas.length > 0"
-          >
-            <table>
-              <thead>
-                <tr>
-                  <th>N°</th>
-                  <th>DOCUMENTO</th>
-                  <th>TIPO</th>
-                  <th>ORIGEN</th>
-                  <th>DESTINO</th>
-                  <th>FECHA</th>
-                  <th>PDF</th>
-                  <th>ACCIONES</th>
-                </tr>
-              </thead>
+        <tbody>
+          <tr *ngFor="let respuesta of respuestas">
+            <td>{{ respuesta.numeroInforme }}</td>
 
-              <tbody>
-                <tr *ngFor="let respuesta of respuestas">
-                  <td>{{ respuesta.numeroInforme }}</td>
+            <td>
+              <strong>
+                {{ respuesta.nombreDocumento }}
+              </strong>
 
-                  <td>
-                    <strong>
-                      {{ respuesta.nombreDocumento }}
-                    </strong>
+              <small>
+                {{ respuesta.descripcion }}
+              </small>
+            </td>
 
-                    <small>
-                      {{ respuesta.descripcion }}
-                    </small>
-                  </td>
+            <td>{{ respuesta.tipoDocumento }}</td>
+            <td>QRD Nivel {{ respuesta.nivelOrigen }}</td>
+            <td>QRD Nivel {{ respuesta.nivelDestino }}</td>
 
-                  <td>{{ respuesta.tipoDocumento }}</td>
-                  <td>QRD Nivel {{ respuesta.nivelOrigen }}</td>
-                  <td>QRD Nivel {{ respuesta.nivelDestino }}</td>
+            <td>
+              {{ respuesta.fechaDocumento | date: "dd/MM/yyyy" }}
+            </td>
 
-                  <td>
-                    {{ respuesta.fechaDocumento | date: "dd/MM/yyyy" }}
-                  </td>
+            <td>{{ respuesta.nombreArchivo }}</td>
 
-                  <td>{{ respuesta.nombreArchivo }}</td>
-
-                  <td class="acciones-respuesta">
-                    <button
-                      type="button"
-                      class="btn-pdf-respuesta"
-                      title="Ver PDF"
-                      (click)="verPdfRespuesta(respuesta)"
-                    >
-                      📄
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+            <td class="acciones-respuesta">
+              <button
+                type="button"
+                class="btn-pdf-respuesta"
+                title="Ver PDF"
+                (click)="verPdfRespuesta(respuesta)"
+              >
+                📄
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

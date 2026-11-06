@@ -37,7 +37,7 @@ public class ExpedienteRespuestaServiceImpl
     private final IExpedienteRepo expedienteRepo;
 
     private static final long MAX_TAMANIO =
-            10L * 1024L * 1024L;
+            1024L * 1024L * 1024L;
 
 
     @Override
@@ -310,7 +310,7 @@ public class ExpedienteRespuestaServiceImpl
 
         if (archivo.getSize() > MAX_TAMANIO) {
             throw new IllegalArgumentException(
-                    "El PDF puede pesar máximo 10 MB."
+                    "El PDF puede pesar máximo 1 GB."
             );
         }
 

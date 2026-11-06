@@ -161,7 +161,7 @@
                     </div>
                   </div>
 
-                  <div class="campo persona-direccion">
+                  <div class="campo persona-tercio">
                     <label>DOMICILIO</label>
                     <div class="valor">
                       {{ mostrarValor(datosPersona.domicilio) }}
@@ -172,6 +172,12 @@
                     <label>CORREO ELECTRÓNICO</label>
                     <div class="valor">
                       {{ mostrarValor(datosPersona.correo) }}
+                    </div>
+                  </div>
+                  <div class="campo persona-tercio">
+                    <label>SITUACIÓN DE LA PERSONA</label>
+                    <div class="valor">
+                      {{ datosPersona.situacion || "No registrado" }}
                     </div>
                   </div>
                 </div>
@@ -239,39 +245,54 @@
 
               <div class="campo">
                 <label>NÚCLEO</label>
-                <div class="valor">
+                <ng-container *ngIf="editorInspectoria as editor; else lectura_idNucleo">
+  <ng-container *ngTemplateOutlet="editor; context: { $implicit: 'idNucleo' }"></ng-container>
+</ng-container>
+<ng-template #lectura_idNucleo><div class="valor">
                   {{ mostrarValor(nombreNucleo) }}
-                </div>
+                </div></ng-template>
               </div>
 
               <div class="campo">
                 <label>GRAN UNIDAD</label>
-                <div class="valor">
+                <ng-container *ngIf="editorInspectoria as editor; else lectura_idBrigada">
+  <ng-container *ngTemplateOutlet="editor; context: { $implicit: 'idBrigada' }"></ng-container>
+</ng-container>
+<ng-template #lectura_idBrigada><div class="valor">
                   {{ mostrarValor(nombreBrigada) }}
-                </div>
+                </div></ng-template>
               </div>
 
               <div class="campo">
                 <label>UNIDAD</label>
-                <div class="valor">
+                <ng-container *ngIf="editorInspectoria as editor; else lectura_idUnidad">
+  <ng-container *ngTemplateOutlet="editor; context: { $implicit: 'idUnidad' }"></ng-container>
+</ng-container>
+<ng-template #lectura_idUnidad><div class="valor">
                   {{ mostrarValor(nombreUnidad) }}
-                </div>
+                </div></ng-template>
               </div>
 
               <div class="campo campo-completo separador"></div>
 
               <div class="campo">
                 <label>NÚCLEO IG</label>
-                <div class="valor">
+                <ng-container *ngIf="editorInspectoria as editor; else lectura_idNucleoIg">
+  <ng-container *ngTemplateOutlet="editor; context: { $implicit: 'idNucleoIg' }"></ng-container>
+</ng-container>
+<ng-template #lectura_idNucleoIg><div class="valor">
                   {{ obtenerNombreNucleoIg() }}
-                </div>
+                </div></ng-template>
               </div>
 
               <div class="campo">
                 <label>IG</label>
-                <div class="valor">
+                <ng-container *ngIf="editorInspectoria as editor; else lectura_idIg">
+  <ng-container *ngTemplateOutlet="editor; context: { $implicit: 'idIg' }"></ng-container>
+</ng-container>
+<ng-template #lectura_idIg><div class="valor">
                   {{ mostrarValor(nombreIg) }}
-                </div>
+                </div></ng-template>
               </div>
 
               <div class="campo">
@@ -739,3 +760,5 @@
     </div>
   </section>
 </div>
+
+

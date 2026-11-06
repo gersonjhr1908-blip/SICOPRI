@@ -25,7 +25,6 @@
           [class.persona-medio]="
             campo.clave === 'nombres' || campo.clave === 'apellidos'
           "
-          [class.persona-ancho]="campo.clave === 'domicilio'"
         >
           <span class="persona-label">
             {{ campo.etiqueta }}
@@ -58,6 +57,18 @@
           >
             {{ obtenerErrorPersona(campo.clave) }}
           </small>
+        </label>
+        <label class="persona-campo">
+          <span class="persona-label">SITUACIÓN DE LA PERSONA (opcional)</span>
+          <select name="persona_situacion" [(ngModel)]="datosPersona['situacion']" [disabled]="guardando">
+            <option value="">Seleccione</option>
+            <option>Oficial en actividad</option>
+            <option>Oficial en retiro</option>
+            <option>TCO y/o SOO en actividad</option>
+            <option>TCO y/o SOO en retiro</option>
+            <option>Personal civil del Ejército</option>
+            <option>Personal civil ajeno al Ejército</option>
+          </select>
         </label>
       </div>
     </div>
@@ -283,7 +294,7 @@
       <div>
         <strong> DOCUMENTOS ADJUNTOS </strong>
 
-        <small> Máximo 5 archivos PDF · 10 MB por archivo </small>
+        <small> Máximo 5 archivos PDF · 1 GB por archivo </small>
       </div>
 
       <div class="contador-pdf">{{ archivos.length }}/5</div>

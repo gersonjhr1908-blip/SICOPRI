@@ -33,6 +33,9 @@ public class DatosPersona {
     @Column(name = "PERSONA_CORREO", length = 254)
     private String correo;
 
+    @Column(name = "PERSONA_SITUACION", length = 80)
+    private String situacion;
+
     public void validarYNormalizar() {
         nombres = normalizar(nombres, 100, "Nombres");
         apellidos = normalizar(apellidos, 150, "Apellidos");

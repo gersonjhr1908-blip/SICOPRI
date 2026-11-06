@@ -1,0 +1,19 @@
+:host { display: block; padding: clamp(12px, 2vw, 26px); }
+.mantenimiento { max-width: 1000px; margin: auto; border: 1px solid #dce5df; border-radius: 14px; background: #fff; box-shadow: 0 6px 24px #15291b12; overflow: hidden; }
+header { padding: 22px; text-align: center; background: #f2f7f3; color: #244c34; }
+h1 { font-size: 20px; margin: 0; }
+header p { margin: 7px 0 0; }
+.catalogo { display: flex; justify-content: space-between; width: 100%; padding: 16px 22px; border: 0; background: #28593b; color: #fff; text-align: left; font: inherit; font-weight: 700; }
+.panel { padding: 20px; }
+.barra { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 12px; }
+.formulario { margin-top: 16px; padding: 14px; border-radius: 8px; background: #f2f7f3; }
+label { display: grid; gap: 6px; color: #284a36; font-weight: 700; }
+input, select, .principal, .secundario { box-sizing: border-box; min-height: 40px; border: 1px solid #b9cec0; border-radius: 7px; padding: 8px 12px; font: inherit; }
+input, select, .secundario { background: #fff; color: #223a2b; }
+.principal { color: #fff; background: #145c43; }
+button { cursor: pointer; }
+button:disabled { opacity: .55; cursor: default; }
+.lista { margin: 18px 0 0; padding: 0 0 0 36px; border: 1px solid #dce5df; border-radius: 8px; }
+.lista li { padding: 11px 12px 11px 4px; border-bottom: 1px solid #edf1ee; overflow-wrap: anywhere; }
+.lista li:last-child { border-bottom: 0; }
+.lista li button { margin-left: 12px; color: #a13226; }

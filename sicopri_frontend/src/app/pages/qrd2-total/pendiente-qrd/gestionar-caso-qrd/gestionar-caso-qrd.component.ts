@@ -202,6 +202,7 @@ export class GestionarCasoQrdComponent implements OnChanges, OnDestroy {
     telefono: '',
     domicilio: '',
     correo: '',
+    situacion: '',
   };
 
   readonly camposPersona = [
@@ -217,6 +218,13 @@ export class GestionarCasoQrdComponent implements OnChanges, OnDestroy {
       tipo: 'email',
       maximo: 254,
     },
+    {
+      clave: 'situacion',
+      etiqueta: 'SITUACIÓN DE LA PERSONA',
+      tipo: 'text',
+      maximo: 80,
+      placeholder: 'Seleccione',
+    },
   ];
 
   private cargarDatosPersona(): void {
@@ -230,6 +238,7 @@ export class GestionarCasoQrdComponent implements OnChanges, OnDestroy {
       telefono: persona?.telefono ?? '',
       domicilio: persona?.domicilio ?? '',
       correo: persona?.correo ?? '',
+      situacion: persona?.situacion ?? '',
     };
 
     this.mostrarDatosPersona = Object.values(this.datosPersona).some(

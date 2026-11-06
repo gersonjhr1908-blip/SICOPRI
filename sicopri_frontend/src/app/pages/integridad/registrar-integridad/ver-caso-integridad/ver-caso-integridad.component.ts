@@ -1,3 +1,4 @@
+import { TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -31,6 +32,8 @@ import {
   styleUrl: './ver-caso-integridad.component.css',
 })
 export class VerCasoIntegridadComponent implements OnChanges, OnDestroy {
+  @Input() editorInspectoria: TemplateRef<{ $implicit: string }> | null = null;
+
   mostrarRespuestasRecibidas = false;
   respuestasRecibidas: any[] = [];
   tipoDocumentoRecibido: 'respuestas' | 'informes' = 'respuestas';
@@ -232,6 +235,7 @@ export class VerCasoIntegridadComponent implements OnChanges, OnDestroy {
       telefono: persona?.telefono ?? this.detalle?.telefono ?? null,
       domicilio: persona?.domicilio ?? null,
       correo: persona?.correo ?? this.detalle?.correo ?? null,
+      situacion: persona?.situacion ?? null,
     };
   }
 
@@ -1130,3 +1134,4 @@ export class VerCasoIntegridadComponent implements OnChanges, OnDestroy {
     return alternativo;
   }
 }
+

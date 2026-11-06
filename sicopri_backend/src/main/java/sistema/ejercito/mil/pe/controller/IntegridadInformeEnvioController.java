@@ -384,10 +384,10 @@ public class IntegridadInformeEnvioController {
     private String validarPdf(MultipartFile archivo) throws IOException {
         if (archivo == null
                 || archivo.isEmpty()
-                || archivo.getSize() > 10L * 1024 * 1024) {
+                || archivo.getSize() > 1024L * 1024 * 1024) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Adjunte un PDF con contenido de hasta 10 MB."
+                    "Adjunte un PDF con contenido de hasta 1 GB."
             );
         }
 

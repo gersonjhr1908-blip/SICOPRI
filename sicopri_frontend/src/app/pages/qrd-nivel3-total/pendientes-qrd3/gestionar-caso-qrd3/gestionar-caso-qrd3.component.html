@@ -13,8 +13,8 @@
       <button
         type="button"
         class="btn-cerrar"
-        (click)="cerrarModal()"
         title="Cerrar"
+        (click)="cerrarModal()"
       >
         ✕
       </button>
@@ -22,7 +22,6 @@
 
     <div class="estructura-caso">
       <main class="zona-principal">
-        <!-- PESTAÑAS PRINCIPALES -->
         <div class="tabs-qrd">
           <button
             type="button"
@@ -40,7 +39,6 @@
           >
             <span>2</span>
             DOC ADJUNTO
-
             <b
               class="cantidad-adjuntos"
               *ngIf="archivosCargados && archivos.length > 0"
@@ -59,7 +57,6 @@
           </button>
         </div>
 
-        <!-- DOCUMENTO REGISTRADO -->
         <div class="contenido-qrd" *ngIf="pestanaActiva === 1">
           <section class="persona-consulta">
             <button
@@ -69,10 +66,7 @@
               (click)="mostrarDatosPersona = !mostrarDatosPersona"
             >
               <strong>DATOS DE LA PERSONA</strong>
-
-              <span aria-hidden="true">
-                {{ mostrarDatosPersona ? "−" : "+" }}
-              </span>
+              <span aria-hidden="true">{{ mostrarDatosPersona ? '−' : '+' }}</span>
             </button>
 
             <div
@@ -86,7 +80,6 @@
                   [class.persona-medio]="
                     campo.clave === 'nombres' || campo.clave === 'apellidos'
                   "
-                  [class.persona-ancho]="campo.clave === 'domicilio'"
                 >
                   <dt>{{ campo.etiqueta }}</dt>
                   <dd>{{ obtenerDatoPersona(campo.clave) }}</dd>
@@ -94,36 +87,22 @@
               </dl>
             </div>
           </section>
+
           <div class="grid-qrd grid-4">
             <div class="campo-qrd">
               <label>CATEGORÍA</label>
-
               <input type="text" [value]="obtenerCategoriaQrd()" readonly />
             </div>
-
             <div class="campo-qrd">
               <label>TIPO DE DOC</label>
-
-              <input
-                type="text"
-                [value]="nombreTipoDocumento || '-'"
-                readonly
-              />
+              <input type="text" [value]="nombreTipoDocumento || '-'" readonly />
             </div>
-
             <div class="campo-qrd">
               <label>N° DOC</label>
-
-              <input
-                type="text"
-                [value]="expediente?.nroDocumento || '-'"
-                readonly
-              />
+              <input type="text" [value]="expediente?.nroDocumento || '-'" readonly />
             </div>
-
             <div class="campo-qrd">
               <label>FECHA</label>
-
               <input
                 type="text"
                 [value]="expediente?.fechaRegistro | date: 'dd/MM/yyyy'"
@@ -135,7 +114,6 @@
           <div class="grid-qrd grid-1">
             <div class="campo-qrd">
               <label>TIPIFICACIÓN</label>
-
               <input type="text" [value]="nombreTipificacion || '-'" readonly />
             </div>
           </div>
@@ -143,19 +121,14 @@
           <div class="grid-qrd grid-3">
             <div class="campo-qrd">
               <label>NÚCLEO</label>
-
               <input type="text" [value]="nombreNucleo || '-'" readonly />
             </div>
-
             <div class="campo-qrd">
               <label>GRAN UNIDAD</label>
-
               <input type="text" [value]="nombreBrigada || '-'" readonly />
             </div>
-
             <div class="campo-qrd">
               <label>UNIDAD</label>
-
               <input type="text" [value]="nombreUnidad || '-'" readonly />
             </div>
           </div>
@@ -163,19 +136,14 @@
           <div class="grid-qrd grid-3 fila-inspectoria">
             <div class="campo-qrd">
               <label>NÚCLEO IG</label>
-
               <input type="text" [value]="nombreNucleoIg || '-'" readonly />
             </div>
-
             <div class="campo-qrd">
               <label>IG</label>
-
               <input type="text" [value]="nombreIg || '-'" readonly />
             </div>
-
             <div class="campo-qrd">
               <label>DESTINO</label>
-
               <input
                 type="text"
                 [value]="
@@ -190,17 +158,11 @@
 
           <div class="campo-qrd campo-completo">
             <label>ASUNTO</label>
-
-            <textarea
-              rows="3"
-              [value]="expediente?.asunto || '-'"
-              readonly
-            ></textarea>
+            <textarea rows="3" [value]="expediente?.asunto || '-'" readonly></textarea>
           </div>
 
           <div class="campo-qrd campo-completo">
             <label>DESCRIPCIÓN</label>
-
             <textarea
               rows="5"
               [value]="expediente?.descripcion || '-'"
@@ -209,19 +171,14 @@
           </div>
         </div>
 
-        <!-- DOCUMENTOS ADJUNTOS -->
         <div class="contenido-qrd contenido-pdf" *ngIf="pestanaActiva === 2">
           <div *ngIf="cargandoArchivos" class="estado-archivos">
             <span class="spinner-archivos"></span>
             <p>Cargando documentos adjuntos...</p>
           </div>
 
-          <div
-            *ngIf="errorArchivos && !cargandoArchivos"
-            class="error-archivos"
-          >
-            <strong> No se pudieron cargar los documentos </strong>
-
+          <div *ngIf="errorArchivos && !cargandoArchivos" class="error-archivos">
+            <strong>No se pudieron cargar los documentos</strong>
             <p>{{ errorArchivos }}</p>
           </div>
 
@@ -230,9 +187,7 @@
             class="sin-archivos"
           >
             <div class="sin-archivos-icono">📁</div>
-
             <h3>No hay documentos adjuntos</h3>
-
             <p>Este expediente no tiene archivos PDF registrados.</p>
           </div>
 
@@ -244,18 +199,11 @@
               <button
                 *ngFor="let archivo of archivos; let i = index"
                 type="button"
-                [class.activo]="
-                  archivoSeleccionado?.idArchivo === archivo.idArchivo
-                "
+                [class.activo]="archivoSeleccionado?.idArchivo === archivo.idArchivo"
                 (click)="seleccionarArchivo(archivo)"
               >
-                <span class="selector-numero">
-                  {{ i + 1 }}
-                </span>
-
-                <span class="selector-nombre">
-                  {{ archivo.nombreArchivo }}
-                </span>
+                <span class="selector-numero">{{ i + 1 }}</span>
+                <span class="selector-nombre">{{ archivo.nombreArchivo }}</span>
               </button>
             </div>
 
@@ -274,14 +222,12 @@
 
               <div *ngIf="!pdfUrl && !cargandoPdf" class="pdf-vacio">
                 <div class="pdf-vacio-icono">📄</div>
-
                 <p>Selecciona un documento para visualizarlo.</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- SEGUIMIENTO -->
         <div
           class="contenido-qrd contenido-seguimiento"
           *ngIf="pestanaActiva === 3"
@@ -289,13 +235,8 @@
           <div class="seguimiento-cabecera">
             <div>
               <h3>SEGUIMIENTO</h3>
-
               <p [class.seguimiento-ok]="seguimientoGuardado">
-                {{
-                  seguimientoGuardado
-                    ? "Seguimiento registrado"
-                    : "Seguimiento pendiente"
-                }}
+                {{ seguimientoGuardado ? 'Seguimiento registrado' : 'Seguimiento pendiente' }}
               </p>
             </div>
 
@@ -320,22 +261,16 @@
             Cargando seguimiento...
           </div>
 
-          <div
-            class="error-seguimiento"
-            *ngIf="errorSeguimiento && !cargandoSeguimiento"
-          >
+          <div class="error-seguimiento" *ngIf="errorSeguimiento && !cargandoSeguimiento">
             {{ errorSeguimiento }}
           </div>
 
           <div
             class="form-seguimiento"
-            *ngIf="
-              !cargandoSeguimiento && (seguimientoActivo || seguimientoGuardado)
-            "
+            *ngIf="!cargandoSeguimiento && (seguimientoActivo || seguimientoGuardado)"
           >
             <div class="campo-seguimiento">
               <label>EMPIEZA</label>
-
               <input
                 type="date"
                 [(ngModel)]="fechaInicioSeguimiento"
@@ -351,7 +286,6 @@
 
             <div class="campo-seguimiento">
               <label>TERMINA</label>
-
               <input
                 type="date"
                 [(ngModel)]="fechaFinSeguimiento"
@@ -367,7 +301,6 @@
 
             <div class="campo-seguimiento">
               <label>CANTIDAD DE DÍAS</label>
-
               <input type="number" [value]="cantidadDiasSeguimiento" readonly />
             </div>
 
@@ -385,7 +318,7 @@
                   !fechaFinSeguimiento
                 "
               >
-                {{ guardandoSeguimiento ? "GUARDANDO..." : "GUARDAR" }}
+                {{ guardandoSeguimiento ? 'GUARDANDO...' : 'GUARDAR' }}
               </button>
 
               <button
@@ -401,13 +334,10 @@
         </div>
       </main>
 
-      <!-- PANEL LATERAL -->
       <aside class="panel-lateral">
         <div class="acciones-titulo">ACCIONES</div>
-
         <div class="linea-acciones"></div>
 
-        <!-- QRD3 ENVÍA A QRD4 -->
         <button
           type="button"
           class="btn-enviar-nivel4"
@@ -419,11 +349,10 @@
           ENVIAR A INSPECTORÍA NIVEL 4
         </button>
 
-        <!-- CASO CREADO EN QRD4 QUE DEBE VOLVER A QRD2 -->
         <button
           type="button"
           class="btn-enviar-nivel2"
-          *ngIf="esCasoCreadoEnQrd4()"
+          *ngIf="esCasoCreadoEnQrd4() && !tieneRespuestaQrd4"
           [disabled]="guardandoObservacion"
           (click)="enviarANivel2()"
         >
@@ -431,7 +360,15 @@
           ENVIAR A QRD NIVEL 2
         </button>
 
-        <!-- ENVÍO DE RESPUESTA A QRD2 -->
+        <button
+          type="button"
+          class="btn-respuesta"
+          *ngIf="tieneRespuestaQrd4"
+          (click)="abrirModalRespuestaQrd4()"
+        >
+          VER RESPUESTA
+        </button>
+
         <button
           type="button"
           class="btn-enviar-nivel2"
@@ -443,7 +380,6 @@
           ENVIAR RESPUESTA A QRD NIVEL 2
         </button>
 
-        <!-- DAR RESPUESTA QRD3 -->
         <button
           type="button"
           class="btn-respuesta"
@@ -454,7 +390,6 @@
           📝 DAR RESPUESTA
         </button>
 
-        <!-- DEVOLVER DOCUMENTO -->
         <button
           type="button"
           class="btn-devolver"
@@ -465,7 +400,6 @@
           ↩ DEVOLVER DOCUMENTO
         </button>
 
-        <!-- SALIR -->
         <button type="button" class="btn-salir" (click)="cerrarModal()">
           <span class="icono-accion">↩</span>
           SALIR
@@ -483,10 +417,7 @@
           ></textarea>
 
           <div class="estado-observacion-lateral">
-            <div
-              class="estado-observacion guardando"
-              *ngIf="guardandoObservacion"
-            >
+            <div class="estado-observacion guardando" *ngIf="guardandoObservacion">
               <span class="mini-spinner"></span>
               Guardando...
             </div>
@@ -510,4 +441,86 @@
       </aside>
     </div>
   </div>
+</div>
+
+<div
+  class="respuesta-qrd4-overlay"
+  *ngIf="mostrarModalRespuestaQrd4"
+  (click)="cerrarModalRespuestaQrd4()"
+>
+  <section
+    class="respuesta-qrd4-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Ver respuesta"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="respuesta-qrd4-cabecera">
+      <h3>VER RESPUESTA</h3>
+
+      <button
+        type="button"
+        class="respuesta-qrd4-cerrar"
+        aria-label="Cerrar respuesta"
+        (click)="cerrarModalRespuestaQrd4()"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </header>
+
+    <p *ngIf="cargandoRespuestasQrd4" role="status">Cargando respuestas...</p>
+
+    <p *ngIf="errorRespuestasQrd4" role="alert">
+      {{ errorRespuestasQrd4 }}
+    </p>
+
+    <p *ngIf="!cargandoRespuestasQrd4 && !errorRespuestasQrd4 && respuestasQrd4.length === 0">
+      No hay respuestas disponibles.
+    </p>
+
+    <div class="respuesta-qrd4-tabla" *ngIf="respuestasQrd4.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">N°</th>
+            <th scope="col">DOCUMENTO</th>
+            <th scope="col">TIPO</th>
+            <th scope="col">ORIGEN</th>
+            <th scope="col">DESTINO</th>
+            <th scope="col">FECHA</th>
+            <th scope="col">PDF</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let respuesta of respuestasQrd4; let i = index">
+            <td>{{ i + 1 }}</td>
+            <td>
+              <span>{{ respuesta.nombreDocumento }}</span>
+              <small *ngIf="respuesta.descripcion">{{ respuesta.descripcion }}</small>
+            </td>
+            <td>{{ respuesta.tipoDocumento }}</td>
+            <td>QRD Nivel {{ respuesta.nivelOrigen }}</td>
+            <td>QRD Nivel {{ respuesta.nivelDestino }}</td>
+            <td>{{ (respuesta.fechaDocumento | date: 'dd/MM/yyyy') || '—' }}</td>
+            <td>
+              <button
+                type="button"
+                class="respuesta-qrd4-btn-pdf"
+                (click)="verPdfRespuestaQrd4(respuesta)"
+              >
+                <span aria-hidden="true">📄</span> VER PDF
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <iframe
+      *ngIf="respuestaPdfUrl"
+      [src]="respuestaPdfUrl"
+      title="PDF de la respuesta"
+    ></iframe>
+  </section>
 </div>

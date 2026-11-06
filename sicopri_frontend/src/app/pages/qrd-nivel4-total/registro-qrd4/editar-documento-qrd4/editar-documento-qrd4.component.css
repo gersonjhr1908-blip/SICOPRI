@@ -1237,6 +1237,7 @@ button:disabled {
 }
 
 .persona-campo input,
+.persona-campo select,
 .persona-valor {
   display: block;
   width: 100%;
@@ -1252,7 +1253,8 @@ button:disabled {
   line-height: 1.5;
 }
 
-.persona-campo input:focus {
+.persona-campo input:focus,
+.persona-campo select:focus {
   outline: 2px solid #0c6a49;
   outline-offset: 1px;
 }

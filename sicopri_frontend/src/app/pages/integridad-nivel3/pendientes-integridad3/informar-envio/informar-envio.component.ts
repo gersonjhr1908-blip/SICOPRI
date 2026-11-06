@@ -129,8 +129,8 @@ export class InformarEnvioComponent implements OnChanges, OnDestroy {
       return;
     }
 
-    if (archivo.size === 0 || archivo.size > 10 * 1024 * 1024) {
-      this.advertir('El PDF debe tener contenido y no superar los 10 MB.');
+    if (archivo.size === 0 || archivo.size > 1024 * 1024 * 1024) {
+      this.advertir('El PDF debe tener contenido y no superar 1 GB.');
       return;
     }
 

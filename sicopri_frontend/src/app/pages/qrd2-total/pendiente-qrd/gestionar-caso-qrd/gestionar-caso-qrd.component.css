@@ -1153,10 +1153,9 @@
 .modal-respuestas .respuestas-contenido {
   width: min(1120px, calc(100vw - 40px));
   max-height: 86vh;
-  margin-left: 294px;
+  margin: 0 auto;
   overflow: auto;
 }
-
 .btn-cerrar-respuestas {
   display: flex;
   align-items: center;

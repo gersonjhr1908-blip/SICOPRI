@@ -1,12 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import {
-  Component,
-  Input,
-  OnChanges,
-  OnDestroy
-} from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy } from '@angular/core';
 
 import {
   Subject,
@@ -17,12 +12,10 @@ import {
   map,
   switchMap,
   takeUntil,
-  toArray
+  toArray,
 } from 'rxjs';
 
-import {
-  ExpedienteService
-} from '../../services/expediente.service';
+import { ExpedienteService } from '../../services/expediente.service';
 
 type Nivel = 2 | 3 | 4;
 type Modulo = 'qrd' | 'integridad';
@@ -47,13 +40,12 @@ interface BarraEstadistica {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './estadistica-compartida.component.html',
-  styleUrl: './estadistica-compartida.component.css'
+  styleUrl: './estadistica-compartida.component.css',
 })
-export class EstadisticaCompartidaComponent
-  implements OnChanges, OnDestroy {
-
+export class EstadisticaCompartidaComponent implements OnChanges, OnDestroy {
   @Input() modulo: Modulo = 'qrd';
   @Input() nivel: Nivel = 2;
+  @Input() nivelFijo = false;
 
   nivelSeleccionado: Nivel = 2;
 
@@ -79,9 +71,7 @@ export class EstadisticaCompartidaComponent
   private readonly recarga$ = new Subject<void>();
   private readonly destroy$ = new Subject<void>();
 
-  constructor(
-    private expedienteService: ExpedienteService
-  ) {}
+  constructor(private expedienteService: ExpedienteService) {}
 
   ngOnChanges(): void {
     this.nivelSeleccionado = this.nivel;
@@ -100,24 +90,20 @@ export class EstadisticaCompartidaComponent
   }
 
   get nombreModulo(): string {
-    return this.modulo === 'qrd'
-      ? 'QRD'
-      : 'Integridad';
+    return this.modulo === 'qrd' ? 'QRD' : 'Integridad';
   }
 
   get nivelesPermitidos(): Nivel[] {
-    const niveles: Nivel[] = [2, 3, 4];
+    if (this.nivelFijo) {
+      return [this.nivel];
+    }
 
-    return niveles.filter(
-      nivel => nivel >= Number(this.nivel)
-    );
+    const niveles: Nivel[] = [2, 3, 4];
+    return niveles.filter((nivel) => nivel >= Number(this.nivel));
   }
 
   get totalTarjetas(): number {
-    return this.barrasEstados.reduce(
-      (suma, barra) => suma + barra.cantidad,
-      0
-    );
+    return this.barrasEstados.reduce((suma, barra) => suma + barra.cantidad, 0);
   }
 
   cargarDatos(): void {
@@ -140,7 +126,7 @@ export class EstadisticaCompartidaComponent
         switchMap((data: any[]) => {
           if (!Array.isArray(data)) {
             throw new Error(
-              'La lista de expedientes tiene un formato inesperado.'
+              'La lista de expedientes tiene un formato inesperado.',
             );
           }
 
@@ -161,15 +147,12 @@ export class EstadisticaCompartidaComponent
           const candidatos = [...unicos.values()];
 
           return from(candidatos).pipe(
-            mergeMap(
-              expediente => this.consultarRegistro(expediente),
-              4
-            ),
-            toArray()
+            mergeMap((expediente) => this.consultarRegistro(expediente), 4),
+            toArray(),
           );
         }),
         takeUntil(this.recarga$),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (registros) => {
@@ -182,10 +165,7 @@ export class EstadisticaCompartidaComponent
           this.aplicarFiltros();
         },
         error: (error: any) => {
-          console.error(
-            'ERROR AL CARGAR ESTADÍSTICAS:',
-            error
-          );
+          console.error('ERROR AL CARGAR ESTADÍSTICAS:', error);
 
           this.cargando = false;
           this.datosCargados = false;
@@ -195,7 +175,7 @@ export class EstadisticaCompartidaComponent
             'No se pudieron completar las consultas de expedientes, ' +
             'movimientos o seguimiento. Vuelve a intentarlo. ' +
             'No se muestran resultados parciales.';
-        }
+        },
       });
   }
 
@@ -203,35 +183,23 @@ export class EstadisticaCompartidaComponent
     this.errorFiltros = '';
 
     if (
-      !this.nivelesPermitidos.includes(
-        Number(this.nivelSeleccionado) as Nivel
-      )
+      !this.nivelesPermitidos.includes(Number(this.nivelSeleccionado) as Nivel)
     ) {
-      this.errorFiltros =
-        'Seleccione uno de los niveles disponibles.';
+      this.errorFiltros = 'Seleccione uno de los niveles disponibles.';
       return;
     }
 
-    const desde = this.desde
-      ? this.fechaValida(this.desde)
-      : '';
+    const desde = this.desde ? this.fechaValida(this.desde) : '';
 
-    const hasta = this.hasta
-      ? this.fechaValida(this.hasta)
-      : '';
+    const hasta = this.hasta ? this.fechaValida(this.hasta) : '';
 
-    if (
-      (this.desde && !desde) ||
-      (this.hasta && !hasta)
-    ) {
-      this.errorFiltros =
-        'Seleccione fechas válidas.';
+    if ((this.desde && !desde) || (this.hasta && !hasta)) {
+      this.errorFiltros = 'Seleccione fechas válidas.';
       return;
     }
 
     if (desde && hasta && desde > hasta) {
-      this.errorFiltros =
-        'La fecha Desde no puede ser posterior a Hasta.';
+      this.errorFiltros = 'La fecha Desde no puede ser posterior a Hasta.';
       return;
     }
 
@@ -241,17 +209,14 @@ export class EstadisticaCompartidaComponent
 
     const nivel = Number(this.nivelSeleccionado);
 
-    const filtrados = this.registros.filter(registro => {
-      const correspondeNivel =
-        registro.niveles.includes(nivel);
+    const filtrados = this.registros.filter((registro) => {
+      const correspondeNivel = registro.niveles.includes(nivel);
 
       const correspondeFecha =
         (!desde ||
-          (!!registro.fechaRegistro &&
-            registro.fechaRegistro >= desde)) &&
+          (!!registro.fechaRegistro && registro.fechaRegistro >= desde)) &&
         (!hasta ||
-          (!!registro.fechaRegistro &&
-            registro.fechaRegistro <= hasta));
+          (!!registro.fechaRegistro && registro.fechaRegistro <= hasta));
 
       return correspondeNivel && correspondeFecha;
     });
@@ -262,45 +227,40 @@ export class EstadisticaCompartidaComponent
       {
         id: 1,
         nombre: 'Registrados',
-        color: '#697586'
+        color: '#697586',
       },
       {
         id: 2,
         nombre: 'Enviados / pendientes',
-        color: '#2864ad'
+        color: '#2864ad',
       },
       {
         id: 3,
         nombre: 'Observados',
-        color: '#c66d1b'
+        color: '#c66d1b',
       },
       {
         id: 4,
         nombre: 'Concluidos',
-        color: '#258348'
+        color: '#258348',
       },
       {
         id: 5,
         nombre: 'Archivados',
-        color: '#124e39'
-      }
+        color: '#124e39',
+      },
     ];
 
-    this.barrasEstados = estados.map(estado => {
+    this.barrasEstados = estados.map((estado) => {
       const cantidad = filtrados.filter(
-        registro => registro.estado === estado.id
+        (registro) => registro.estado === estado.id,
       ).length;
 
-      return this.crearBarra(
-        estado.nombre,
-        cantidad,
-        this.total,
-        estado.color
-      );
+      return this.crearBarra(estado.nombre, cantidad, this.total, estado.color);
     });
 
-    const abiertos = filtrados.filter(
-      registro => [1, 2, 3].includes(registro.estado)
+    const abiertos = filtrados.filter((registro) =>
+      [1, 2, 3].includes(registro.estado),
     );
 
     this.enAtencion = abiertos.length;
@@ -308,40 +268,26 @@ export class EstadisticaCompartidaComponent
     const hoy = this.hoyPeru();
 
     const fueraPlazo = abiertos.filter(
-      registro =>
-        !!registro.fechaFin &&
-        registro.fechaFin < hoy
+      (registro) => !!registro.fechaFin && registro.fechaFin < hoy,
     ).length;
 
     const plazoNormal = abiertos.filter(
-      registro =>
-        !!registro.fechaFin &&
-        registro.fechaFin >= hoy
+      (registro) => !!registro.fechaFin && registro.fechaFin >= hoy,
     ).length;
 
     const sinSeguimiento = abiertos.filter(
-      registro => !registro.fechaFin
+      (registro) => !registro.fechaFin,
     ).length;
 
     this.barrasPlazos = [
-      this.crearBarra(
-        'Fuera de plazo',
-        fueraPlazo,
-        this.enAtencion,
-        '#bb2836'
-      ),
-      this.crearBarra(
-        'Plazo normal',
-        plazoNormal,
-        this.enAtencion,
-        '#a58905'
-      ),
+      this.crearBarra('Fuera de plazo', fueraPlazo, this.enAtencion, '#bb2836'),
+      this.crearBarra('Plazo normal', plazoNormal, this.enAtencion, '#a58905'),
       this.crearBarra(
         'Sin seguimiento válido',
         sinSeguimiento,
         this.enAtencion,
-        '#697586'
-      )
+        '#697586',
+      ),
     ];
   }
 
@@ -354,19 +300,17 @@ export class EstadisticaCompartidaComponent
   }
 
   private perteneceAlModulo(expediente: any): boolean {
-    const activo = String(
-      expediente.activo ?? ''
-    ).trim().toUpperCase();
+    const activo = String(expediente.activo ?? '')
+      .trim()
+      .toUpperCase();
 
-    const categoria = String(
-      expediente.categoria ?? ''
-    ).trim().toUpperCase();
+    const categoria = String(expediente.categoria ?? '')
+      .trim()
+      .toUpperCase();
 
     if (
       activo !== 'S' ||
-      ![1, 2, 3, 4, 5].includes(
-        Number(expediente.idEstado)
-      )
+      ![1, 2, 3, 4, 5].includes(Number(expediente.idEstado))
     ) {
       return false;
     }
@@ -377,33 +321,26 @@ export class EstadisticaCompartidaComponent
 
     return (
       categoria !== 'INTEGRIDAD' &&
-      [1, 2, 3].includes(
-        Number(expediente.idTipoExpediente)
-      )
+      [1, 2, 3].includes(Number(expediente.idTipoExpediente))
     );
   }
 
   private consultarRegistro(expediente: any) {
     const id = Number(expediente.idExpediente);
 
-    const requiereSeguimiento = [1, 2, 3].includes(
-      Number(expediente.idEstado)
-    );
+    const requiereSeguimiento = [1, 2, 3].includes(Number(expediente.idEstado));
 
     const seguimiento$ = requiereSeguimiento
       ? this.expedienteService.obtenerSeguimiento(id)
       : of(null);
 
     return forkJoin({
-      movimientos:
-        this.expedienteService.listarMovimientos(id),
-      respuestaSeguimiento: seguimiento$
+      movimientos: this.expedienteService.listarMovimientos(id),
+      respuestaSeguimiento: seguimiento$,
     }).pipe(
       map(({ movimientos, respuestaSeguimiento }) => {
         if (!Array.isArray(movimientos)) {
-          throw new Error(
-            `Movimientos inválidos del expediente ${id}.`
-          );
+          throw new Error(`Movimientos inválidos del expediente ${id}.`);
         }
 
         const niveles = new Set<number>();
@@ -435,16 +372,11 @@ export class EstadisticaCompartidaComponent
 
         if (requiereSeguimiento) {
           const seguimiento =
-            respuestaSeguimiento?.seguimiento ??
-            respuestaSeguimiento;
+            respuestaSeguimiento?.seguimiento ?? respuestaSeguimiento;
 
-          const inicio = this.fechaValida(
-            seguimiento?.fechaInicio
-          );
+          const inicio = this.fechaValida(seguimiento?.fechaInicio);
 
-          const fin = this.fechaValida(
-            seguimiento?.fechaFin
-          );
+          const fin = this.fechaValida(seguimiento?.fechaFin);
 
           if (inicio && fin && fin >= inicio) {
             fechaFin = fin;
@@ -454,13 +386,11 @@ export class EstadisticaCompartidaComponent
         return {
           id,
           estado: Number(expediente.idEstado),
-          fechaRegistro: this.fechaValida(
-            expediente.fechaRegistro
-          ),
+          fechaRegistro: this.fechaValida(expediente.fechaRegistro),
           niveles: [...niveles],
-          fechaFin
+          fechaFin,
         } satisfies RegistroEstadistica;
-      })
+      }),
     );
   }
 
@@ -468,15 +398,13 @@ export class EstadisticaCompartidaComponent
     nombre: string,
     cantidad: number,
     base: number,
-    color: string
+    color: string,
   ): BarraEstadistica {
     return {
       nombre,
       cantidad,
-      porcentaje: base > 0
-        ? (cantidad / base) * 100
-        : 0,
-      color
+      porcentaje: base > 0 ? (cantidad / base) * 100 : 0,
+      color,
     };
   }
 
@@ -504,23 +432,16 @@ export class EstadisticaCompartidaComponent
   }
 
   private hoyPeru(): string {
-    const partes = new Intl.DateTimeFormat(
-      'en-US',
-      {
-        timeZone: 'America/Lima',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      }
-    ).formatToParts(new Date());
+    const partes = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Lima',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date());
 
     const obtener = (tipo: string): string =>
-      partes.find(parte => parte.type === tipo)?.value ?? '';
+      partes.find((parte) => parte.type === tipo)?.value ?? '';
 
-    return [
-      obtener('year'),
-      obtener('month'),
-      obtener('day')
-    ].join('-');
+    return [obtener('year'), obtener('month'), obtener('day')].join('-');
   }
 }

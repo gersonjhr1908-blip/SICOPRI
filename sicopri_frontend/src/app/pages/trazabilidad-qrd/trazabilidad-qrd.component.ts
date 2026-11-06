@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output
-} from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { ExpedienteService } from '../../services/expediente.service';
 
@@ -13,14 +8,13 @@ import { ExpedienteService } from '../../services/expediente.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './trazabilidad-qrd.component.html',
-  styleUrl: './trazabilidad-qrd.component.css'
+  styleUrl: './trazabilidad-qrd.component.css',
 })
 export class TrazabilidadQrdComponent {
-
   @Input() expediente: any = null;
+  @Input() modulo: 'QRD' | 'INTEGRIDAD' = 'QRD';
 
-  @Output() cerrar =
-    new EventEmitter<void>();
+  @Output() cerrar = new EventEmitter<void>();
 
   inicioActivo = false;
   cargando = false;
@@ -28,18 +22,13 @@ export class TrazabilidadQrdComponent {
 
   movimientos: any[] = [];
 
-  constructor(
-    private expedienteService: ExpedienteService
-  ) {}
+  constructor(private expedienteService: ExpedienteService) {}
 
   iniciarTrazabilidad(): void {
-    const idExpediente = Number(
-      this.expediente?.idExpediente
-    );
+    const idExpediente = Number(this.expediente?.idExpediente);
 
     if (!idExpediente) {
-      this.error =
-        'No se encontró el expediente.';
+      this.error = 'No se encontró el expediente.';
       return;
     }
 
@@ -47,69 +36,44 @@ export class TrazabilidadQrdComponent {
     this.cargando = true;
     this.error = '';
 
-    this.expedienteService
-      .listarMovimientos(idExpediente)
-      .subscribe({
-        next: (data: any[]) => {
-          this.movimientos =
-            (data || []).map(
-              (movimiento: any) => ({
-                ...movimiento,
-                origenVisual:
-                  this.nivelVisual(
-                    movimiento.nivelOrigen
-                  ),
-                destinoVisual:
-                  this.nivelVisual(
-                    movimiento.nivelDestino
-                  ),
-                estadoVisual:
-                  this.estadoVisual(
-                    movimiento.accion
-                  )
-              })
-            );
+    this.expedienteService.listarMovimientos(idExpediente).subscribe({
+      next: (data: any[]) => {
+        this.movimientos = (data || []).map((movimiento: any) => ({
+          ...movimiento,
+          origenVisual: this.nivelVisual(movimiento.nivelOrigen),
+          destinoVisual: this.nivelVisual(movimiento.nivelDestino),
+          estadoVisual: this.estadoVisual(movimiento.accion),
+        }));
 
-          this.cargando = false;
-        },
+        this.cargando = false;
+      },
 
-        error: (err) => {
-          console.error(
-            'ERROR AL CARGAR TRAZABILIDAD:',
-            err
-          );
+      error: (err) => {
+        console.error('ERROR AL CARGAR TRAZABILIDAD:', err);
 
-          this.movimientos = [];
-          this.cargando = false;
+        this.movimientos = [];
+        this.cargando = false;
 
-          this.error =
-            err?.error?.message ||
-            'No se pudo cargar la trazabilidad.';
-        }
-      });
+        this.error =
+          err?.error?.message || 'No se pudo cargar la trazabilidad.';
+      },
+    });
   }
 
   nivelVisual(nivel: any): string {
     const numero = Number(nivel);
 
-    return [2, 3, 4].includes(numero)
-      ? `QRD NIVEL ${numero}`
-      : '-';
+    return [2, 3, 4].includes(numero) ? `${this.modulo} NIVEL ${numero}` : '-';
   }
 
   estadoVisual(accion: any): string {
-    const texto = String(
-      accion || ''
-    ).toUpperCase();
+    const texto = String(accion || '').toUpperCase();
 
     if (texto.includes('ARCHIV')) {
       return 'ARCHIVADO';
     }
 
-    if (
-      texto.includes('RESPUESTA') ||
-      texto.includes('CONCL')
-    ) {
+    if (texto.includes('RESPUESTA') || texto.includes('CONCL')) {
       return 'CONCLUIDO';
     }
 

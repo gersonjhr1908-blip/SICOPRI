@@ -149,6 +149,7 @@ export class EditarDocumentoQrdComponent implements OnChanges {
     telefono: '',
     domicilio: '',
     correo: '',
+    situacion: '',
   };
 
   get erroresPersona(): {
@@ -231,6 +232,7 @@ export class EditarDocumentoQrdComponent implements OnChanges {
       telefono: persona?.telefono ?? '',
       domicilio: persona?.domicilio ?? '',
       correo: persona?.correo ?? '',
+      situacion: persona?.situacion ?? '',
     };
 
     this.mostrarDatosPersona = Object.values(this.datosPersona).some(
@@ -317,7 +319,14 @@ export class EditarDocumentoQrdComponent implements OnChanges {
 
     this.expedienteService.getTiposDocumento().subscribe({
       next: (data) => {
-        this.tiposDocumento = data || [];
+        const esOtros = (tipo: { codigo?: string; nombre?: string }): boolean =>
+          [tipo.codigo, tipo.nombre].some(
+            (valor) => valor?.trim().toUpperCase() === 'OTROS',
+          );
+
+        this.tiposDocumento = [...(data ?? [])].sort(
+          (a, b) => Number(esOtros(a)) - Number(esOtros(b)),
+        );
       },
 
       error: (err) => {
@@ -856,71 +865,50 @@ export class EditarDocumentoQrdComponent implements OnChanges {
 
   seleccionarArchivos(event: Event): void {
     const input = event.target as HTMLInputElement;
+    const seleccionados = Array.from(input.files ?? []);
+    input.value = '';
 
-    if (!input.files) {
+    if (seleccionados.length === 0) {
       return;
     }
 
-    const seleccionados = Array.from(input.files);
-
-    // =======================================
-    // MÁXIMO 5 EN TOTAL
-    // =======================================
-
-    const totalFinal =
-      this.archivosActuales.length +
-      this.archivosNuevos.length +
-      seleccionados.length;
-
-    if (totalFinal > 5) {
-      this.error = `Solo puede tener 5 PDFs en total. Actualmente tiene ${this.archivosActuales.length + this.archivosNuevos.length}.`;
-
-      input.value = '';
-
-      return;
-    }
-
-    // =======================================
-    // SOLO PDF
-    // =======================================
-
-    const invalido = seleccionados.some(
-      (archivo: File) =>
-        archivo.type !== 'application/pdf' ||
-        !archivo.name.toLowerCase().endsWith('.pdf'),
-    );
-
-    if (invalido) {
-      this.error = 'Solo se permiten archivos PDF.';
-
-      input.value = '';
-
-      return;
-    }
-
-    // =======================================
-    // 10 MB
-    // =======================================
-
-    const maxTamano = 10 * 1024 * 1024;
-
-    const demasiadoGrande = seleccionados.some(
-      (archivo: File) => archivo.size > maxTamano,
-    );
-
-    if (demasiadoGrande) {
-      this.error = 'Cada archivo PDF debe pesar como máximo 10 MB.';
-
-      input.value = '';
-
-      return;
-    }
+    const maxTamano = 1024 * 1024 * 1024;
+    const nuevos: File[] = [];
+    const rechazados: string[] = [];
+    const totalActual =
+      this.archivosActuales.length + this.archivosNuevos.length;
 
     this.error = '';
 
-    this.archivosNuevos = [...this.archivosNuevos, ...seleccionados];
+    for (const archivo of seleccionados) {
+      const esPdf =
+        archivo.type === 'application/pdf' &&
+        archivo.name.toLowerCase().endsWith('.pdf');
 
-    input.value = '';
+      if (!esPdf) {
+        rechazados.push(`${archivo.name}: solo se permiten archivos PDF.`);
+      } else if (archivo.size > maxTamano) {
+        rechazados.push(`${archivo.name}: supera el máximo de 1 GB.`);
+      } else if (totalActual + nuevos.length >= 5) {
+        rechazados.push(`${archivo.name}: ya hay 5 PDF adjuntos.`);
+      } else {
+        nuevos.push(archivo);
+      }
+    }
+
+    if (nuevos.length > 0) {
+      this.archivosNuevos = [...this.archivosNuevos, ...nuevos];
+    }
+
+    if (rechazados.length > 0) {
+      void Swal.fire({
+        icon: 'warning',
+        title: 'Archivos no adjuntados',
+        text: rechazados.join(' · '),
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#145c43',
+      });
+    }
   }
 
   // =========================================
@@ -1076,6 +1064,7 @@ export class EditarDocumentoQrdComponent implements OnChanges {
         telefono: this.datosPersona.telefono.trim(),
         domicilio: this.datosPersona.domicilio.trim(),
         correo: this.datosPersona.correo.trim(),
+        situacion: this.datosPersona.situacion,
       },
       // =====================================
       // CATEGORÍA QRD
