@@ -11,6 +11,21 @@ interface Columna {
   estado?: number;
   plazo?: 'normal' | 'vencido';
 }
+interface Dependencia {
+  idNucleo: string;
+  nombre: string;
+  acronimo: string;
+}
+
+interface ResumenDependencia {
+  dependencia: Dependencia;
+  pendientes: number;
+  concluidos: number;
+  total: number;
+  procesoPorTipo: number[];
+  concluidosPorTipo: number[];
+}
+
 interface Fila {
   nombre: string;
   casos: any[][];
@@ -39,6 +54,39 @@ export class CuadroInspectoriasComponent implements OnInit {
   ];
   tipo = 'todos';
   categoriaQrd = 'todos';
+  reporte: 'general' | 'dependencias' | 'presentados' = 'general';
+  dependencias: Dependencia[] = [];
+  resumenDependencias: ResumenDependencia[] = [];
+  totalDependencias = this.crearResumen({ idNucleo: '', nombre: 'Total general', acronimo: 'TOTAL GENERAL' });
+  readonly tiposReporte = [
+    { nombre: 'Reclamo', sigla: 'R' },
+    { nombre: 'Queja', sigla: 'Q' },
+    { nombre: 'Denuncia', sigla: 'D' },
+    { nombre: 'Integridad', sigla: 'I' },
+  ];
+
+  get esTotalPresentados(): boolean {
+    return this.pestana === 'graficos' && this.reporte === 'presentados';
+  }
+
+  get categoriaQrdAplicada(): string {
+    return this.esTotalPresentados ? 'todos' : this.categoriaQrd;
+  }
+  get tiposReporteVisibles() {
+    return this.tiposReporte
+      .map((tipo, indice) => ({ ...tipo, indice }))
+      .filter(tipo => this.tipo === 'todos' ||
+        (this.tipo === 'Integridad' ? tipo.nombre === 'Integridad' :
+          tipo.nombre !== 'Integridad' && (this.categoriaQrdAplicada === 'todos' || tipo.nombre === this.categoriaQrdAplicada)));
+  }
+
+  get maximoPresentados(): number {
+    return Math.max(1, ...this.resumenDependencias.map(fila => fila.total), this.totalDependencias.total);
+  }
+
+  get barrasPresentados(): ResumenDependencia[] {
+    return [...this.resumenDependencias, this.totalDependencias];
+  }
   pestana: 'cuadro' | 'graficos' = 'cuadro';
 
   get maximoGrafico(): number {
@@ -61,7 +109,15 @@ export class CuadroInspectoriasComponent implements OnInit {
     this.cargando = true;
     this.error = '';
     try {
-      const expedientes = await firstValueFrom(this.expedientes.listarExpedientes());
+      const [expedientes, catalogoNucleos] = await Promise.all([
+        firstValueFrom(this.expedientes.listarExpedientes()),
+        firstValueFrom(this.usuarios.getNucleos()),
+      ]);
+      this.dependencias = (catalogoNucleos ?? []).map(nucleo => ({
+        idNucleo: String(nucleo.idNucleo).trim(),
+        nombre: nucleo.nombre,
+        acronimo: nucleo.acronimo?.trim() || 'Sin acrónimo (' + nucleo.idNucleo + ')',
+      }));
       const activos = (expedientes ?? []).filter(exp => String(exp.activo).trim().toUpperCase() === 'S');
       const nucleos = [...new Set<string>(activos
         .filter(exp => exp.idNucleoIg && exp.idIg)
@@ -139,33 +195,87 @@ export class CuadroInspectoriasComponent implements OnInit {
     const hoy = ['year', 'month', 'day'].map(tipo => partes.find(p => p.type === tipo)?.value).join('-');
     const grupos = new Map<string, Fila>();
     this.totales = this.columnas.map(() => 0);
+    const filtrados: any[] = [];
     for (const caso of this.registros) {
       const tipoCaso = this.tipoCaso(caso);
       const coincideTipo = this.tipo === 'QRD'
-        ? tipoCaso !== 'Integridad' && (this.categoriaQrd === 'todos' || tipoCaso === this.categoriaQrd)
+        ? tipoCaso !== 'Integridad' && (this.categoriaQrdAplicada === 'todos' || tipoCaso === this.categoriaQrdAplicada)
         : tipoCaso === this.tipo;
       if (this.tipo !== 'todos' && !coincideTipo) continue;
+      filtrados.push(caso);
       let fila = grupos.get(caso.clave);
       if (!fila) {
         fila = { nombre: caso.inspectoría, casos: this.columnas.map(() => []) };
         grupos.set(caso.clave, fila);
       }
+      const filaActual = fila;
       this.columnas.forEach((col, indice) => {
         const coincide = col.plazo
           ? !!caso.fechaFin && (col.plazo === 'normal' ? caso.fechaFin >= hoy : caso.fechaFin < hoy)
           : caso.estado === col.estado;
         if (coincide) {
-          fila.casos[indice].push(caso);
+          filaActual.casos[indice].push(caso);
           this.totales[indice]++;
         }
       });
     }
     this.filas = [...grupos.values()].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    this.agruparDependencias(filtrados);
   }
 
   abrir(fila: Fila, indice: number): void {
     this.detalle = { titulo: fila.nombre + ' · ' + this.columnas[indice].nombre, casos: fila.casos[indice] };
   }
-}
+  private crearResumen(dependencia: Dependencia): ResumenDependencia {
+    return {
+      dependencia, pendientes: 0, concluidos: 0, total: 0,
+      procesoPorTipo: [0, 0, 0, 0], concluidosPorTipo: [0, 0, 0, 0],
+    };
+  }
+
+  private agruparDependencias(casos: any[]): void {
+    const grupos = new Map<string, ResumenDependencia>(
+      this.dependencias.map(dependencia => [dependencia.idNucleo, this.crearResumen(dependencia)]),
+    );
+    const vistos = new Set<number>();
+    this.totalDependencias = this.crearResumen({
+      idNucleo: '', nombre: 'Total general', acronimo: 'TOTAL GENERAL',
+    });
+
+    for (const caso of casos) {
+      const id = Number(caso.idExpediente);
+      if (vistos.has(id) || ![2, 3, 4, 5].includes(Number(caso.estado))) continue;
+      vistos.add(id);
+
+      const idNucleo = String(caso.idNucleo ?? '').trim();
+      let fila = grupos.get(idNucleo);
+      if (!fila) {
+        const dependencia = {
+          idNucleo,
+          nombre: idNucleo ? 'Núcleo no disponible en el catálogo' : 'Sin núcleo asignado',
+          acronimo: idNucleo ? 'Núcleo ' + idNucleo : 'SIN NÚCLEO',
+        };
+        fila = this.crearResumen(dependencia);
+        grupos.set(idNucleo, fila);
+      }
+      const indiceTipo = this.tiposReporte.findIndex(tipo => tipo.nombre === this.tipoCaso(caso));
+      const concluido = Number(caso.estado) === 5;
+      for (const resumen of [fila, this.totalDependencias]) {
+        resumen.total++;
+        if (concluido) {
+          resumen.concluidos++;
+          if (indiceTipo >= 0) resumen.concluidosPorTipo[indiceTipo]++;
+        } else {
+          resumen.pendientes++;
+          if (indiceTipo >= 0) resumen.procesoPorTipo[indiceTipo]++;
+        }
+      }
+    }
+    this.resumenDependencias = [...grupos.values()];
+  }}
+
+
+
+
 
 

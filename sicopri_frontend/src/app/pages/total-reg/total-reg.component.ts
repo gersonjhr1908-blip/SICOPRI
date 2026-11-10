@@ -1,38 +1,20 @@
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 
-import {
-  Component,
-  OnInit
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 
-import {
-  firstValueFrom,
-  forkJoin,
-  of
-} from 'rxjs';
+import { firstValueFrom, forkJoin, of } from 'rxjs';
 
-import {
-  catchError,
-  map,
-  switchMap
-} from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
-import {
-  ExpedienteService
-} from '../../services/expediente.service';
+import { ExpedienteService } from '../../services/expediente.service';
 
-import {
-  UsersService
-} from '../../services/users.service';
+import { UsersService } from '../../services/users.service';
 
-import {
-  VerCasoComponent
-} from './ver-caso/ver-caso.component';
-
+import { VerCasoComponent } from './ver-caso/ver-caso.component';
 
 import { TrazabilidadPdfComponent } from '../trazabilidad-qrd/trazabilidad-pdf/trazabilidad-pdf.component';
 import { TrazabilidadPdfIntegridadComponent } from '../integridad/listado-integridad-compartido/trazabilidad-pdf-integridad/trazabilidad-pdf-integridad.component';
@@ -47,38 +29,46 @@ import { TrazabilidadQrdComponent } from '../trazabilidad-qrd/trazabilidad-qrd.c
     CommonModule,
     FormsModule,
     OverlayModule,
-    VerCasoComponent, TrazabilidadQrdComponent, TrazabilidadPdfComponent, TrazabilidadPdfIntegridadComponent
+    VerCasoComponent,
+    TrazabilidadQrdComponent,
+    TrazabilidadPdfComponent,
+    TrazabilidadPdfIntegridadComponent,
   ],
 
-  templateUrl:
-    './total-reg.component.html',
+  templateUrl: './total-reg.component.html',
 
-  styleUrl:
-    './total-reg.component.css'
+  styleUrl: './total-reg.component.css',
 })
-export class TotalRegComponent
-  implements OnInit {
-
-
+export class TotalRegComponent implements OnInit {
   // =========================================
   // BUSCADOR
   // =========================================
 
   readonly posicionesMenu: ConnectedPosition[] = [
-    { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 6 },
-    { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -6 },
+    {
+      originX: 'end',
+      originY: 'bottom',
+      overlayX: 'end',
+      overlayY: 'top',
+      offsetY: 6,
+    },
+    {
+      originX: 'end',
+      originY: 'top',
+      overlayX: 'end',
+      overlayY: 'bottom',
+      offsetY: -6,
+    },
   ];
   search: string = '';
   estadoFiltro = 0;
   readonly estadosFiltro = [1, 2, 3, 4, 5];
-
 
   // =========================================
   // PAGINACIÓN
   // =========================================
 
   pageSize: number = 5;
-
 
   // =========================================
   // DOCUMENTOS
@@ -88,7 +78,6 @@ export class TotalRegComponent
 
   documentosFiltrados: any[] = [];
 
-
   // =========================================
   // CATÁLOGOS
   // =========================================
@@ -96,7 +85,6 @@ export class TotalRegComponent
   tiposDocumento: any[] = [];
 
   nucleos: any[] = [];
-
 
   // =========================================
   // MODAL VER CASO
@@ -108,81 +96,47 @@ export class TotalRegComponent
   cargandoCaso = false;
   errorCaso = '';
 
-
   // =========================================
   // CONSTRUCTOR
   // =========================================
 
   constructor(
+    private expedienteService: ExpedienteService,
 
-    private expedienteService:
-      ExpedienteService,
-
-    private usersService:
-      UsersService
-
+    private usersService: UsersService,
   ) {}
-
 
   // =========================================
   // INICIO
   // =========================================
 
   ngOnInit(): void {
-
     this.cargarCatalogosBase();
-
   }
-
 
   // =========================================
   // CARGAR CATÁLOGOS BASE
   // =========================================
 
   cargarCatalogosBase(): void {
-
     forkJoin({
+      tiposDocumento: this.expedienteService.getTiposDocumento(),
 
-      tiposDocumento:
-        this.expedienteService
-          .getTiposDocumento(),
-
-      nucleos:
-        this.usersService
-          .getNucleos()
-
-    })
-    .subscribe({
-
+      nucleos: this.usersService.getNucleos(),
+    }).subscribe({
       next: (respuesta) => {
+        this.tiposDocumento = respuesta.tiposDocumento || [];
 
-
-        this.tiposDocumento =
-          respuesta.tiposDocumento || [];
-
-
-        this.nucleos =
-          respuesta.nucleos || [];
-
+        this.nucleos = respuesta.nucleos || [];
 
         this.cargarDocumentos();
-
       },
 
-
       error: (err) => {
-
-        console.error(
-          'ERROR AL CARGAR CATÁLOGOS BASE:',
-          err
-        );
-
-      }
-
+        console.error('ERROR AL CARGAR CATÁLOGOS BASE:', err);
+      },
     });
-
   }
-
 
   // =========================================
   // CARGAR EXPEDIENTES ADMINISTRADOR
@@ -200,211 +154,111 @@ export class TotalRegComponent
   // =========================================
 
   cargarDocumentos(): void {
+    this.expedienteService.listarExpedientes().subscribe({
+      next: (data) => {
+        const expedientes = data || [];
 
-    this.expedienteService
-      .listarExpedientes()
-      .subscribe({
+        console.log('TODOS LOS EXPEDIENTES:', expedientes);
 
-        next: (data) => {
+        // =====================================
+        // FILTRO ADMINISTRADOR
+        // =====================================
 
-          const expedientes =
-            data || [];
+        const expedientesAdmin = expedientes.filter(
+          (exp: any) =>
+            String(exp.activo || '')
+              .trim()
+              .toUpperCase() === 'S',
+        );
 
+        console.log('EXPEDIENTES VISIBLES ADMIN:', expedientesAdmin);
 
-          console.log(
-            'TODOS LOS EXPEDIENTES:',
-            expedientes
-          );
+        // =====================================
+        // SIN DOCUMENTOS
+        // =====================================
 
+        if (expedientesAdmin.length === 0) {
+          this.documentos = [];
 
-          // =====================================
-          // FILTRO ADMINISTRADOR
-          // =====================================
+          this.documentosFiltrados = [];
 
-          const expedientesAdmin =
-            expedientes.filter(
-              (exp: any) =>
-
-                String(
-                  exp.activo || ''
-                )
-                  .trim()
-                  .toUpperCase() === 'S'
-
-            );
-
-
-          console.log(
-            'EXPEDIENTES VISIBLES ADMIN:',
-            expedientesAdmin
-          );
-
-
-          // =====================================
-          // SIN DOCUMENTOS
-          // =====================================
-
-          if (
-            expedientesAdmin.length === 0
-          ) {
-
-            this.documentos = [];
-
-            this.documentosFiltrados = [];
-
-            return;
-
-          }
-
-
-          // =====================================
-          // PREPARAR EXPEDIENTES
-          // =====================================
-
-          const consultas =
-            expedientesAdmin.map(
-              (exp: any) => {
-
-                return this.prepararExpediente(
-                  exp
-                );
-
-              }
-            );
-
-
-          // =====================================
-          // ESPERAR TODOS
-          // =====================================
-
-          forkJoin(
-            consultas
-          )
-          .subscribe({
-
-            next: (
-              documentosPreparados
-            ) => {
-
-              this.documentos =
-                documentosPreparados;
-
-
-              this.buscar();
-
-
-              console.log(
-                'DOCUMENTOS ADMINISTRADOR:',
-                this.documentos
-              );
-
-            },
-
-
-            error: (err) => {
-
-              console.error(
-                'ERROR PREPARANDO DOCUMENTOS:',
-                err
-              );
-
-            }
-
-          });
-
-        },
-
-
-        error: (err) => {
-
-          console.error(
-            'ERROR AL CARGAR EXPEDIENTES:',
-            err
-          );
-
+          return;
         }
 
-      });
+        // =====================================
+        // PREPARAR EXPEDIENTES
+        // =====================================
 
+        const consultas = expedientesAdmin.map((exp: any) => {
+          return this.prepararExpediente(exp);
+        });
+
+        // =====================================
+        // ESPERAR TODOS
+        // =====================================
+
+        forkJoin(consultas).subscribe({
+          next: (documentosPreparados) => {
+            this.documentos = documentosPreparados;
+
+            this.buscar();
+
+            console.log('DOCUMENTOS ADMINISTRADOR:', this.documentos);
+          },
+
+          error: (err) => {
+            console.error('ERROR PREPARANDO DOCUMENTOS:', err);
+          },
+        });
+      },
+
+      error: (err) => {
+        console.error('ERROR AL CARGAR EXPEDIENTES:', err);
+      },
+    });
   }
-
 
   // =========================================
   // PREPARAR EXPEDIENTE
   // =========================================
 
-  prepararExpediente(
-    exp: any
-  ) {
-
-
+  prepararExpediente(exp: any) {
     // =========================================
     // TIPO DOCUMENTO
     // =========================================
 
-    const tipoDocumento =
-      this.tiposDocumento.find(
-        (tipo: any) =>
-
-          Number(
-            tipo.idTipoDocumento
-          ) ===
-
-          Number(
-            exp.idTipoDocumento
-          )
-
-      );
-
+    const tipoDocumento = this.tiposDocumento.find(
+      (tipo: any) =>
+        Number(tipo.idTipoDocumento) === Number(exp.idTipoDocumento),
+    );
 
     // =========================================
     // NÚCLEO
     // =========================================
 
-    const nucleo =
-      this.nucleos.find(
-        (item: any) =>
-
-          String(
-            item.idNucleo
-          ) ===
-
-          String(
-            exp.idNucleo
-          )
-
-      );
-
+    const nucleo = this.nucleos.find(
+      (item: any) => String(item.idNucleo) === String(exp.idNucleo),
+    );
 
     // =========================================
     // DATOS BASE
     // =========================================
 
     const base = {
-
       ...exp,
       categoria: this.obtenerCategoria(exp),
-
 
       // =====================================
       // TIPO DOCUMENTO
       // =====================================
 
-      documento:
-        tipoDocumento
-          ? tipoDocumento.nombre
-          : exp.idTipoDocumento,
-
+      documento: tipoDocumento ? tipoDocumento.nombre : exp.idTipoDocumento,
 
       // =====================================
       // NÚCLEO
       // =====================================
 
-      nombreNucleo:
-        nucleo
-          ? nucleo.nombre
-          : exp.idNucleo,
-
+      nombreNucleo: nucleo ? nucleo.nombre : exp.idNucleo,
 
       // =====================================
       // ESTADO REAL DEL EXPEDIENTE
@@ -412,177 +266,97 @@ export class TotalRegComponent
       // YA NO USAMOS ID_SITUACION
       // =====================================
 
-      estado:
-        this.obtenerEstado(
-          exp.idEstado
-        ),
-
+      estado: this.obtenerEstado(exp.idEstado),
 
       // =====================================
       // CLASE CSS DEL ESTADO
       // =====================================
 
-      estadoClase:
-        this.obtenerClaseEstado(
-          exp.idEstado
-        ),
-
+      estadoClase: this.obtenerClaseEstado(exp.idEstado),
 
       // =====================================
       // MENÚ
       // =====================================
 
-      menuAbierto:
-        false
-
+      menuAbierto: false,
     };
-
 
     // =========================================
     // SI NO HAY NÚCLEO O BRIGADA
     // =========================================
 
-    if (
-      !exp.idNucleo ||
-      !exp.idBrigada
-    ) {
-
+    if (!exp.idNucleo || !exp.idBrigada) {
       return of({
-
         ...base,
 
-        nombreBrigada:
-          exp.idBrigada || '-',
+        nombreBrigada: exp.idBrigada || '-',
 
-        ubicacion:
-          exp.idUnidad || '-'
-
+        ubicacion: exp.idUnidad || '-',
       });
-
     }
-
 
     // =========================================
     // CONSULTAR UBICACIÓN
     // =========================================
 
     return forkJoin({
+      brigadas: this.usersService.getBrigadas(exp.idNucleo),
 
-      brigadas:
-        this.usersService
-          .getBrigadas(
-            exp.idNucleo
-          ),
+      unidades: this.usersService.getUnidades(exp.idNucleo, exp.idBrigada),
+    }).pipe(
+      map((resultado: any) => {
+        // =====================================
+        // GRAN UNIDAD
+        // =====================================
 
-      unidades:
-        this.usersService
-          .getUnidades(
-            exp.idNucleo,
-            exp.idBrigada
-          )
+        const brigada = (resultado.brigadas || []).find(
+          (item: any) => String(item.idBrigada) === String(exp.idBrigada),
+        );
 
-    })
-    .pipe(
+        // =====================================
+        // UNIDAD
+        // =====================================
 
-      map(
-        (resultado: any) => {
+        const unidad = (resultado.unidades || []).find(
+          (item: any) => String(item.idUnidad) === String(exp.idUnidad),
+        );
 
+        return {
+          ...base,
 
-          // =====================================
-          // GRAN UNIDAD
-          // =====================================
+          nombreBrigada: brigada ? brigada.nombre : exp.idBrigada,
 
-          const brigada =
-            (resultado.brigadas || [])
-              .find(
-                (item: any) =>
-
-                  String(
-                    item.idBrigada
-                  ) ===
-
-                  String(
-                    exp.idBrigada
-                  )
-
-              );
-
-
-          // =====================================
-          // UNIDAD
-          // =====================================
-
-          const unidad =
-            (resultado.unidades || [])
-              .find(
-                (item: any) =>
-
-                  String(
-                    item.idUnidad
-                  ) ===
-
-                  String(
-                    exp.idUnidad
-                  )
-
-              );
-
-
-          return {
-
-            ...base,
-
-
-            nombreBrigada:
-              brigada
-                ? brigada.nombre
-                : exp.idBrigada,
-
-
-            ubicacion:
-              unidad
-                ? unidad.nombre
-                : exp.idUnidad
-
-          };
-
-        }
-      ),
-
+          ubicacion:
+            [
+              String(unidad?.guarnicion ?? '').trim(),
+              String(unidad?.nombre ?? exp.idUnidad ?? '').trim(),
+            ]
+              .filter(Boolean)
+              .join(' / ') || '-',
+        };
+      }),
 
       // =====================================
       // SI FALLA UBICACIÓN
       // =====================================
 
-      catchError(
-        (err) => {
+      catchError((err) => {
+        console.error(
+          'ERROR PREPARANDO UBICACIÓN DEL EXPEDIENTE:',
+          exp.idExpediente,
+          err,
+        );
 
-          console.error(
-            'ERROR PREPARANDO UBICACIÓN DEL EXPEDIENTE:',
-            exp.idExpediente,
-            err
-          );
+        return of({
+          ...base,
 
+          nombreBrigada: exp.idBrigada || '-',
 
-          return of({
-
-            ...base,
-
-            nombreBrigada:
-              exp.idBrigada || '-',
-
-            ubicacion:
-              exp.idUnidad || '-'
-
-          });
-
-        }
-      )
-
+          ubicacion: exp.idUnidad || '-',
+        });
+      }),
     );
-
   }
-
 
   // =========================================
   // OBTENER ESTADO REAL
@@ -591,7 +365,11 @@ export class TotalRegComponent
   // =========================================
 
   private obtenerCategoria(exp: any): string {
-    if (String(exp.categoria ?? '').trim().toUpperCase() === 'INTEGRIDAD') {
+    if (
+      String(exp.categoria ?? '')
+        .trim()
+        .toUpperCase() === 'INTEGRIDAD'
+    ) {
       return 'INTEGRIDAD';
     }
 
@@ -604,16 +382,8 @@ export class TotalRegComponent
     return categorias[Number(exp.idTipoExpediente)] ?? '—';
   }
 
-  obtenerEstado(
-    idEstado: number
-  ): string {
-
-    switch (
-      Number(
-        idEstado
-      )
-    ) {
-
+  obtenerEstado(idEstado: number): string {
+    switch (Number(idEstado)) {
       case 1:
         return 'REGISTRADO';
 
@@ -631,26 +401,15 @@ export class TotalRegComponent
 
       default:
         return '-';
-
     }
-
   }
-
 
   // =========================================
   // CLASE CSS DEL ESTADO
   // =========================================
 
-  obtenerClaseEstado(
-    idEstado: number
-  ): string {
-
-    switch (
-      Number(
-        idEstado
-      )
-    ) {
-
+  obtenerClaseEstado(idEstado: number): string {
+    switch (Number(idEstado)) {
       case 1:
         return 'estado-registrado';
 
@@ -668,11 +427,8 @@ export class TotalRegComponent
 
       default:
         return 'estado-default';
-
     }
-
   }
-
 
   // =========================================
   // BUSCADOR DINÁMICO
@@ -680,12 +436,26 @@ export class TotalRegComponent
 
   buscar(): void {
     const texto = this.search.trim().toLowerCase();
-    this.documentosFiltrados = this.documentos.filter(doc =>
-      (this.estadoFiltro === 0 || Number(doc.idEstado) === this.estadoFiltro) &&
-      (!texto || [
-        doc.cinv, doc.categoria, doc.asunto, doc.descripcion, doc.estado,
-        doc.ubicacion, doc.nombreNucleo, doc.nombreBrigada, doc.documento,
-      ].some(valor => String(valor ?? '').toLowerCase().includes(texto)))
+    this.documentosFiltrados = this.documentos.filter(
+      (doc) =>
+        (this.estadoFiltro === 0 ||
+          Number(doc.idEstado) === this.estadoFiltro) &&
+        (!texto ||
+          [
+            doc.cinv,
+            doc.categoria,
+            doc.asunto,
+            doc.descripcion,
+            doc.estado,
+            doc.ubicacion,
+            doc.nombreNucleo,
+            doc.nombreBrigada,
+            doc.documento,
+          ].some((valor) =>
+            String(valor ?? '')
+              .toLowerCase()
+              .includes(texto),
+          )),
     );
   }
 
@@ -694,38 +464,19 @@ export class TotalRegComponent
     this.buscar();
   }
 
-
-
   // =========================================
   // ABRIR / CERRAR MENÚ
   // =========================================
 
-  toggleMenu(
-    doc: any
-  ): void {
-
-
-    this.documentos.forEach(
-      (item: any) => {
-
-        if (
-          item !== doc
-        ) {
-
-          item.menuAbierto =
-            false;
-
-        }
-
+  toggleMenu(doc: any): void {
+    this.documentos.forEach((item: any) => {
+      if (item !== doc) {
+        item.menuAbierto = false;
       }
-    );
+    });
 
-
-    doc.menuAbierto =
-      !doc.menuAbierto;
-
+    doc.menuAbierto = !doc.menuAbierto;
   }
-
 
   // =========================================
   // VER CASO
@@ -742,54 +493,57 @@ export class TotalRegComponent
     this.errorCaso = '';
     this.cargandoCaso = true;
 
-    this.expedienteService.listarExpedientes().pipe(
-      switchMap(expedientes => {
-        const actual = expedientes.find(
-          exp => Number(exp.idExpediente) === Number(doc.idExpediente)
-            && String(exp.activo ?? '').trim().toUpperCase() === 'S',
-        );
+    this.expedienteService
+      .listarExpedientes()
+      .pipe(
+        switchMap((expedientes) => {
+          const actual = expedientes.find(
+            (exp) =>
+              Number(exp.idExpediente) === Number(doc.idExpediente) &&
+              String(exp.activo ?? '')
+                .trim()
+                .toUpperCase() === 'S',
+          );
 
-        return actual ? this.prepararExpediente(actual) : of(null);
-      }),
-    ).subscribe({
-      next: actual => {
-        this.cargandoCaso = false;
-        if (!actual) {
-          this.errorCaso = 'El expediente ya no está disponible.';
-          return;
-        }
+          return actual ? this.prepararExpediente(actual) : of(null);
+        }),
+      )
+      .subscribe({
+        next: (actual) => {
+          this.cargandoCaso = false;
+          if (!actual) {
+            this.errorCaso = 'El expediente ya no está disponible.';
+            return;
+          }
 
-        const actualizarFila = (fila: any) =>
-          Number(fila.idExpediente) === Number(doc.idExpediente) ? actual : fila;
+          const actualizarFila = (fila: any) =>
+            Number(fila.idExpediente) === Number(doc.idExpediente)
+              ? actual
+              : fila;
 
-        this.documentos = this.documentos.map(actualizarFila);
-        this.buscar();
-        this.editarInspectoria = editar;
-        this.expedienteSeleccionado = actual;
-        this.mostrarVerCaso = true;
-      },
-      error: () => {
-        this.cargandoCaso = false;
-        this.errorCaso = 'No se pudo consultar el estado actual del expediente.';
-      },
-    });
+          this.documentos = this.documentos.map(actualizarFila);
+          this.buscar();
+          this.editarInspectoria = editar;
+          this.expedienteSeleccionado = actual;
+          this.mostrarVerCaso = true;
+        },
+        error: () => {
+          this.cargandoCaso = false;
+          this.errorCaso =
+            'No se pudo consultar el estado actual del expediente.';
+        },
+      });
   }
-
 
   // =========================================
   // CERRAR VER CASO
   // =========================================
 
   cerrarVerCaso(): void {
+    this.mostrarVerCaso = false;
 
-    this.mostrarVerCaso =
-      false;
-
-    this.expedienteSeleccionado =
-      null;
-
+    this.expedienteSeleccionado = null;
   }
-
 
   // =========================================
   // TRAZABILIDAD
@@ -799,7 +553,11 @@ export class TotalRegComponent
   modoTrazabilidad: 'historial' | 'pdf' = 'historial';
 
   esIntegridad(doc: any): boolean {
-    return String(doc?.categoria ?? '').trim().toUpperCase() === 'INTEGRIDAD';
+    return (
+      String(doc?.categoria ?? '')
+        .trim()
+        .toUpperCase() === 'INTEGRIDAD'
+    );
   }
 
   verTrazabilidad(doc: any, modo: 'historial' | 'pdf' = 'historial'): void {
@@ -828,21 +586,26 @@ export class TotalRegComponent
       });
       if (!confirmacion.isConfirmed) return;
 
-      const actual = (await firstValueFrom(this.expedienteService.listarExpedientes()))
-        .find(exp => Number(exp.idExpediente) === id && exp.activo === 'S');
+      const actual = (
+        await firstValueFrom(this.expedienteService.listarExpedientes())
+      ).find((exp) => Number(exp.idExpediente) === id && exp.activo === 'S');
       if (!actual) {
         this.cargarDocumentos();
         await Swal.fire('Expediente no disponible', '', 'info');
         return;
       }
 
-      await firstValueFrom(this.expedienteService.eliminarComoAdministrador(id));
+      await firstValueFrom(
+        this.expedienteService.eliminarComoAdministrador(id),
+      );
       this.cargarDocumentos();
       await Swal.fire('Expediente eliminado', '', 'success');
     } catch (error: any) {
-      const detalle = typeof error?.error === 'string' && !error.error.trimStart().startsWith('<')
-        ? error.error.trim()
-        : error?.error?.message || error?.error?.mensaje;
+      const detalle =
+        typeof error?.error === 'string' &&
+        !error.error.trimStart().startsWith('<')
+          ? error.error.trim()
+          : error?.error?.message || error?.error?.mensaje;
       const estado = error?.status ? ` (HTTP ${error.status})` : '';
       await Swal.fire(
         'No se pudo eliminar',
@@ -854,9 +617,3 @@ export class TotalRegComponent
     }
   }
 }
-
-
-
-
-
-

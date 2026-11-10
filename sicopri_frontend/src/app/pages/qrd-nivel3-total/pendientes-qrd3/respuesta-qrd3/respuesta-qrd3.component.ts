@@ -46,6 +46,8 @@ export class RespuestaQrd3Component
     @Output()
     enviar = new EventEmitter<any>();
 
+    @Output() respuestasActualizadas = new EventEmitter<void>();
+
     pestanaActiva = 1;
 
     informes: InformeQrd3[] = [];
@@ -338,6 +340,7 @@ if (tipoSeleccionado === 'OTROS' && !tipo) {
                         );
 
                     this.cargandoInformes = false;
+                    this.respuestasActualizadas.emit();
                 },
 
                 error: (err) => {
@@ -551,3 +554,4 @@ if (tipoSeleccionado === 'OTROS' && !tipo) {
         });
     }
 }
+

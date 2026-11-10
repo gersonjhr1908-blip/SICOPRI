@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -1158,25 +1159,32 @@ export class VerCasoQrdComponent implements OnChanges, OnDestroy {
   // =========================================
 
   solicitarEnvioNivel3(): void {
-    if (this.soloLectura) {
+    if (this.soloLectura || !this.expediente) return;
+    if (this.guardandoObservacion || this.guardandoDestino ||
+        this.guardandoSeguimiento || this.cargandoSeguimiento) return;
+
+    if (!this.destinoGuardado) {
+      void Swal.fire({
+        icon: 'warning',
+        title: 'Destino pendiente',
+        text: 'Guarde el destino final antes de enviar.',
+        confirmButtonColor: '#176b49',
+      });
       return;
     }
 
-    if (!this.expediente) {
+    if (!this.seguimientoGuardado || this.seguimientoActivo || this.errorSeguimiento ||
+        !this.fechaInicioSeguimientoGuardada || !this.fechaFinSeguimientoGuardada ||
+        this.fechaFinSeguimientoGuardada < this.fechaInicioSeguimientoGuardada) {
+      this.pestanaActiva = 3;
+      void Swal.fire({
+        icon: 'warning',
+        title: 'Seguimiento pendiente',
+        text: 'Registre y guarde el seguimiento antes de enviar el expediente.',
+        confirmButtonColor: '#176b49',
+      });
       return;
     }
-
-    if (this.modoGestion && !this.destinoGuardado) {
-      this.errorDestino = 'Guarde el destino final antes de enviar.';
-      return;
-    }
-
-    if (this.modoGestion && !this.seguimientoGuardado) {
-      this.errorSeguimiento =
-        'Registre y guarde el seguimiento antes de enviar.';
-      return;
-    }
-
     this.enviarNivel3.emit(this.expediente);
   }
 
@@ -1222,3 +1230,4 @@ export class VerCasoQrdComponent implements OnChanges, OnDestroy {
     this.cerrar.emit();
   }
 }
+

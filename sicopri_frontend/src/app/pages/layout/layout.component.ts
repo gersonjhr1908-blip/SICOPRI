@@ -88,7 +88,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
     {
       id: 3,
-      nombre: 'QRD - Nivel 2',
+      nombre: 'RQD - Nivel 2',
     },
 
     {
@@ -98,7 +98,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
     {
       id: 5,
-      nombre: 'INSP. QRD - Nivel 3',
+      nombre: 'INSP. RQD - Nivel 3',
     },
 
     {
@@ -108,7 +108,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
     {
       id: 7,
-      nombre: 'INSP. QRD - Nivel 4',
+      nombre: 'INSP. RQD - Nivel 4',
     },
   ];
 

@@ -22,6 +22,8 @@ import {
   Unidad,
 } from '../../../../services/users.service';
 
+import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-gestionar-caso-qrd',
 
@@ -1135,22 +1137,36 @@ export class GestionarCasoQrdComponent implements OnChanges, OnDestroy {
   }
 
   solicitarEnvioNivel3(): void {
-    if (this.soloLectura) {
-      return;
-    }
-
-    if (!this.expediente) {
+    if (this.soloLectura || !this.expediente) {
       return;
     }
 
     if (this.modoGestion && !this.destinoGuardado) {
       this.errorDestino = 'Guarde el destino final antes de enviar.';
+
+      void Swal.fire({
+        icon: 'warning',
+        title: 'Destino pendiente',
+        text: 'Seleccione y guarde el destino final antes de enviar el documento.',
+        confirmButtonText: 'ACEPTAR',
+        confirmButtonColor: '#176b49',
+      });
+
       return;
     }
 
     if (this.modoGestion && !this.seguimientoGuardado) {
       this.errorSeguimiento =
         'Registre y guarde el seguimiento antes de enviar.';
+
+      void Swal.fire({
+        icon: 'warning',
+        title: 'Seguimiento pendiente',
+        text: 'Registre y guarde el seguimiento antes de enviar el documento.',
+        confirmButtonText: 'ACEPTAR',
+        confirmButtonColor: '#176b49',
+      });
+
       return;
     }
 

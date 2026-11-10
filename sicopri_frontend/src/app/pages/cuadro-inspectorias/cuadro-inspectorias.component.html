@@ -1,92 +1,526 @@
 <section class="cuadro">
-  <header><h1>CUADRO NUMÉRICO DE INVESTIGACIONES POR INSPECTORÍAS NIVEL {{ nivel }}</h1></header>
+  <header>
+    <h1>
+      CUADRO NUMÉRICO DE INVESTIGACIONES POR INSPECTORÍAS NIVEL {{ nivel }}
+    </h1>
+  </header>
+
+  <!-- PESTAÑAS PRINCIPALES -->
+
   <nav class="pestanas" aria-label="Vista de estadísticas">
-    <button type="button" [attr.aria-pressed]="pestana === 'cuadro'" (click)="pestana = 'cuadro'">
+    <button
+      type="button"
+      [attr.aria-pressed]="pestana === 'cuadro'"
+      (click)="pestana = 'cuadro'; agrupar()"
+    >
       ▦ Cuadro Nivel {{ nivel }}
     </button>
-    <button type="button" [attr.aria-pressed]="pestana === 'graficos'" (click)="pestana = 'graficos'">
+
+    <button
+      type="button"
+      [attr.aria-pressed]="pestana === 'graficos'"
+      (click)="pestana = 'graficos'; reporte = 'general'; agrupar()"
+    >
       ▥ Gráficos estadísticos
     </button>
   </nav>
+
+  <!-- SUBPESTAÑAS DE GRÁFICOS -->
+
+  <nav
+    class="subpestanas"
+    *ngIf="pestana === 'graficos'"
+    aria-label="Reportes por núcleo"
+  >
+    <button
+      type="button"
+      [attr.aria-pressed]="reporte === 'dependencias'"
+      (click)="reporte = 'dependencias'; agrupar()"
+    >
+      Estadística por dependencia
+    </button>
+
+    <button
+      type="button"
+      [attr.aria-pressed]="reporte === 'presentados'"
+      (click)="reporte = 'presentados'; agrupar()"
+    >
+      Total de casos presentados
+    </button>
+  </nav>
+
   <div class="contenido">
+    <!-- FILTROS Y RESUMEN -->
+
     <aside>
       <label for="tipo-expediente">TIPO</label>
-      <select id="tipo-expediente" [(ngModel)]="tipo" (ngModelChange)="agrupar()" [disabled]="cargando">
+
+      <select
+        id="tipo-expediente"
+        [(ngModel)]="tipo"
+        (ngModelChange)="agrupar()"
+        [disabled]="cargando"
+      >
         <option value="todos">Todos</option>
         <option value="Integridad">Integridad</option>
-        <option value="QRD">QRD</option>
+        <option value="QRD">RQD</option>
       </select>
-      <div class="categoria-qrd" *ngIf="tipo === 'QRD'">
-        <label for="categoria-qrd">CATEGORÍA QRD</label>
-        <select id="categoria-qrd" [(ngModel)]="categoriaQrd" (ngModelChange)="agrupar()" [disabled]="cargando">
+
+      <div class="categoria-qrd" *ngIf="tipo === 'QRD' && !esTotalPresentados">
+        <label for="categoria-qrd">CATEGORÍA RQD</label>
+
+        <select
+          id="categoria-qrd"
+          [(ngModel)]="categoriaQrd"
+          (ngModelChange)="agrupar()"
+          [disabled]="cargando"
+        >
           <option value="todos">Todas las categorías</option>
           <option value="Reclamo">Reclamos</option>
           <option value="Queja">Quejas</option>
           <option value="Denuncia">Denuncias</option>
         </select>
       </div>
-      <button class="actualizar" type="button" (click)="cargar()" [disabled]="cargando">Actualizar</button>
+
+      <button
+        class="actualizar"
+        type="button"
+        (click)="cargar()"
+        [disabled]="cargando"
+      >
+        {{ cargando ? "Actualizando…" : "Actualizar" }}
+      </button>
+
       <h2>Resumen general</h2>
+
       <div class="resumen" *ngFor="let col of columnas; let i = index">
-        <span>{{ col.nombre }}</span><strong>{{ cargando || error ? '—' : totales[i] }}</strong>
+        <span>{{ col.nombre }}</span>
+        <strong>{{ cargando || error ? "—" : totales[i] }}</strong>
       </div>
     </aside>
+
     <main>
       <p *ngIf="cargando" role="status">Consultando investigaciones…</p>
-      <p *ngIf="error" role="alert">{{ error }}</p>
+
+      <p *ngIf="error" role="alert">
+        {{ error }}
+      </p>
+
+      <!-- CUADRO POR INSPECTORÍA -->
+
       <div class="tabla" *ngIf="!cargando && !error && pestana === 'cuadro'">
         <table>
-          <thead><tr><th scope="col">Inspectoría</th><th scope="col" *ngFor="let col of columnas; let i = index" [attr.data-col]="i">{{ col.nombre }}</th></tr></thead>
+          <thead>
+            <tr>
+              <th scope="col">Inspectoría</th>
+
+              <th
+                scope="col"
+                *ngFor="let col of columnas; let i = index"
+                [attr.data-col]="i"
+              >
+                {{ col.nombre }}
+              </th>
+            </tr>
+          </thead>
+
           <tbody>
             <tr *ngFor="let fila of filas">
               <th scope="row">{{ fila.nombre }}</th>
+
               <td *ngFor="let casos of fila.casos; let i = index">
-                <button class="cantidad" type="button" [attr.data-col]="i"
-                  [attr.aria-label]="fila.nombre + ', ' + columnas[i].nombre + ': ' + casos.length"
-                  (click)="abrir(fila, i)">{{ casos.length }}</button>
+                <button
+                  class="cantidad"
+                  type="button"
+                  [attr.data-col]="i"
+                  [attr.aria-label]="
+                    fila.nombre +
+                    ', ' +
+                    columnas[i].nombre +
+                    ': ' +
+                    casos.length
+                  "
+                  (click)="abrir(fila, i)"
+                >
+                  {{ casos.length }}
+                </button>
               </td>
             </tr>
-            <tr *ngIf="!filas.length"><td colspan="8">No hay expedientes para este tipo y nivel.</td></tr>
+
+            <tr *ngIf="!filas.length">
+              <td colspan="8">No hay expedientes para este tipo y nivel.</td>
+            </tr>
           </tbody>
         </table>
       </div>
-      <section class="grafico" *ngIf="!cargando && !error && pestana === 'graficos'" aria-labelledby="titulo-grafico">
-        <header>
-          <span class="grafico-nivel">NIVEL {{ nivel }}</span>
-          <h2 id="titulo-grafico">Distribución de expedientes</h2>
-          <p>Conteos de todas las inspectorías según los filtros seleccionados.</p>
-        </header>
-        <p *ngIf="!filas.length">No hay expedientes para este tipo y nivel.</p>
-        <div class="grafico-fila" *ngFor="let col of columnas; let i = index">
-          <span>{{ col.nombre }}</span>
-          <div class="grafico-pista" aria-hidden="true">
-            <div class="grafico-barra" [attr.data-col]="i" [style.width.%]="(totales[i] || 0) * 100 / maximoGrafico"></div>
+
+      <!-- ÁREA DE GRÁFICOS Y REPORTES -->
+
+      <section
+        class="grafico"
+        *ngIf="!cargando && !error && pestana === 'graficos'"
+        aria-label="Gráficos y reportes estadísticos"
+      >
+        <!-- DISTRIBUCIÓN ORIGINAL -->
+
+        <ng-container *ngIf="reporte === 'general'">
+          <header>
+            <span class="grafico-nivel">NIVEL {{ nivel }}</span>
+            <h2>Distribución de expedientes</h2>
+
+            <p>
+              Conteos de todas las inspectorías según los filtros seleccionados.
+            </p>
+          </header>
+
+          <p *ngIf="!filas.length">
+            No hay expedientes para este tipo y nivel.
+          </p>
+
+          <div class="grafico-fila" *ngFor="let col of columnas; let i = index">
+            <span>{{ col.nombre }}</span>
+
+            <div class="grafico-pista" aria-hidden="true">
+              <div
+                class="grafico-barra"
+                [attr.data-col]="i"
+                [style.width.%]="((totales[i] || 0) * 100) / maximoGrafico"
+              ></div>
+            </div>
+
+            <strong>{{ totales[i] || 0 }}</strong>
           </div>
-          <strong>{{ totales[i] || 0 }}</strong>
-        </div>
-        <small>Las columnas de plazo pueden incluir expedientes que también aparecen en una columna de estado.</small>
+
+          <small>
+            Las columnas de plazo pueden incluir expedientes que también
+            aparecen en una columna de estado.
+          </small>
+        </ng-container>
+
+        <!-- ESTADÍSTICA POR DEPENDENCIA -->
+
+        <section
+          class="reporte-dependencias"
+          *ngIf="reporte === 'dependencias'"
+        >
+          <h2>Estadística por dependencia</h2>
+
+          <div class="tabla">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Dependencia</th>
+                  <th scope="col">Concluido</th>
+                  <th scope="col">Pendiente</th>
+                  <th scope="col">Total</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let fila of resumenDependencias">
+                  <th scope="row" [title]="fila.dependencia.nombre">
+                    {{ fila.dependencia.acronimo }}
+                  </th>
+
+                  <td>{{ fila.concluidos }}</td>
+                  <td>{{ fila.pendientes }}</td>
+                  <td class="celda-total">{{ fila.total }}</td>
+                </tr>
+              </tbody>
+
+              <tfoot>
+                <tr>
+                  <th scope="row">TOTAL GENERAL</th>
+                  <td>{{ totalDependencias.concluidos }}</td>
+                  <td>{{ totalDependencias.pendientes }}</td>
+                  <td>{{ totalDependencias.total }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </section>
+
+        <!-- TOTAL DE CASOS PRESENTADOS -->
+
+        <section class="reporte-presentados" *ngIf="reporte === 'presentados'">
+          <h2>Total de casos presentados por dependencia</h2>
+
+          <div class="leyenda-reportes">
+            <span>
+              <i class="muestra-proceso"></i>
+              En proceso
+            </span>
+
+            <span>
+              <i class="muestra-concluido"></i>
+              Concluidos
+            </span>
+          </div>
+
+          <div class="presentados-layout">
+            <!-- BARRAS POR DEPENDENCIA -->
+
+            <div class="columnas-contenedor">
+              <!-- BARRAS -->
+
+              <div class="columnas-grafico" aria-hidden="true">
+                <div
+                  class="columna-dependencia"
+                  *ngFor="let fila of barrasPresentados"
+                >
+                  <strong>{{ fila.total }}</strong>
+
+                  <div class="columna-pista">
+                    <div
+                      class="segmento concluido"
+                      [style.height.px]="
+                        (fila.concluidos * 240) / maximoPresentados
+                      "
+                    ></div>
+
+                    <div
+                      class="segmento proceso"
+                      [style.height.px]="
+                        (fila.pendientes * 240) / maximoPresentados
+                      "
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- VALORES DE CADA BARRA -->
+
+              <table
+                class="datos-grafico"
+                aria-label="Valores del gráfico por dependencia"
+              >
+                <thead>
+                  <tr>
+                    <th scope="col">Situación</th>
+
+                    <th
+                      scope="col"
+                      *ngFor="let fila of barrasPresentados"
+                      [title]="fila.dependencia.nombre"
+                    >
+                      {{ fila.dependencia.acronimo }}
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <th scope="row">
+                      <i class="muestra-proceso"></i>
+                      En proceso
+                    </th>
+
+                    <td *ngFor="let fila of barrasPresentados">
+                      {{ fila.pendientes }}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <th scope="row">
+                      <i class="muestra-concluido"></i>
+                      Concluidos
+                    </th>
+
+                    <td *ngFor="let fila of barrasPresentados">
+                      {{ fila.concluidos }}
+                    </td>
+                  </tr>
+                </tbody>
+
+                <tfoot>
+                  <tr>
+                    <th scope="row">TOTAL</th>
+
+                    <td *ngFor="let fila of barrasPresentados">
+                      {{ fila.total }}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <!-- DESGLOSE POR CATEGORÍA -->
+
+            <div class="tabla tabla-desglose">
+              <table>
+                <thead>
+                  <tr>
+                    <th rowspan="2" scope="col">Dependencia</th>
+
+                    <th
+                      scope="colgroup"
+                      class="grupo-proceso"
+                      [attr.colspan]="tiposReporteVisibles.length"
+                    >
+                      En proceso
+                    </th>
+
+                    <th
+                      scope="colgroup"
+                      class="grupo-concluido"
+                      [attr.colspan]="tiposReporteVisibles.length"
+                    >
+                      Concluidos
+                    </th>
+
+                    <th rowspan="2" scope="col">Total</th>
+                  </tr>
+
+                  <tr>
+                    <th
+                      scope="col"
+                      class="grupo-proceso"
+                      *ngFor="let tipoReporte of tiposReporteVisibles"
+                      [title]="tipoReporte.nombre"
+                    >
+                      {{ tipoReporte.sigla }}
+                    </th>
+
+                    <th
+                      scope="col"
+                      class="grupo-concluido"
+                      *ngFor="let tipoReporte of tiposReporteVisibles"
+                      [title]="tipoReporte.nombre"
+                    >
+                      {{ tipoReporte.sigla }}
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let fila of resumenDependencias">
+                    <th scope="row" [title]="fila.dependencia.nombre">
+                      {{ fila.dependencia.acronimo }}
+                    </th>
+
+                    <td *ngFor="let tipoReporte of tiposReporteVisibles">
+                      {{ fila.procesoPorTipo[tipoReporte.indice] }}
+                    </td>
+
+                    <td *ngFor="let tipoReporte of tiposReporteVisibles">
+                      {{ fila.concluidosPorTipo[tipoReporte.indice] }}
+                    </td>
+
+                    <td class="celda-total">
+                      {{ fila.total }}
+                    </td>
+                  </tr>
+                </tbody>
+
+                <tfoot>
+                  <tr>
+                    <!-- UNA SOLA ETIQUETA PARA LAS DOS FILAS -->
+                    <th scope="rowgroup" rowspan="2">TOTAL</th>
+
+                    <!-- SUMAS POR CATEGORÍA EN PROCESO -->
+                    <td *ngFor="let tipoReporte of tiposReporteVisibles">
+                      {{ totalDependencias.procesoPorTipo[tipoReporte.indice] }}
+                    </td>
+
+                    <!-- SUMAS POR CATEGORÍA CONCLUIDA -->
+                    <td *ngFor="let tipoReporte of tiposReporteVisibles">
+                      {{
+                        totalDependencias.concluidosPorTipo[tipoReporte.indice]
+                      }}
+                    </td>
+
+                    <!-- UN SOLO CUADRO CON EL TOTAL FINAL -->
+                    <td rowspan="2" class="celda-total">
+                      {{ totalDependencias.total }}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <!-- SUMA DE TODAS LAS CATEGORÍAS EN PROCESO -->
+                    <td [attr.colspan]="tiposReporteVisibles.length">
+                      {{ totalDependencias.pendientes }}
+                    </td>
+
+                    <!-- SUMA DE TODAS LAS CATEGORÍAS CONCLUIDAS -->
+                    <td [attr.colspan]="tiposReporteVisibles.length">
+                      {{ totalDependencias.concluidos }}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </section>
       </section>
     </main>
   </div>
 </section>
 
-<div class="fondo" *ngIf="detalle as lista" [hidden]="!!caso" (click)="detalle = null">
-  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-detalle" (click)="$event.stopPropagation()">
-    <header><h2 id="titulo-detalle">{{ lista.titulo }}</h2><button type="button" aria-label="Cerrar lista" (click)="detalle = null">×</button></header>
+<!-- MODAL DE EXPEDIENTES DEL CUADRO NUMÉRICO -->
+
+<div
+  class="fondo"
+  *ngIf="detalle as lista"
+  [hidden]="!!caso"
+  (click)="detalle = null"
+>
+  <section
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="titulo-detalle"
+    (click)="$event.stopPropagation()"
+  >
+    <header>
+      <h2 id="titulo-detalle">{{ lista.titulo }}</h2>
+
+      <button type="button" aria-label="Cerrar lista" (click)="detalle = null">
+        ×
+      </button>
+    </header>
+
     <div class="tabla">
       <table>
-        <thead><tr><th>CINV</th><th>Tipo</th><th>Asunto</th><th>Fecha de registro</th><th>Ver caso</th></tr></thead>
+        <thead>
+          <tr>
+            <th>CINV</th>
+            <th>Tipo</th>
+            <th>Asunto</th>
+            <th>Fecha de registro</th>
+            <th>Ver caso</th>
+          </tr>
+        </thead>
+
         <tbody>
           <tr *ngFor="let exp of lista.casos">
-            <td>{{ exp.cinv }}</td><td>{{ tipoCaso(exp) }}</td><td>{{ exp.asunto || '—' }}</td>
-            <td>{{ exp.fechaRegistro | date:'dd/MM/yyyy' }}</td>
-            <td><button class="ojo" type="button" [attr.aria-label]="'Ver caso ' + exp.cinv" title="Ver caso" (click)="caso = exp">👁</button></td>
+            <td>{{ exp.cinv }}</td>
+            <td>{{ tipoCaso(exp) }}</td>
+            <td>{{ exp.asunto || "—" }}</td>
+            <td>{{ exp.fechaRegistro | date: "dd/MM/yyyy" }}</td>
+
+            <td>
+              <button
+                class="ojo"
+                type="button"
+                [attr.aria-label]="'Ver caso ' + exp.cinv"
+                title="Ver caso"
+                (click)="caso = exp"
+              >
+                👁
+              </button>
+            </td>
           </tr>
-          <tr *ngIf="!lista.casos.length"><td colspan="5">No hay expedientes en este grupo.</td></tr>
+
+          <tr *ngIf="!lista.casos.length">
+            <td colspan="5">No hay expedientes en este grupo.</td>
+          </tr>
         </tbody>
       </table>
     </div>
   </section>
 </div>
 
-<app-ver-caso *ngIf="caso" [expediente]="caso" (cerrar)="caso = null"></app-ver-caso>
+<!-- CONSULTA DEL CASO -->
+
+<app-ver-caso *ngIf="caso" [expediente]="caso" (cerrar)="caso = null">
+</app-ver-caso>

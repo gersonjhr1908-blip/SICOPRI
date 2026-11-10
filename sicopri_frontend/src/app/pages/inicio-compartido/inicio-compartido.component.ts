@@ -96,8 +96,8 @@ export class InicioCompartidoComponent implements OnInit, OnDestroy {
     }
 
     return this.nivel === 2
-      ? 'DEPARTAMENTO DE QUEJAS, RECLAMOS Y DENUNCIAS'
-      : 'INSPECTORÍA DE QUEJAS, RECLAMOS Y DENUNCIAS';
+      ? 'DEPARTAMENTO DE RECLAMOS, QUEJAS Y DENUNCIAS'
+      : 'INSPECTORÍA DE RECLAMOS, QUEJAS Y DENUNCIAS';
   }
 
   get etiqueta(): string {
@@ -105,7 +105,7 @@ export class InicioCompartidoComponent implements OnInit, OnDestroy {
       return 'ADMINISTRADOR';
     }
 
-    const modulo = this.modulo === 'qrd' ? 'QRD' : 'INTEGRIDAD';
+    const modulo = this.modulo === 'qrd' ? 'RQD' : 'INTEGRIDAD';
 
     return `${modulo} · NIVEL ${this.nivel}`;
   }

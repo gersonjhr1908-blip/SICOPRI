@@ -1,25 +1,4 @@
-<style>
-  body {
-    background-image: url("assets/fondorqd.png");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    width: 100%;
-    height: 100vh;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-</style>
-
-<body>
-  <!-- SISTEMA DE DENUNCIAS,QUEJAS O RECLAMOS -->
+<div class="login-page">
   <header class="top-header">
     <div class="header-left">
       <mat-icon>shield</mat-icon>
@@ -28,7 +7,7 @@
         © {{ year }} Departamento de Sistemas de Información - SDI - DITELE
       </span>
 
-      <span class="rights-text"> Todos los Derechos Reservados </span>
+      <span class="rights-text">Todos los Derechos Reservados</span>
     </div>
 
     <div class="header-right">
@@ -44,17 +23,13 @@
     </div>
   </header>
 
-  <!-- Contenedor Principal -->
   <div class="main-container">
     <div class="two-column-layout">
-      <!-- Columna Izquierda -->
       <div class="left-column"></div>
 
-      <!-- Columna Derecha: Formulario de Login -->
       <div class="right-column">
         <div class="login-wrapper">
           <mat-card class="box">
-            <!-- Logo superior -->
             <div class="login-logo-container">
               <div class="login-logo-circle">
                 <mat-icon>security</mat-icon>
@@ -69,13 +44,12 @@
               (ngSubmit)="login()"
             >
               <mat-card-content>
-                <!-- Usuario -->
                 <div class="form-field-wrapper">
                   <mat-form-field
                     class="example-full-width"
                     appearance="outline"
                   >
-                    <mat-icon matPrefix> person </mat-icon>
+                    <mat-icon matPrefix>person</mat-icon>
 
                     <input
                       matInput
@@ -90,13 +64,12 @@
                   </mat-form-field>
                 </div>
 
-                <!-- Contraseña -->
                 <div class="form-field-wrapper">
                   <mat-form-field
                     class="example-full-width"
                     appearance="outline"
                   >
-                    <mat-icon matPrefix> lock </mat-icon>
+                    <mat-icon matPrefix>lock</mat-icon>
 
                     <input
                       matInput
@@ -109,18 +82,15 @@
                   </mat-form-field>
                 </div>
 
-                <!-- Botón iniciar sesión -->
                 <button
                   id="login"
                   type="submit"
                   class="custom-button"
                   [disabled]="_formulario.invalid || loading"
                 >
-                  <span *ngIf="!loading"> INICIAR SESIÓN </span>
-
-                  <span *ngIf="loading"> VERIFICANDO... </span>
-
-                  <mat-icon> login </mat-icon>
+                  <span *ngIf="!loading">INICIAR SESIÓN</span>
+                  <span *ngIf="loading">VERIFICANDO...</span>
+                  <mat-icon>login</mat-icon>
                 </button>
               </mat-card-content>
             </form>
@@ -129,17 +99,14 @@
               <p>Entorno local de desarrollo y pruebas</p>
             </div>
 
-            <!-- Separador -->
             <div class="card-divider"></div>
 
-            <!-- Información inferior -->
             <div class="login-footer">
               <p>Desarrollado por DESI-SDI - DITELE - SICOPRI © {{ year }}</p>
 
               <div class="version-badge">
-                <mat-icon> stars </mat-icon>
-
-                <span> VERSIÓN 3.0 </span>
+                <mat-icon>stars</mat-icon>
+                <span>VERSIÓN 3.0</span>
               </div>
             </div>
           </mat-card>
@@ -148,16 +115,13 @@
     </div>
   </div>
 
-  <!-- Mensajes -->
   <mat-card *ngIf="message" class="message-card">
-    <mat-icon> check_circle </mat-icon>
-
+    <mat-icon>check_circle</mat-icon>
     {{ message }}
   </mat-card>
 
   <mat-card *ngIf="error" class="error-card">
-    <mat-icon> error </mat-icon>
-
+    <mat-icon>error</mat-icon>
     {{ error }}
   </mat-card>
-</body>
+</div>

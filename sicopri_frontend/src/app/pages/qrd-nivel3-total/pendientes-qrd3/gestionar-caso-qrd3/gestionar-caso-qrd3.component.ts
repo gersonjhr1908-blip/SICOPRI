@@ -1179,11 +1179,18 @@ export class GestionarCasoQrd3Component implements OnChanges, OnDestroy {
     }
   }
 
+  tieneRespuestaPropia = false;
+
+  get tieneAlgunaRespuesta(): boolean {
+    return this.tieneRespuestaPropia || this.tieneRespuestaQrd4;
+  }
+
   cargarRespuestasQrd4(): void {
     const idExpediente = Number(this.expediente?.idExpediente);
 
     this.respuestasQrd4 = [];
     this.tieneRespuestaQrd4 = false;
+    this.tieneRespuestaPropia = false;
     this.respuestaPdfUrl = null;
     this.errorRespuestasQrd4 = '';
 
@@ -1195,6 +1202,7 @@ export class GestionarCasoQrd3Component implements OnChanges, OnDestroy {
 
     this.expedienteService.listarRespuestasQrd4(idExpediente).subscribe({
       next: (data: any[]) => {
+        this.tieneRespuestaPropia = (Array.isArray(data) ? data : []).some(respuesta => Number(respuesta.nivelOrigen) === 3 && Number(respuesta.nivelDestino) === 2);
         this.respuestasQrd4 = (Array.isArray(data) ? data : []).filter(
           (respuesta) =>
             Number(respuesta.nivelOrigen) === 4 &&
@@ -1203,7 +1211,7 @@ export class GestionarCasoQrd3Component implements OnChanges, OnDestroy {
 
         this.tieneRespuestaQrd4 =
           Number(this.expediente?.nivelActual) === 3 &&
-          Number(this.expediente?.idEstado) === 4 &&
+
           this.respuestasQrd4.length > 0;
         this.cargandoRespuestasQrd4 = false;
       },
@@ -1211,6 +1219,7 @@ export class GestionarCasoQrd3Component implements OnChanges, OnDestroy {
         console.error('ERROR AL CARGAR RESPUESTAS QRD4:', err);
         this.respuestasQrd4 = [];
         this.tieneRespuestaQrd4 = false;
+    this.tieneRespuestaPropia = false;
         this.errorRespuestasQrd4 =
           'No se pudieron cargar las respuestas de QRD4.';
         this.cargandoRespuestasQrd4 = false;
@@ -1352,6 +1361,7 @@ export class GestionarCasoQrd3Component implements OnChanges, OnDestroy {
   }
 
   solicitarDevolucion(): void {
+    if (this.tieneAlgunaRespuesta || this.cargandoRespuestasQrd4 || this.errorRespuestasQrd4) return;
     if (!String(this.observacionActual || '').trim()) {
       this.errorObservacion =
         'Debe registrar la observación antes de devolver el documento.';
@@ -1416,4 +1426,15 @@ export class GestionarCasoQrd3Component implements OnChanges, OnDestroy {
 
     this.cerrar.emit();
   }
-}
+  enviarRespuestaANivel2Propia(): void {
+    if (!this.tieneRespuestaPropia || this.cargandoRespuestasQrd4 || this.errorRespuestasQrd4) return;
+    this.enviarRespuestaPropia.emit({
+      ...this.expediente,
+      observacionActual: this.observacionActual,
+    });
+  }
+
+  @Output() enviarRespuestaPropia = new EventEmitter<any>();}
+
+
+

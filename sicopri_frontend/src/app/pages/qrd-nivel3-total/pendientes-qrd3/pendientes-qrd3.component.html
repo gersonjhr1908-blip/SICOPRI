@@ -6,7 +6,7 @@
 
       <div>
         <h2>DOCUMENTOS PENDIENTES</h2>
-        <p>QRD Nivel 3 · Documentos recibidos para atención</p>
+        <p>RQD Nivel 3 · Documentos recibidos para atención</p>
       </div>
     </div>
 
@@ -130,6 +130,7 @@
   (enviarNivel2)="enviarAQr2($event)"
   (devolverDocumento)="devolverANivel2($event)"
   (darRespuesta)="abrirRespuesta($event)"
+  (enviarRespuestaPropia)="enviarRespuestaANivel2($event)"
 >
 </app-gestionar-caso-qrd3>
 
@@ -139,5 +140,6 @@
   [expediente]="documentoRespuesta"
   (cerrar)="cerrarRespuesta()"
   (enviar)="enviarRespuestaANivel2($event)"
+  (respuestasActualizadas)="gestionarCaso?.cargarRespuestasQrd4()"
 >
 </app-respuesta-qrd3>

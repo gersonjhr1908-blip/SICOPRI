@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+
 
 import { Component, Input, OnChanges, OnDestroy } from '@angular/core';
 
@@ -16,11 +16,29 @@ import {
 } from 'rxjs';
 
 import { ExpedienteService } from '../../services/expediente.service';
+import { UsersService } from '../../services/users.service';
 
 type Nivel = 2 | 3 | 4;
 type Modulo = 'qrd' | 'integridad';
 
+interface Dependencia {
+  idNucleo: string;
+  nombre: string;
+  acronimo: string;
+}
+
+interface ResumenDependencia {
+  dependencia: Dependencia;
+  pendientes: number;
+  concluidos: number;
+  total: number;
+  procesoPorTipo: number[];
+  concluidosPorTipo: number[];
+}
+
 interface RegistroEstadistica {
+  idNucleo: string;
+  idTipoExpediente: number;
   id: number;
   estado: number;
   fechaRegistro: string;
@@ -38,7 +56,7 @@ interface BarraEstadistica {
 @Component({
   selector: 'app-estadistica-compartida',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './estadistica-compartida.component.html',
   styleUrl: './estadistica-compartida.component.css',
 })
@@ -47,16 +65,43 @@ export class EstadisticaCompartidaComponent implements OnChanges, OnDestroy {
   @Input() nivel: Nivel = 2;
   @Input() nivelFijo = false;
 
-  nivelSeleccionado: Nivel = 2;
+  pestana: 'resumen' | 'dependencias' | 'presentados' = 'resumen';
+  dependencias: Dependencia[] = [];
+  resumenDependencias: ResumenDependencia[] = [];
+  totalDependencias = this.crearResumen({
+    idNucleo: '', nombre: 'Total', acronimo: 'TOTAL',
+  });
 
-  desde = '';
-  hasta = '';
+  readonly tiposReporte = [
+    { nombre: 'Reclamo', sigla: 'R', indice: 0 },
+    { nombre: 'Queja', sigla: 'Q', indice: 1 },
+    { nombre: 'Denuncia', sigla: 'D', indice: 2 },
+    { nombre: 'Integridad', sigla: 'I', indice: 3 },
+  ];
 
+  get tiposReporteVisibles() {
+    return this.tiposReporte.filter(tipo =>
+      this.modulo === 'integridad' ? tipo.sigla === 'I' : tipo.sigla !== 'I',
+    );
+  }
+
+  get maximoPresentados(): number {
+    return Math.max(1, this.totalDependencias.total);
+  }
+
+  get barrasPresentados(): ResumenDependencia[] {
+    return [...this.resumenDependencias, this.totalDependencias];
+  }
+
+  get alcance(): string {
+    if (this.nivel === 2 && !this.nivelFijo) return 'Todos los expedientes del módulo';
+    return 'Expedientes relacionados con los niveles ' + this.nivelesPermitidos.join(' y ');
+  }
   cargando = false;
   datosCargados = false;
 
   error = '';
-  errorFiltros = '';
+
 
   total = 0;
   enAtencion = 0;
@@ -71,16 +116,15 @@ export class EstadisticaCompartidaComponent implements OnChanges, OnDestroy {
   private readonly recarga$ = new Subject<void>();
   private readonly destroy$ = new Subject<void>();
 
-  constructor(private expedienteService: ExpedienteService) {}
+  constructor(
+    private expedienteService: ExpedienteService,
+    private usuarios: UsersService,
+  ) {}
 
   ngOnChanges(): void {
-    this.nivelSeleccionado = this.nivel;
-    this.desde = '';
-    this.hasta = '';
-
+    this.pestana = 'resumen';
     this.cargarDatos();
   }
-
   ngOnDestroy(): void {
     this.recarga$.next();
     this.recarga$.complete();
@@ -90,7 +134,7 @@ export class EstadisticaCompartidaComponent implements OnChanges, OnDestroy {
   }
 
   get nombreModulo(): string {
-    return this.modulo === 'qrd' ? 'QRD' : 'Integridad';
+    return this.modulo === 'qrd' ? 'RQD' : 'Integridad';
   }
 
   get nivelesPermitidos(): Nivel[] {
@@ -112,18 +156,28 @@ export class EstadisticaCompartidaComponent implements OnChanges, OnDestroy {
     this.cargando = true;
     this.datosCargados = false;
     this.error = '';
-    this.errorFiltros = '';
+
 
     this.registros = [];
     this.total = 0;
     this.enAtencion = 0;
     this.barrasEstados = [];
     this.barrasPlazos = [];
+    this.agruparDependencias([]);
 
     this.expedienteService
       .listarExpedientes()
       .pipe(
-        switchMap((data: any[]) => {
+        switchMap(data => forkJoin({
+          expedientes: of(data),
+          nucleos: this.usuarios.getNucleos(),
+        })),
+        switchMap(({ expedientes: data, nucleos }) => {
+          this.dependencias = (nucleos ?? []).map(nucleo => ({
+            idNucleo: String(nucleo.idNucleo).trim(),
+            nombre: nucleo.nombre,
+            acronimo: nucleo.acronimo?.trim() || 'Sin acrónimo (' + nucleo.idNucleo + ')',
+          }));
           if (!Array.isArray(data)) {
             throw new Error(
               'La lista de expedientes tiene un formato inesperado.',
@@ -162,7 +216,7 @@ export class EstadisticaCompartidaComponent implements OnChanges, OnDestroy {
           this.cargando = false;
           this.datosCargados = true;
 
-          this.aplicarFiltros();
+          this.recalcular();
         },
         error: (error: any) => {
           console.error('ERROR AL CARGAR ESTADÍSTICAS:', error);
@@ -179,48 +233,15 @@ export class EstadisticaCompartidaComponent implements OnChanges, OnDestroy {
       });
   }
 
-  aplicarFiltros(): void {
-    this.errorFiltros = '';
+  recalcular(): void {
+    if (!this.datosCargados || this.cargando) return;
 
-    if (
-      !this.nivelesPermitidos.includes(Number(this.nivelSeleccionado) as Nivel)
-    ) {
-      this.errorFiltros = 'Seleccione uno de los niveles disponibles.';
-      return;
-    }
+    const filtrados = this.registros.filter(registro =>
+      (this.nivel === 2 && !this.nivelFijo) ||
+      registro.niveles.some(nivel => this.nivelesPermitidos.includes(nivel as Nivel)),
+    );
 
-    const desde = this.desde ? this.fechaValida(this.desde) : '';
-
-    const hasta = this.hasta ? this.fechaValida(this.hasta) : '';
-
-    if ((this.desde && !desde) || (this.hasta && !hasta)) {
-      this.errorFiltros = 'Seleccione fechas válidas.';
-      return;
-    }
-
-    if (desde && hasta && desde > hasta) {
-      this.errorFiltros = 'La fecha Desde no puede ser posterior a Hasta.';
-      return;
-    }
-
-    if (!this.datosCargados || this.cargando) {
-      return;
-    }
-
-    const nivel = Number(this.nivelSeleccionado);
-
-    const filtrados = this.registros.filter((registro) => {
-      const correspondeNivel = registro.niveles.includes(nivel);
-
-      const correspondeFecha =
-        (!desde ||
-          (!!registro.fechaRegistro && registro.fechaRegistro >= desde)) &&
-        (!hasta ||
-          (!!registro.fechaRegistro && registro.fechaRegistro <= hasta));
-
-      return correspondeNivel && correspondeFecha;
-    });
-
+    this.agruparDependencias(filtrados);
     this.total = filtrados.length;
 
     const estados = [
@@ -289,14 +310,6 @@ export class EstadisticaCompartidaComponent implements OnChanges, OnDestroy {
         '#697586',
       ),
     ];
-  }
-
-  limpiarFiltros(): void {
-    this.desde = '';
-    this.hasta = '';
-    this.nivelSeleccionado = this.nivel;
-
-    this.aplicarFiltros();
   }
 
   private perteneceAlModulo(expediente: any): boolean {
@@ -385,6 +398,8 @@ export class EstadisticaCompartidaComponent implements OnChanges, OnDestroy {
 
         return {
           id,
+          idNucleo: String(expediente.idNucleo ?? '').trim(),
+          idTipoExpediente: Number(expediente.idTipoExpediente),
           estado: Number(expediente.idEstado),
           fechaRegistro: this.fechaValida(expediente.fechaRegistro),
           niveles: [...niveles],
@@ -444,4 +459,47 @@ export class EstadisticaCompartidaComponent implements OnChanges, OnDestroy {
 
     return [obtener('year'), obtener('month'), obtener('day')].join('-');
   }
-}
+  private crearResumen(dependencia: Dependencia): ResumenDependencia {
+    return {
+      dependencia, pendientes: 0, concluidos: 0, total: 0,
+      procesoPorTipo: [0, 0, 0, 0], concluidosPorTipo: [0, 0, 0, 0],
+    };
+  }
+
+  private agruparDependencias(casos: RegistroEstadistica[]): void {
+    const grupos = new Map<string, ResumenDependencia>(
+      this.dependencias.map(dependencia => [dependencia.idNucleo, this.crearResumen(dependencia)]),
+    );
+    this.totalDependencias = this.crearResumen({
+      idNucleo: '', nombre: 'Total', acronimo: 'TOTAL',
+    });
+
+    for (const caso of casos) {
+      if (![2, 3, 4, 5].includes(caso.estado)) continue;
+      let fila = grupos.get(caso.idNucleo);
+      if (!fila) {
+        fila = this.crearResumen({
+          idNucleo: caso.idNucleo,
+          nombre: caso.idNucleo ? 'Núcleo no disponible en el catálogo' : 'Sin núcleo asignado',
+          acronimo: caso.idNucleo ? 'Núcleo ' + caso.idNucleo : 'SIN NÚCLEO',
+        });
+        grupos.set(caso.idNucleo, fila);
+      }
+      const indices: Record<number, number> = { 3: 0, 2: 1, 1: 2 };
+      const indice = this.modulo === 'integridad' ? 3 : indices[caso.idTipoExpediente];
+      const concluido = caso.estado === 5;
+
+      for (const resumen of [fila, this.totalDependencias]) {
+        resumen.total++;
+        if (concluido) {
+          resumen.concluidos++;
+          resumen.concluidosPorTipo[indice]++;
+        } else {
+          resumen.pendientes++;
+          resumen.procesoPorTipo[indice]++;
+        }
+      }
+    }
+    this.resumenDependencias = [...grupos.values()];
+  }}
+
