@@ -38,56 +38,35 @@
               <h1 class="sicopri-title">SIQRED</h1>
             </div>
 
-            <form
-              class="form-group"
-              [formGroup]="_formulario"
-              (ngSubmit)="login()"
-            >
+            <form class="form-group" [formGroup]="_formulario" (ngSubmit)="login()">
               <mat-card-content>
                 <div class="form-field-wrapper">
-                  <mat-form-field
-                    class="example-full-width"
-                    appearance="outline"
-                  >
+                  <mat-form-field class="example-full-width" appearance="outline">
                     <mat-icon matPrefix>person</mat-icon>
 
-                    <input
-                      matInput
-                      type="text"
-                      formControlName="username"
-                      placeholder="Ingrese su usuario local"
-                      class="username"
-                      (input)="convertirAMayusculas()"
-                      maxlength="60"
-                      autocomplete="username"
-                    />
+                    <input matInput type="text" formControlName="username" placeholder="Ingrese su usuario local"
+                      class="username" (input)="convertirAMayusculas()" maxlength="60" autocomplete="username" />
                   </mat-form-field>
                 </div>
 
                 <div class="form-field-wrapper">
-                  <mat-form-field
-                    class="example-full-width"
-                    appearance="outline"
-                  >
+                  <mat-form-field class="example-full-width" appearance="outline">
                     <mat-icon matPrefix>lock</mat-icon>
 
-                    <input
-                      matInput
-                      type="password"
-                      formControlName="password"
-                      placeholder="Ingrese su contraseña local"
-                      class="password"
-                      autocomplete="current-password"
-                    />
+                    <input matInput [type]="mostrarPassword ? 'text' : 'password'" formControlName="password"
+                      placeholder="Ingrese su contraseña local" class="password" autocomplete="current-password" />
+
+                    <button mat-icon-button matSuffix type="button" (click)="mostrarPassword = !mostrarPassword"
+                      [attr.aria-label]="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                      [attr.aria-pressed]="mostrarPassword">
+                      <mat-icon>
+                        {{ mostrarPassword ? 'visibility_off' : 'visibility' }}
+                      </mat-icon>
+                    </button>
                   </mat-form-field>
                 </div>
 
-                <button
-                  id="login"
-                  type="submit"
-                  class="custom-button"
-                  [disabled]="_formulario.invalid || loading"
-                >
+                <button id="login" type="submit" class="custom-button" [disabled]="_formulario.invalid || loading">
                   <span *ngIf="!loading">INICIAR SESIÓN</span>
                   <span *ngIf="loading">VERIFICANDO...</span>
                   <mat-icon>login</mat-icon>

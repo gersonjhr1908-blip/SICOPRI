@@ -1,437 +1,529 @@
 <div class="usuarios-page">
-
-  <!-- CABECERA -->
   <div class="usuarios-card">
 
+    <!-- CABECERA -->
     <div class="titulo-container">
-
-      <div class="titulo-icono">
-        👥
-      </div>
+      <div class="titulo-icono">👥</div>
 
       <div>
-        <h2>
-          ADMINISTRACIÓN DE USUARIOS
-        </h2>
-
-        <p>
-          Gestión de usuarios y permisos del sistema
-        </p>
+        <h2>ADMINISTRACIÓN DE USUARIOS</h2>
+        <p>Gestión de usuarios y permisos del sistema</p>
       </div>
-
     </div>
 
-
-    <!-- TOOLBAR -->
+    <!-- BUSCADOR Y ACCIONES -->
     <div class="toolbar-usuarios">
-
       <div class="buscador">
+        <span class="search-icon">🔍</span>
 
-        <span class="search-icon">
-          🔍
-        </span>
+        <input
+          type="text"
+          [(ngModel)]="search"
+          (keyup.enter)="buscarUsuarios()"
+          placeholder="Buscador dinámico..."
+        />
 
-        <input type="text" [(ngModel)]="search" (keyup.enter)="buscarUsuarios()" placeholder="Buscador dinámico..." />
-
-        <button *ngIf="search" type="button" class="btn-limpiar" (click)="limpiarBusqueda()">
+        <button
+          *ngIf="search"
+          type="button"
+          class="btn-limpiar"
+          (click)="limpiarBusqueda()"
+          aria-label="Limpiar búsqueda"
+        >
           ✕
         </button>
-
       </div>
-
 
       <div class="toolbar-actions">
-
         <div class="total-box">
           👥
-          <span>
-            Total:
-            <strong>
-              {{ totalUsuarios }}
-            </strong>
-          </span>
+          <span>Total: <strong>{{ totalUsuarios }}</strong></span>
         </div>
 
-
-        <button type="button" class="btn-nuevo" (click)="abrirNuevoUsuario()">
+        <button
+          type="button"
+          class="btn-nuevo"
+          (click)="abrirNuevoUsuario()"
+        >
           ＋ Nuevo Usuario
         </button>
-
       </div>
-
     </div>
-
 
     <!-- TABLA -->
     <div class="tabla-wrapper">
-
       <table class="usuarios-table">
-
         <thead>
-
           <tr>
             <th>CIP</th>
             <th>USUARIO</th>
-
-            <th>
-              GRADO ARMA APELLIDOS Y NOMBRES
-            </th>
-
+            <th>GRADO ARMA APELLIDOS Y NOMBRES</th>
             <th>ROL</th>
-
             <th>ESTADO</th>
-
             <th>F. ACCESO</th>
-
-            <th class="acciones-col">
-              ACCIONES
-            </th>
+            <th class="acciones-col">ACCIONES</th>
           </tr>
-
         </thead>
 
-
         <tbody>
-
           <tr *ngFor="let usuario of usuarios">
-
-            <td>
-              {{ usuario.cip }}
-            </td>
-
+            <td>{{ usuario.cip }}</td>
 
             <td class="usuario-cell">
               {{ usuario.username }}
             </td>
 
-
             <td>
-
-              <strong>
-                {{ usuario.grado }}
-              </strong>
-
+              <strong>{{ usuario.grado }}</strong>
               {{ usuario.arma }}
-
               {{ usuario.fullname }}
-
             </td>
 
-
             <td>
-
               <span class="rol-badge">
                 {{ obtenerRol(usuario) }}
               </span>
-
             </td>
 
-
             <td>
-
-              <span class="estado-badge" [class.activo]="usuario.estado === 1" [class.inactivo]="usuario.estado !== 1">
-
+              <span
+                class="estado-badge"
+                [class.activo]="usuario.estado === 1"
+                [class.inactivo]="usuario.estado !== 1"
+              >
                 {{
-                usuario.estado === 1
-                ? '● ACTIVO'
-                : '● INACTIVO'
+                  usuario.estado === 1
+                    ? '● ACTIVO'
+                    : '● INACTIVO'
                 }}
-
               </span>
-
             </td>
-
 
             <td>
-
               {{
-              usuario.fechaActivo
-              ? (usuario.fechaActivo |
-              date:'dd-MM-yyyy HH:mm')
-              : '-'
+                usuario.fechaActivo
+                  ? (usuario.fechaActivo | date:'dd-MM-yyyy HH:mm')
+                  : '-'
               }}
-
             </td>
-
 
             <td class="acciones">
 
-              <button type="button" class="btn-editar" title="Editar usuario" (click)="editarUsuario(usuario)">
+              <!-- VER DATOS -->
+              <button
+                type="button"
+                class="btn-ver"
+                title="Ver datos del usuario"
+                [attr.aria-label]="'Ver datos de ' + usuario.username"
+                (click)="verUsuario(usuario)"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"
+                  />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+
+              <!-- EDITAR -->
+              <button
+                type="button"
+                class="btn-editar"
+                title="Editar usuario"
+                aria-label="Editar usuario"
+                (click)="editarUsuario(usuario)"
+              >
                 ✎
               </button>
 
-
-              <button type="button" class="btn-eliminar" title="Eliminar usuario" (click)="eliminarUsuario(usuario)">
+              <!-- ELIMINAR -->
+              <button
+                type="button"
+                class="btn-eliminar"
+                title="Eliminar usuario"
+                aria-label="Eliminar usuario"
+                (click)="eliminarUsuario(usuario)"
+              >
                 🗑
               </button>
 
             </td>
-
           </tr>
-
 
           <tr *ngIf="usuarios.length === 0">
-
             <td colspan="7" class="sin-registros">
-
-              <span>
-                👤
-              </span>
-
+              <span>👤</span>
               No se encontraron usuarios.
-
             </td>
-
           </tr>
-
         </tbody>
-
       </table>
-
 
       <div *ngIf="loadingTabla" class="loading-table">
         Cargando usuarios...
       </div>
-
     </div>
-
   </div>
 
-
-  <!-- ================================================= -->
-  <!-- MODAL NUEVO / EDITAR -->
-  <!-- ================================================= -->
-
-  <div class="modal-overlay" *ngIf="mostrarModal">
-
-    <div class="modal-usuario">
-
+  <!-- MODAL: NUEVO / EDITAR / CONSULTAR -->
+  <div
+    class="modal-overlay"
+    *ngIf="mostrarModal"
+    (keydown.escape)="cerrarModal()"
+  >
+    <div
+      class="modal-usuario"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-usuario"
+      [class.solo-lectura]="modoSoloLectura"
+      cdkTrapFocus
+      [cdkTrapFocusAutoCapture]="true"
+    >
 
       <div class="modal-header">
-
         <div>
-
-          <h2>
+          <h2 id="titulo-usuario">
             👤
             {{
-            modoEdicion
-            ? 'ACTUALIZAR USUARIO'
-            : 'REGISTRAR NUEVO USUARIO'
+              modoSoloLectura
+                ? 'DATOS DEL USUARIO'
+                : (
+                    modoEdicion
+                      ? 'ACTUALIZAR USUARIO'
+                      : 'REGISTRAR NUEVO USUARIO'
+                  )
             }}
           </h2>
 
           <p>
-            Información del personal y permisos
+            {{
+              modoSoloLectura
+                ? 'Consulta de información · Solo lectura'
+                : 'Información del personal y permisos'
+            }}
           </p>
-
         </div>
 
-
-        <button class="modal-close" type="button" (click)="cerrarModal()">
+        <button
+          class="modal-close"
+          type="button"
+          aria-label="Cerrar datos del usuario"
+          (click)="cerrarModal()"
+        >
           ✕
         </button>
-
       </div>
-
 
       <div class="modal-body">
 
-
-        <!-- FILA 1 -->
+        <!-- DATOS PERSONALES -->
         <div class="form-grid fila-principal">
-
-
           <div class="form-field">
-
-            <label>
-              N° CIP *
-            </label>
+            <label for="usuario-cip">N° CIP *</label>
 
             <div class="cip-group">
+              <input
+                id="usuario-cip"
+                type="text"
+                [(ngModel)]="cip"
+                maxlength="9"
+                placeholder="Ingrese CIP"
+                [readonly]="modoEdicion || modoSoloLectura"
+                (input)="onCipInput()"
+              />
 
-              <input type="text" [(ngModel)]="cip" maxlength="9" placeholder="Ingrese CIP" [readonly]="modoEdicion"
-                (input)="onCipInput()" />
-
-              <button type="button" class="btn-buscar-cip" (click)="buscarPorCip()" [disabled]="buscandoCip">
-
-                {{
-                buscandoCip
-                ? '...'
-                : '🔍'
-                }}
-
+              <button
+                *ngIf="!modoSoloLectura && !modoEdicion"
+                type="button"
+                class="btn-buscar-cip"
+                aria-label="Buscar persona por CIP"
+                (click)="buscarPorCip()"
+                [disabled]="buscandoCip"
+              >
+                {{ buscandoCip ? '...' : '🔍' }}
               </button>
-
             </div>
-
           </div>
-
 
           <div class="form-field">
-
-            <label>
-              USUARIO
-            </label>
-
-            <input type="text" [(ngModel)]="username" readonly />
-
+            <label for="usuario-nombre">USUARIO</label>
+            <input
+              id="usuario-nombre"
+              type="text"
+              [(ngModel)]="username"
+              readonly
+            />
           </div>
-
 
           <div class="form-field">
-
-            <label>
-              GRADO
-            </label>
-
-            <input type="text" [(ngModel)]="grado" readonly />
-
+            <label for="usuario-grado">GRADO</label>
+            <input
+              id="usuario-grado"
+              type="text"
+              [(ngModel)]="grado"
+              readonly
+            />
           </div>
-
 
           <div class="form-field">
-
-            <label>
-              ARMA
-            </label>
-
-            <input type="text" [(ngModel)]="arma" readonly />
-
+            <label for="usuario-arma">ARMA</label>
+            <input
+              id="usuario-arma"
+              type="text"
+              [(ngModel)]="arma"
+              readonly
+            />
           </div>
-
         </div>
 
-
-        <!-- NOMBRES -->
         <div class="form-field full">
-
-          <label>
+          <label for="usuario-fullname">
             APELLIDOS Y NOMBRES *
           </label>
 
-          <input type="text" [(ngModel)]="fullname" readonly />
-
+          <input
+            id="usuario-fullname"
+            type="text"
+            [(ngModel)]="fullname"
+            readonly
+          />
         </div>
 
+        <br />
 
-        <br>
-
-
+        <!-- UBICACIÓN ORGÁNICA -->
         <div class="form-grid tres-columnas">
 
-          <!-- NÚCLEO -->
           <div class="form-field">
+            <label for="usuario-nucleo">NÚCLEO</label>
 
-            <label>NÚCLEO</label>
+            <select
+              id="usuario-nucleo"
+              [(ngModel)]="nucleoCodigo"
+              (change)="onNucleoChange()"
+              [disabled]="modoSoloLectura"
+            >
+              <option value="">Seleccione núcleo</option>
 
-            <select [(ngModel)]="nucleoCodigo" (change)="onNucleoChange()">
-
-              <option value="">
-                Seleccione núcleo
+              <option
+                *ngIf="
+                  nucleoCodigo &&
+                  !contieneCodigo(nucleos, 'idNucleo', nucleoCodigo)
+                "
+                [ngValue]="nucleoCodigo"
+              >
+                Código guardado: {{ nucleoCodigo }}
               </option>
 
-              <option *ngFor="let nucleo of nucleos" [value]="nucleo.idNucleo">
+              <option
+                *ngFor="let nucleo of nucleos"
+                [ngValue]="nucleo.idNucleo.toString()"
+              >
                 {{ nucleo.acronimo }} - {{ nucleo.nombre }}
               </option>
-
             </select>
-
           </div>
 
-
-          <!-- BRIGADA -->
           <div class="form-field">
+            <label for="usuario-brigada">GRAN UNIDAD</label>
 
-            <label>BRIGADA</label>
+            <select
+              id="usuario-brigada"
+              [(ngModel)]="brigadaCodigo"
+              (change)="onBrigadaChange()"
+              [disabled]="modoSoloLectura || !nucleoCodigo"
+            >
+              <option value="">Seleccione gran unidad</option>
 
-            <select [(ngModel)]="brigadaCodigo" (change)="onBrigadaChange()" [disabled]="!nucleoCodigo">
-
-              <option value="">
-                Seleccione brigada
+              <option
+                *ngIf="
+                  brigadaCodigo &&
+                  !contieneCodigo(brigadas, 'idBrigada', brigadaCodigo)
+                "
+                [ngValue]="brigadaCodigo"
+              >
+                Código guardado: {{ brigadaCodigo }}
               </option>
 
-              <option *ngFor="let brigada of brigadas" [value]="brigada.idBrigada">
+              <option
+                *ngFor="let brigada of brigadas"
+                [ngValue]="brigada.idBrigada.toString()"
+              >
                 {{ brigada.acronimo }} - {{ brigada.nombre }}
               </option>
-
             </select>
-
           </div>
 
-
-          <!-- UNIDAD -->
           <div class="form-field">
+            <label for="usuario-unidad">UNIDAD</label>
 
-            <label>UNIDAD</label>
+            <select
+              id="usuario-unidad"
+              [(ngModel)]="unidadCodigo"
+              (change)="onUnidadChange()"
+              [disabled]="modoSoloLectura || !brigadaCodigo"
+            >
+              <option value="">Seleccione unidad</option>
 
-            <select [(ngModel)]="unidadCodigo" (change)="onUnidadChange()" [disabled]="!brigadaCodigo">
-
-              <option value="">
-                Seleccione unidad
+              <option
+                *ngIf="
+                  unidadCodigo &&
+                  !contieneCodigo(unidades, 'idUnidad', unidadCodigo)
+                "
+                [ngValue]="unidadCodigo"
+              >
+                Código guardado: {{ unidadCodigo }}
               </option>
 
-              <option *ngFor="let unidad of unidades" [value]="unidad.idUnidad">
+              <option
+                *ngFor="let unidad of unidades"
+                [ngValue]="unidad.idUnidad.toString()"
+              >
                 {{ unidad.acronimo }} - {{ unidad.nombre }}
               </option>
-
             </select>
-
           </div>
 
         </div>
 
+        <div class="separator"></div>
 
-        <br>
+        <!-- INSPECTORÍA: SIN DESTINO -->
+        <div class="form-grid tres-columnas inspectoria-grid">
 
-        <div class="form-grid tres-columnas">
-
-
-          <!-- ROL -->
           <div class="form-field">
+            <label for="nucleo-ig">NÚCLEO IG</label>
 
-            <label>
-              ROL *
-            </label>
+            <select
+              id="nucleo-ig"
+              [(ngModel)]="nucleoIgCodigo"
+              (change)="onNucleoIgChange()"
+              [disabled]="modoSoloLectura"
+            >
+              <option value="">Sin núcleo IG asignado</option>
 
-            <select [(ngModel)]="rolSeleccionado">
+              <option
+                *ngIf="
+                  nucleoIgCodigo &&
+                  !contieneCodigo(nucleos, 'idNucleo', nucleoIgCodigo)
+                "
+                [ngValue]="nucleoIgCodigo"
+              >
+                Código guardado: {{ nucleoIgCodigo }}
+              </option>
 
+              <option
+                *ngFor="let nucleo of nucleos"
+                [ngValue]="nucleo.idNucleo.toString()"
+              >
+                {{ nucleo.acronimo }} - {{ nucleo.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="inspectoria-ig">IG</label>
+
+            <select
+              id="inspectoria-ig"
+              [(ngModel)]="igCodigo"
+              [disabled]="modoSoloLectura || !nucleoIgCodigo"
+            >
+              <option value="">Sin IG asignada</option>
+
+              <option
+                *ngIf="
+                  igCodigo &&
+                  !contieneCodigo(inspectorias, 'idBrigada', igCodigo)
+                "
+                [ngValue]="igCodigo"
+              >
+                Código guardado: {{ igCodigo }}
+              </option>
+
+              <option
+                *ngFor="let ig of inspectorias"
+                [ngValue]="ig.idBrigada.toString()"
+              >
+                {{ ig.acronimo }} - {{ ig.nombre }}
+              </option>
+            </select>
+          </div>
+
+        </div>
+
+        <p
+          *ngIf="errorCatalogos"
+          class="aviso-catalogos"
+          role="status"
+        >
+          {{ errorCatalogos }}
+        </p>
+
+        <div class="separator"></div>
+
+        <!-- ROL -->
+        <div class="form-grid tres-columnas">
+          <div class="form-field">
+            <label>ROL *</label>
+
+            <!-- Consulta o administrador existente -->
+            <input
+              *ngIf="modoSoloLectura || administradorActual"
+              type="text"
+              [value]="obtenerRol(usuarioActual)"
+              readonly
+              aria-label="Roles del usuario"
+            />
+
+            <!-- Registro o edición de otro usuario -->
+            <select
+              *ngIf="!modoSoloLectura && !administradorActual"
+              [(ngModel)]="rolSeleccionado"
+              aria-label="Rol del usuario"
+            >
               <option [ngValue]="null">
                 Seleccione rol
               </option>
 
-              <option *ngFor="let rol of roles" [ngValue]="rol.idRole">
+              <option
+                *ngFor="let rol of rolesAsignables"
+                [ngValue]="rol.idRole"
+              >
                 {{ rol.name }}
               </option>
-
             </select>
-
           </div>
-
-
-          
-
-
-        <!-- FOOTER -->
-        <div class="modal-footer">
-
-          <button type="button" class="btn-salir" (click)="cerrarModal()">
-            ✕ Salir
-          </button>
-
-
-          <button type="button" class="btn-guardar" (click)="guardarUsuario()">
-            💾
-            {{
-            modoEdicion
-            ? 'Actualizar'
-            : 'Guardar'
-            }}
-          </button>
-
         </div>
 
       </div>
 
-    </div>
+      <!-- BOTONES -->
+      <div class="modal-footer">
+        <span *ngIf="modoSoloLectura" class="lectura-badge">
+          Solo lectura
+        </span>
 
+        <button
+          type="button"
+          class="btn-salir"
+          (click)="cerrarModal()"
+        >
+          {{ modoSoloLectura ? 'Cerrar' : '✕ Salir' }}
+        </button>
+
+        <button
+          *ngIf="!modoSoloLectura"
+          type="button"
+          class="btn-guardar"
+          [disabled]="buscandoCip"
+          (click)="guardarUsuario()"
+        >
+          💾 {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
+        </button>
+      </div>
+
+    </div>
   </div>
+</div>

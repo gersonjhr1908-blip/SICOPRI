@@ -34,5 +34,14 @@ public class UsuarioDTO {
     private BrigadaDto brigada;
     private DependenciaDto dependencia;
 
+    private String idNucleo;
+    private String idBrigada;
+    private String idUnidad;
+
+    private String idNucleoIg;
+    private String idIg;
+
+    private Integer roleActiveIdRole;
+
     private List<RoleDTO> roles;
 }

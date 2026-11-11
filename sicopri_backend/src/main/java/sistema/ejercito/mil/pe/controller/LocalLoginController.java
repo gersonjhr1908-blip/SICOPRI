@@ -1,6 +1,7 @@
 package sistema.ejercito.mil.pe.controller;
 
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import sistema.ejercito.mil.pe.security.JwtTokenUtil;
 import sistema.ejercito.mil.pe.security.JwtUserDetailsService;
 import sistema.ejercito.mil.pe.service.IUserService;
 
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -26,9 +28,10 @@ public class LocalLoginController {
     private final JwtUserDetailsService userDetailsService;
     private final IUserService userService;
 
-    @Value("${app.local-login.username}")
-    private String localUsername;
-
+    /*
+     * Todos los usuarios locales de prueba usarán
+     * la contraseña configurada en application.properties.
+     */
     @Value("${app.local-login.password}")
     private String localPassword;
 
@@ -41,31 +44,88 @@ public class LocalLoginController {
     public ResponseEntity<?> login(
             @RequestBody LocalLoginRequest request
     ) {
-        if (!localUsername.equals(request.username())
-                || !localPassword.equals(request.password())) {
 
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        // =========================================
+        // VALIDAR SOLICITUD
+        // =========================================
+
+        if (request == null ||
+                request.username() == null ||
+                request.username().isBlank() ||
+                request.password() == null) {
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "message",
+                            "Debe ingresar usuario y contraseña"
+                    ));
+        }
+
+        String username = request
+                .username()
+                .trim()
+                .toUpperCase(Locale.ROOT);
+
+        // =========================================
+        // VALIDAR CONTRASEÑA LOCAL COMPARTIDA
+        // =========================================
+
+        if (!localPassword.equals(request.password())) {
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of(
                             "message",
                             "Usuario o contraseña local incorrectos"
                     ));
         }
 
-        User usuario = userService.buscarporUser(localUsername);
+        // =========================================
+        // BUSCAR USUARIO EN LA BASE DE DATOS
+        // =========================================
 
-        if (usuario == null || usuario.getEstado() != 1) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        User usuario;
+
+        try {
+            usuario = userService.buscarporUser(username);
+        } catch (Exception e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "message",
+                            "Usuario local inexistente"
+                    ));
+        }
+
+        // =========================================
+        // VALIDAR QUE ESTÉ ACTIVO
+        // =========================================
+
+        if (usuario == null ||
+                !Integer.valueOf(1).equals(usuario.getEstado())) {
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of(
                             "message",
                             "Usuario local inexistente o inactivo"
                     ));
         }
 
+        // =========================================
+        // GENERAR TOKEN CON SU ROL REAL
+        // =========================================
+
         UserDetails userDetails =
-                userDetailsService.loadUserByUsername(localUsername);
+                userDetailsService.loadUserByUsername(username);
 
-        String token = jwtTokenUtil.generateToken(userDetails);
+        String token =
+                jwtTokenUtil.generateToken(userDetails);
 
-        return ResponseEntity.ok(new JwtResponse(token));
+        return ResponseEntity.ok(
+                new JwtResponse(token)
+        );
     }
 }

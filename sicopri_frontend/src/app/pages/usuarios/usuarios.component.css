@@ -865,3 +865,122 @@
     padding: 8px;
   }
 }
+
+/* Botón Ver datos */
+.btn-ver {
+  width: 32px;
+  height: 32px;
+
+  border: none;
+  border-radius: 6px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #e3f5ec;
+  color: #126444;
+
+  cursor: pointer;
+  transition: transform .2s ease;
+}
+
+.btn-ver svg {
+  width: 19px;
+  height: 19px;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+}
+
+.btn-ver:hover {
+  transform: scale(1.07);
+  background: #ccebdc;
+}
+
+.acciones {
+  min-width: 136px;
+  align-items: center;
+}
+
+/* Modal */
+.modal-usuario,
+.modal-usuario * {
+  box-sizing: border-box;
+}
+
+.form-grid > .form-field {
+  min-width: 0;
+}
+
+/* Datos seleccionados, visibles y bloqueados */
+.form-field select:disabled {
+  opacity: 1;
+  color: #44534d;
+  background: #f6f8f7;
+  cursor: default;
+}
+
+/* El CIP ocupa todo el ancho al no mostrar buscador */
+.solo-lectura .cip-group input {
+  border-radius: 6px;
+}
+
+/* Indicador de consulta */
+.lectura-badge {
+  margin-right: auto;
+  align-self: center;
+
+  padding: 6px 12px;
+  border-radius: 20px;
+
+  color: #18573f;
+  background: #e4f3eb;
+
+  font-size: 12px;
+}
+
+.aviso-catalogos {
+  font-size: 12px;
+  color: #815800;
+  margin-top: 12px;
+}
+
+button:focus-visible {
+  outline: 3px solid #167c59;
+  outline-offset: 3px;
+}
+
+.btn-guardar:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+@media (max-width: 700px) {
+  .modal-usuario {
+    width: 100%;
+  }
+
+  .modal-footer {
+    flex-wrap: wrap;
+    padding: 16px;
+  }
+
+  .btn-salir,
+  .btn-guardar {
+    min-width: 100px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-usuario {
+    animation: none;
+  }
+
+  .btn-ver,
+  .btn-editar,
+  .btn-eliminar {
+    transition: none;
+  }
+}

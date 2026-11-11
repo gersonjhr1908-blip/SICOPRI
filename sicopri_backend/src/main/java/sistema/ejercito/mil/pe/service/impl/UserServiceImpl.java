@@ -86,6 +86,7 @@ public class UserServiceImpl
     }
 
     @Override
+    @Transactional
     public void actualizarUsuarioConRoles(
             Long userId,
             User updatedUser,
@@ -100,8 +101,43 @@ public class UserServiceImpl
                 );
 
         user.setUsername(updatedUser.getUsername());
+        user.setFullname(updatedUser.getFullname());
+        user.setGrado(updatedUser.getGrado());
+        user.setArma(updatedUser.getArma());
+
+        user.setIdNucleo(updatedUser.getIdNucleo());
+        user.setIdBrigada(updatedUser.getIdBrigada());
+        user.setIdUnidad(updatedUser.getIdUnidad());
+
+        user.setIdNucleoIg(updatedUser.getIdNucleoIg());
+        user.setIdIg(updatedUser.getIdIg());
+
+        if (idsRoles == null || idsRoles.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Debe seleccionar al menos un rol"
+            );
+        }
 
         List<Role> roles = repoRol.findAllById(idsRoles);
+
+        if (roles.isEmpty()) {
+            throw new EntityNotFoundException(
+                    "No se encontraron los roles seleccionados"
+            );
+        }
+
+        Integer rolActivo = updatedUser.getRoleActiveIdRole();
+
+        boolean activoAsignado = roles.stream()
+                .anyMatch(
+                        rol -> rol.getIdRole().equals(rolActivo)
+                );
+
+        user.setRoleActiveIdRole(
+                activoAsignado
+                        ? rolActivo
+                        : roles.get(0).getIdRole()
+        );
 
         user.setRoles(roles);
 

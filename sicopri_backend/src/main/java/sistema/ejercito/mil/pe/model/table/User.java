@@ -66,6 +66,12 @@ public class User {
     @Column(name = "ID_UNIDAD")
     private String idUnidad;
 
+    @Column(name = "ID_NUCLEO_IG", length = 50)
+    private String idNucleoIg;
+
+    @Column(name = "ID_IG", length = 50)
+    private String idIg;
+
     @Column(name = "ROLE_ACTIVE_ID_ROLE")
     private Integer roleActiveIdRole;
 

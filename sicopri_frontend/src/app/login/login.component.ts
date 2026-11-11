@@ -27,6 +27,7 @@ export class LoginComponent {
 
   year = new Date().getFullYear();
   loading = false;
+  mostrarPassword = false;
   error = '';
   message = '';
 
