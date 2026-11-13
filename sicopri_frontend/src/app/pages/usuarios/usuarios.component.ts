@@ -355,6 +355,20 @@ export class UsuariosComponent implements OnInit, OnDestroy {
     this.cargarInspectorias(igAutomatico);
   }
 
+  obtenerEtiquetaNucleoIg(idNucleo: string | number, nombre: string): string {
+  const unidad = this.unidades.find(
+    u => String(u.idUnidad) === String(this.unidadCodigo)
+  );
+
+  if (!unidad || String(unidad.idNucleo) !== String(idNucleo)) {
+    return nombre;
+  }
+
+  const guarnicion = String(unidad.guarnicion ?? '').trim();
+  return guarnicion || nombre;
+}
+
+
   // =========================
   // CAMBIO MANUAL DE NÚCLEO IG
   // =========================

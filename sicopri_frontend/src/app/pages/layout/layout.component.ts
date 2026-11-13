@@ -11,8 +11,6 @@ import {
 
 import { NgIf, NgFor } from '@angular/common';
 
-import { FormsModule } from '@angular/forms';
-
 import { Menu } from '../../model/menu';
 
 import { MenuService } from '../../services/menu.service';
@@ -41,7 +39,6 @@ import { Subject, takeUntil } from 'rxjs';
     FooterComponent,
     NgIf,
     NgFor,
-    FormsModule,
   ],
 
   templateUrl: './layout.component.html',
@@ -70,8 +67,6 @@ export class LayoutComponent implements OnInit, OnDestroy {
   // =========================================
   // CAMBIO DE VISTA DE ROL
   // =========================================
-
-  esAdministrador: boolean = false;
 
   rolActivoId: number = 1;
 
@@ -183,7 +178,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   // INFORMACIÓN DEL USUARIO
   // =========================================
 
-  private loadUserInfo(): void {
+  private loadUserInfo(restaurarRol = true): void {
     try {
       const helper = new JwtHelperService();
 
@@ -232,13 +227,19 @@ export class LayoutComponent implements OnInit, OnDestroy {
               this.roleNameUser = rolesArray[0].name;
             }
 
-            // =====================================
-            // ¿ADMINISTRADOR REAL?
-            // =====================================
-
-            this.esAdministrador = rolesArray.some(
+            const esAdministrador = rolesArray.some(
               (rol: any) => Number(rol.idRole) === 1,
             );
+
+            if (restaurarRol && esAdministrador && Number((response as any).roleActiveIdRole ?? 1) !== 1) {
+              this.userService.cambiarRolActivo(1)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe({
+                  next: () => this.loadUserInfo(false),
+                  error: (error) => console.error('Error al restaurar el rol de administrador:', error),
+                });
+              return;
+            }
 
             // =====================================
             // ROL ACTIVO
@@ -292,67 +293,6 @@ export class LayoutComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error al decodificar el token:', error);
     }
-  }
-
-  // =========================================
-  // CAMBIAR VISTA DE ROL
-  // SOLO ADMINISTRADOR
-  // =========================================
-
-  cambiarVistaRol(idRol: number): void {
-    if (!this.esAdministrador) {
-      return;
-    }
-
-    if (!idRol) {
-      return;
-    }
-
-    this.userService.cambiarRolActivo(idRol).subscribe({
-      next: () => {
-        this.rolActivoId = Number(idRol);
-
-        const rolSeleccionado = this.rolesVista.find(
-          (rol) => rol.id === this.rolActivoId,
-        );
-
-        if (rolSeleccionado) {
-          this.roleNameActivo = rolSeleccionado.nombre;
-        }
-
-        // =====================================
-        // RECARGAR MENÚ SEGÚN ROL ACTIVO
-        // =====================================
-
-        this.menuService.getMenusByUser(this.username).subscribe({
-          next: (menus) => {
-            this.menus = menus || [];
-
-            this.menuService.setMenuChange(menus || []);
-
-            // =================================
-            // IR AL INICIO CORRECTO DEL ROL
-            // =================================
-
-            const inicio = this.obtenerRutaInicioPorRol();
-
-            this.selectedMenu = inicio;
-
-            sessionStorage.setItem('selectedMenu', inicio);
-
-            this.router.navigate([inicio]);
-          },
-
-          error: (error) => {
-            console.error('Error al recargar menú:', error);
-          },
-        });
-      },
-
-      error: (error) => {
-        console.error('Error al cambiar vista de rol:', error);
-      },
-    });
   }
 
   private cargarMenusUsuario(): void {

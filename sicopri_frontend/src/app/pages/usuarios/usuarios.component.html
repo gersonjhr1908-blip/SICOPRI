@@ -320,7 +320,7 @@
                 *ngFor="let nucleo of nucleos"
                 [ngValue]="nucleo.idNucleo.toString()"
               >
-                {{ nucleo.acronimo }} - {{ nucleo.nombre }}
+                {{ nucleo.nombre }}
               </option>
             </select>
           </div>
@@ -350,7 +350,7 @@
                 *ngFor="let brigada of brigadas"
                 [ngValue]="brigada.idBrigada.toString()"
               >
-                {{ brigada.acronimo }} - {{ brigada.nombre }}
+                {{ brigada.nombre }}
               </option>
             </select>
           </div>
@@ -380,7 +380,7 @@
                 *ngFor="let unidad of unidades"
                 [ngValue]="unidad.idUnidad.toString()"
               >
-                {{ unidad.acronimo }} - {{ unidad.nombre }}
+                {{ unidad.nombre }}
               </option>
             </select>
           </div>
@@ -399,7 +399,7 @@
               id="nucleo-ig"
               [(ngModel)]="nucleoIgCodigo"
               (change)="onNucleoIgChange()"
-              [disabled]="modoSoloLectura"
+              [disabled]="modoSoloLectura || !modoEdicion"
             >
               <option value="">Sin núcleo IG asignado</option>
 
@@ -417,7 +417,7 @@
                 *ngFor="let nucleo of nucleos"
                 [ngValue]="nucleo.idNucleo.toString()"
               >
-                {{ nucleo.acronimo }} - {{ nucleo.nombre }}
+                {{ obtenerEtiquetaNucleoIg(nucleo.idNucleo, nucleo.nombre) }}
               </option>
             </select>
           </div>
@@ -446,7 +446,7 @@
                 *ngFor="let ig of inspectorias"
                 [ngValue]="ig.idBrigada.toString()"
               >
-                {{ ig.acronimo }} - {{ ig.nombre }}
+                {{ ig.acronimo || ig.nombre }}
               </option>
             </select>
           </div>
