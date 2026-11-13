@@ -100,6 +100,7 @@ public class UserServiceImpl
                         )
                 );
 
+        user.setCip(updatedUser.getCip());
         user.setUsername(updatedUser.getUsername());
         user.setFullname(updatedUser.getFullname());
         user.setGrado(updatedUser.getGrado());

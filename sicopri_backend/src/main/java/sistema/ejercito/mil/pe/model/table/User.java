@@ -12,7 +12,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "SIQRED_USER_DATA")
+@Table(name = "USUARIOS")
 public class User {
 
     @Id

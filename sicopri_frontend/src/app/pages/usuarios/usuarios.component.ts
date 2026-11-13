@@ -435,13 +435,14 @@ export class UsuariosComponent implements OnInit, OnDestroy {
   // CARGAR DATOS GUARDADOS
   // =========================
 
-  private cargarSeleccionGuardada(): void {
+  private cargarSeleccionGuardada(alCargar?: () => void): void {
     this.errorCatalogos = '';
 
     const versionIg = this.versionInspectoria;
 
     const nucleoGuardado = this.nucleoCodigo;
     const brigadaGuardada = this.brigadaCodigo;
+    const unidadGuardada = this.unidadCodigo;
     const nucleoIgGuardado = this.nucleoIgCodigo;
 
     const recuperar = (peticion: any) =>
@@ -485,7 +486,8 @@ export class UsuariosComponent implements OnInit, OnDestroy {
       .subscribe((data: any) => {
         if (
           nucleoGuardado !== this.nucleoCodigo ||
-          brigadaGuardada !== this.brigadaCodigo
+          brigadaGuardada !== this.brigadaCodigo ||
+          unidadGuardada !== this.unidadCodigo
         ) {
           return;
         }
@@ -499,6 +501,7 @@ export class UsuariosComponent implements OnInit, OnDestroy {
         ) {
           this.inspectorias = data.inspectorias;
         }
+        alCargar?.();
       });
   }
 
@@ -599,11 +602,16 @@ export class UsuariosComponent implements OnInit, OnDestroy {
   // =========================
 
   onCipInput(): void {
-    if (this.modoSoloLectura || this.modoEdicion) return;
+    if (this.modoSoloLectura) return;
 
     this.cip = this.cip
       .replace(/\D/g, '')
       .slice(0, 9);
+
+    if (this.modoEdicion) return;
+
+    this.buscandoCip = false;
+    this.limpiarDatosPersona();
 
     if (this.cip.length === 9) {
       this.buscarPorCip();
@@ -626,6 +634,7 @@ export class UsuariosComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.buscandoCip) return;
     this.buscandoCip = true;
 
     this.usersService
@@ -636,6 +645,7 @@ export class UsuariosComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (persona: any) => {
+          if (this.cip.trim() !== cipLimpio) return;
           this.username = persona?.chasqui ?? '';
           this.grado = persona?.gradoNombre ?? '';
           this.arma = persona?.armaNombre ?? '';
@@ -648,6 +658,16 @@ export class UsuariosComponent implements OnInit, OnDestroy {
             .filter(Boolean)
             .join(' ');
 
+          this.nucleoCodigo = String(persona?.nucleoCodigo ?? '').trim();
+          this.brigadaCodigo = String(persona?.brigadaCodigo ?? '').trim();
+          this.unidadCodigo = String(persona?.unidadCodigo ?? '').trim();
+          this.nucleoNombre = persona?.nucleoNombre ?? '';
+          this.brigadaNombre = persona?.brigadaNombre ?? '';
+          this.unidadNombre = persona?.unidadNombre ?? '';
+          this.cargarSeleccionGuardada(() => {
+            if (this.cip.trim() !== cipLimpio || !this.unidadCodigo) return;
+            this.onUnidadChange();
+          });
           this.buscandoCip = false;
 
           if (!this.username) {
@@ -661,6 +681,7 @@ export class UsuariosComponent implements OnInit, OnDestroy {
           }
         },
         error: () => {
+          if (this.cip.trim() !== cipLimpio) return;
           this.buscandoCip = false;
           this.limpiarDatosPersona();
 
@@ -692,11 +713,11 @@ export class UsuariosComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.cip) {
+    if (!/^\d{9}$/.test(this.cip)) {
       void Swal.fire({
         icon: 'warning',
         title: 'Falta CIP',
-        text: 'Ingrese el CIP del usuario.'
+        text: 'Ingrese un CIP de 9 dígitos.'
       });
       return;
     }

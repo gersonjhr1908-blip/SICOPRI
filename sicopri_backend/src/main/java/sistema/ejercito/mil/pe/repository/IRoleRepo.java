@@ -18,7 +18,7 @@ public interface IRoleRepo extends IGenericRepo<Role, Integer> {
                 r.ID_ROL,
                 r.NOMBRE,
                 r.DESCRIPCION
-            FROM SIQRED_USER_DATA ud
+            FROM USUARIOS ud
             INNER JOIN SIQRED_USER_ROLE ur
                 ON ud.ID_USER = ur.ID_USER
             INNER JOIN SIQRED_ROL r

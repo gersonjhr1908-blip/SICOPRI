@@ -229,7 +229,7 @@
                 [(ngModel)]="cip"
                 maxlength="9"
                 placeholder="Ingrese CIP"
-                [readonly]="modoEdicion || modoSoloLectura"
+                [readonly]="modoSoloLectura"
                 (input)="onCipInput()"
               />
 
@@ -252,7 +252,7 @@
               id="usuario-nombre"
               type="text"
               [(ngModel)]="username"
-              readonly
+              [readonly]="!modoEdicion || modoSoloLectura"
             />
           </div>
 
@@ -262,7 +262,7 @@
               id="usuario-grado"
               type="text"
               [(ngModel)]="grado"
-              readonly
+              [readonly]="!modoEdicion || modoSoloLectura"
             />
           </div>
 
@@ -272,7 +272,7 @@
               id="usuario-arma"
               type="text"
               [(ngModel)]="arma"
-              readonly
+              [readonly]="!modoEdicion || modoSoloLectura"
             />
           </div>
         </div>
@@ -286,7 +286,7 @@
             id="usuario-fullname"
             type="text"
             [(ngModel)]="fullname"
-            readonly
+            [readonly]="!modoEdicion || modoSoloLectura"
           />
         </div>
 

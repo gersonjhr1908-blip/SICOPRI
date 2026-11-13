@@ -18,7 +18,7 @@ public interface IMenuRepo extends IGenericRepo<Menu, Integer> {
     // =====================================================
     @Query(value = """
         SELECT DISTINCT m.*
-        FROM SIQRED_USER_DATA u
+        FROM USUARIOS u
         INNER JOIN SIQRED_MENU_ROLE mr
             ON mr.ID_ROLE = u.ROLE_ACTIVE_ID_ROLE
         INNER JOIN SIQRED_MENU m
